@@ -120,10 +120,6 @@
     <Compile Include="Utilities\SmsService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Modules\SAM\BExIS.Sam.Providers.Ldap\BExIS.Sam.Providers.Ldap.csproj">
-      <Project>{02239D68-C0FF-4508-AB8A-02E52658CF31}</Project>
-      <Name>BExIS.Sam.Providers.Ldap</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\DLM\BExIS.Dlm.Entities\BExIS.Dlm.Entities.csproj">
       <Project>{B4E7B1BF-01B4-40AF-8D19-B8F362167261}</Project>
       <Name>BExIS.Dlm.Entities</Name>

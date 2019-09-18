@@ -210,7 +210,9 @@ namespace BExIS.App.Bootstrap
                     pManager.UpdateSchema();
                 }
                 catch (Exception ex)
-                { }
+                {
+                    LoggerFactory.LogCustom(ex.Message);
+                }
                 // When the pending modules' schemas are ported, their potential seed data should be generated.
                 // This is done through calling Install method.
                 foreach (var moduleId in ModuleManager.PendingModules())

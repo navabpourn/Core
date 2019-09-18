@@ -101,6 +101,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BExIS.Utils.NH", "Component
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MMM", "MMM", "{D99FD5FB-8DE4-4B6E-8B1B-4911FD4A2E46}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BExIS.Sam.Providers.Ldap", "Modules\SAM\BExIS.Sam.Providers.Ldap\BExIS.Sam.Providers.Ldap.csproj", "{02239D68-C0FF-4508-AB8A-02E52658CF31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -415,6 +417,18 @@ Global
 		{0F1EC13E-D685-4F4D-A438-52797B0E53A0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{0F1EC13E-D685-4F4D-A438-52797B0E53A0}.Release|x86.ActiveCfg = Release|Any CPU
 		{0F1EC13E-D685-4F4D-A438-52797B0E53A0}.Release|x86.Build.0 = Release|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Debug|x86.Build.0 = Debug|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Release|x86.ActiveCfg = Release|Any CPU
+		{02239D68-C0FF-4508-AB8A-02E52658CF31}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -463,6 +477,7 @@ Global
 		{9A962207-D10C-472C-995B-A2519760F29A} = {692AFF14-3A57-47D8-912F-093EC8F561C4}
 		{0F1EC13E-D685-4F4D-A438-52797B0E53A0} = {8ACF0B65-BAFD-49FD-A840-D04C4DCDE993}
 		{D99FD5FB-8DE4-4B6E-8B1B-4911FD4A2E46} = {692AFF14-3A57-47D8-912F-093EC8F561C4}
+		{02239D68-C0FF-4508-AB8A-02E52658CF31} = {6DFE3B65-ABEA-4162-B1BE-C4ED25A43114}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.2.1.505.2\lib\NET35

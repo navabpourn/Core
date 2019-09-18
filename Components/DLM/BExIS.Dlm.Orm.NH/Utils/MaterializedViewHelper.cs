@@ -207,7 +207,7 @@ namespace BExIS.Dlm.Orm.NH.Utils
                     return result;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -289,7 +289,7 @@ namespace BExIS.Dlm.Orm.NH.Utils
                     uow.ExecuteNonQuery(mvBuilder.ToString());
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // what to do?
             }

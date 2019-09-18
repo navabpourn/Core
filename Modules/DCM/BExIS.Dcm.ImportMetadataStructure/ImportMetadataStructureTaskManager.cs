@@ -7,8 +7,6 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
 {
     public class ImportMetadataStructureTaskManager : AbstractTaskManager
     {
-
-
         public static string FILENAME = "filename";
         public static string FILEPATH = "filepath";
         public static string EXTENTION = "Extention";
@@ -32,15 +30,14 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
 
         public static string ALL_METADATA_NODES = "ALL_METADATA_NODES";
 
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         /// <seealso cref=""/>
         /// <param name="xmlDocument"></param>
         /// <returns></returns>
-        public static ImportMetadataStructureTaskManager Bind(XmlDocument xmlDocument)
+        public new static ImportMetadataStructureTaskManager Bind(XmlDocument xmlDocument)
         {
             XmlNodeList xmlStepInfos = xmlDocument.GetElementsByTagName("stepInfo");
 
@@ -49,7 +46,6 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
 
             foreach (XmlNode xmlStepInfo in xmlStepInfos)
             {
-
                 StepInfo si = new StepInfo(xmlStepInfo.Attributes.GetNamedItem("title").Value)
                 {
                     GetActionInfo = new ActionInfo
@@ -76,12 +72,12 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         /// <seealso cref=""/>
         /// <param name="index"></param>
-        public void SetCurrent(int index)
+        public new void SetCurrent(int index)
         {
             currentStepInfo = StepInfos.ElementAt(index);
             currentStepInfo.SetStatus(StepStatus.inProgress);
@@ -90,16 +86,15 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
             {
                 if (!StepInfos.ElementAt(i).stepStatus.Equals(StepStatus.success)) StepInfos.ElementAt(i).SetStatus(StepStatus.none);
             }
-
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         /// <seealso cref=""/>
         /// <returns></returns>
-        public StepInfo Prev()
+        public new StepInfo Prev()
         {
             int currentIndex = StepInfos.IndexOf(currentStepInfo);
             if (currentIndex == 0) return new StepInfo("");
@@ -112,8 +107,8 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
         /// </summary>
         /// <remarks></remarks>
         /// <seealso cref=""/>
-        /// <param>NA</param>       
-        public void GoToNext()
+        /// <param>NA</param>
+        public new void GoToNext()
         {
             //this.currentStepInfo.SetStatus(StepStatus.success);
             StepInfo temp = this.currentStepInfo;
@@ -121,7 +116,7 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         /// <seealso cref=""/>
@@ -145,7 +140,6 @@ namespace BExIS.Dcm.ImportMetadataStructureWizard
                     if (StepInfos[i].stepStatus != StepStatus.success) StepInfos[i].SetStatus(StepStatus.error);
                 }
             }
-
         }
     }
 }

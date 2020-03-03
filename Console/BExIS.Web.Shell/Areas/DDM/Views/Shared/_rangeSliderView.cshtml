@@ -1,29 +1,97 @@
-﻿@using Telerik.Web.Mvc.UI;
+﻿@model BExIS.Utils.Models.Property
+@using BExIS.Utils.Models;
+@using System.Globalization;
+@using Telerik.Web.Mvc.UI;
+@using BExIS.UI.Helpers;
 
-@model BExIS.Utils.Models.Property
 
+<p class="PropertyHeader">@Model.DisplayTitle</p>
 @{
-   string controller = Session["Controller"].ToString();
+    List<int> dtList = new List<int>();
+
+
+    int Value = new int();
+
+    if (Model.DataType.ToLower().Equals("date"))
+    {
+        foreach (var item in Model.Values)
+        {
+            // format check inside
+            // M/d/yyyy
+            DateTime dt = DateTime.Parse(item, new CultureInfo("en-US", false)); //Convert.ToDateTime(item);
+            dtList.Add(dt.Year);
+
+        }
+    }
+
+    int largeStep = 0;
+    int first = 0;
+    int last = 0;
+
+
+
+    if (dtList.Count > 0)
+    {
+        dtList.Sort();
+        first = dtList[0];
+        last = dtList[dtList.Count - 1];
+
+
+        if (Model.Direction.Equals(Direction.increase)) { Value = first; }
+
+        if (Model.Direction.Equals(Direction.decrease)) { Value = last; }
+
+        largeStep = last - first;
+    }
+
+    if (dtList.Count > 0)
+    {
+        if (dtList.Count > 1)
+        {
+            int min = first;
+            int max = last;
+
+            if (first.Equals(last))
+            {
+                max = last + 1;
+            }
+
+            largeStep = max - min;
+
+ 
+
+            @(Html.Telerik().RangeSlider<Int64>()
+                            .Name(Model.DisplayTitle)
+                            .Min(min)//.Min(item.min)
+                            .Max(max)//.Max(item.max)
+                            .SmallStep(1)
+                            .LargeStep(largeStep)
+                            .ClientEvents(events => events
+                                    .OnChange("onChangeRangeSlider")
+                                )
+            )
+
+
+
+
+        }
+        else
+        {
+            <b>Slider not work with only one value</b>
+        }
+    }
+    else
+    {
+        <b>Slider currently not work with @Model.DataType.ToString() .</b>
+    }
+
+
+    string controller = Session["Controller"].ToString();
 
 }
 
-<div>
-<br />
-@Model.DisplayTitle
-<br />           
-@(Html.Telerik().RangeSlider<double>()
-                .Name(Model.DataSourceKey)
-                .Min(1)//.Min(item.min)
-                .Max(200)//.Max(item.max)
-                .SmallStep(1)
-                .LargeStep(1)
-                .ClientEvents(events => events
-                       .OnChange("onChangeRangeSlider")
-                   )
 
-        )
-</div>
- <script type="text/javascript">
+<script type="text/javascript">
      function onChangeRangeSlider(e) {
          var start = e.values[0];
          var end = e.values[1];
@@ -50,7 +118,7 @@
          })
 
 
-         
+
 
          refreshGrid();
      }

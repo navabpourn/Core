@@ -164,7 +164,6 @@
     <Content Include="Rpm.Manifest.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="packages.config" />
     <Content Include="Rpm.Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -207,6 +206,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\TestServer_release.pubxml" />
     <None Include="Properties\PublishProfiles\TestServer_dev.pubxml" />
@@ -273,8 +273,8 @@
     <Content Include="Views\Shared\_rangeConstraintView.cshtml" />
     <Content Include="Views\Unit\UnitManager.cshtml" />
     <Content Include="Views\Unit\_editUnit.cshtml" />
-    <Content Include="Scripts\jquery-2.1.4.min.map" />
     <Content Include="Views\DataStructureEdit\_missingValueElement.cshtml" />
+    <Content Include="Scripts\jquery-2.1.4.min.map" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

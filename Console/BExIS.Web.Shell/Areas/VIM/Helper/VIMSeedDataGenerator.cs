@@ -22,8 +22,13 @@ namespace BExIS.Modules.Vim.UI.Helper
                 if (visualization == null)
                     visualization = featureManager.Create("Visualization", "Visualization");
 
-                operationManager.Create("VIM", "Visualization", "*", visualization);
+                Feature dataQuality =
+                    featureManager.FeatureRepository.Get().FirstOrDefault(f => f.Name.Equals("DataQuality"));
+                if (dataQuality == null)
+                    dataQuality = featureManager.Create("DataQuality", "DataQuality");
 
+                operationManager.Create("VIM", "Visualization", "*", visualization);
+                operationManager.Create("VIM", "DQ", "*", dataQuality);
                 operationManager.Create("VIM", "Help", "*");
 
             }

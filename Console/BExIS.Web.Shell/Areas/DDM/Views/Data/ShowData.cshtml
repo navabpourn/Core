@@ -22,6 +22,8 @@
         show_tabs.Add("show_permission_tab", "true");
         show_tabs.Add("show_publish_tab", "true");
         show_tabs.Add("show_attachments_tab", "true");
+        //show_tabs.Add("show_dq_tab", "true");
+        
 
         show_tabs.Add("show_tabs_deactivated", "true"); // "false" = also hide request button, if not available in addition to deactivated tabs
     }
@@ -161,6 +163,18 @@
                                                   .Enabled(false);
 
                                           }
+
+                                          ///Add the DQ tab by Nafiseh.
+                                          //if (show_tabs["show_dq_tab"] == "true")
+                                          //{
+                                          //    tabs.Add()
+                                          //      .Text("Data Quality")
+                                          //      .LoadContentFrom("ShowDQ", "DQ", new { area = "vim", id = @Model.Id, version = Model.Version })
+                                          //      .HtmlAttributes(new { id = "dq" })
+                                          //      .Enabled(false);
+                                          //
+                                          //}
+
                                           if (show_tabs["show_data_structure_tab"] == "true")
                                           {
                                               tabs.Add()
@@ -178,7 +192,7 @@
                                                 .LoadContentFrom("ShowReferences", "Data", new { area = "ddm", id = @Model.Id, version = Model.Version })
                                                 .HtmlAttributes(new { id = "showreferences" })
                                                 .Enabled(false);
-                                                
+
                                           }
 
                                           if (show_tabs["show_permission_tab"] == "true" && !(show_tabs["show_tabs_deactivated"] == "false" && @Model.GrantAccess == false))

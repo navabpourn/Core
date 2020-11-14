@@ -1,0 +1,66 @@
+﻿@model BExIS.Modules.Vim.UI.Models.DQModels
+@using Telerik.Web.Mvc.UI;
+
+This is the view!
+
+@{
+    ViewBag.Title = "Data Quality";
+}
+
+@section Information
+{
+}
+
+@{
+    string description = Model.datasetInfo["description"];
+    string descRatio = Model.datasetInfo["descRatio"];
+    string type = Model.datasetInfo["type"];
+    string dataStr = Model.datasetInfo["dataStr"];
+
+}
+
+<p></p>
+<p>description: @description</p>
+<p>description Ratio: @descRatio</p>
+<p>type: @type</p>
+<p>data structure: @dataStr</p>
+
+@if (@type == "file")
+{
+    <p>THIS IS A FILE FORMAT DATASET!</p>
+}
+
+@if (@type == "tabular")
+{
+    <p>THIS IS A TABULAR FORMAT DATASET!</p>
+}
+
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        function messageNoData(text) {
+            document.getElementById('Warning').textContent = 'There is no Data to show ' + text;
+        }
+
+
+    });
+
+
+    //Function proportion(portion, total)
+    //return the ratio of portion to total.
+    function proportion(p, total) {
+        try {
+            var ratio = (p * 100) / total;
+        }
+        catch { var ratio = 99999; }
+
+        //return (ratio.toFixed(0));
+        return (ratio.toFixed(2));
+    }
+
+</script>

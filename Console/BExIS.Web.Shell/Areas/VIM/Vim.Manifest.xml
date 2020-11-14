@@ -23,11 +23,5 @@
             extends="./lunchbarRoot/help"
             />
 
-	  <Export tag="settings" id="dataQuality" order="2"
-				  title="Data Quality" description="Data quality overview" icon=""
-				  controller="DQ" action="index"
-				  extends="./settingsRoot"
-            />
-
   </Exports>
 </Manifest>

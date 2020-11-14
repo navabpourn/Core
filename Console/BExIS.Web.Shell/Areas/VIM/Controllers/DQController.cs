@@ -8,51 +8,89 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
+using BExIS.Dlm.Services.DataStructure;
+using BExIS.Dlm.Entities.DataStructure;
 
 namespace BExIS.Modules.Vim.UI.Controllers
 {
     public class DQController : Controller
     {
         // GET: DQ
-        public ActionResult Index()
+        public ActionResult ShowDQ(long datasetID, long versionId)
         {
             DQModels dqModel = new DQModels();
             Dictionary<string, string> datasetInfo = new Dictionary<string, string>();
-
-            string title;
-            string description;
-
-
-            long myId = 6;
-
             //--------
 
             DatasetManager dm = new DatasetManager();
-            var entityPermissionManager = new EntityPermissionManager();
+            DataStructureManager dsm = new DataStructureManager();
+            EntityPermissionManager entityPermissionManager = new EntityPermissionManager();
 
-            List<Dataset> datasets = dm.DatasetRepo.Query().OrderBy(p => p.Id).ToList();
-            List<long> datasetIds = datasets.Select(p => p.Id).ToList();
-
-            foreach (var id in datasetIds)
+            // var entityPermissionManager = new EntityPermissionManager();
+            try
             {
-                if (id == myId)
+                if (dm.IsDatasetCheckedIn(datasetID))
                 {
-                    Dataset dataset = dm.GetDataset(id);
-
-                    List<DatasetVersion> versions = dm.DatasetVersionRepo.Query(p => p.Dataset.Id == id).OrderBy(p => p.Id).ToList();
-
-                    List<long> datasetVersionId = versions.Select(p => p.Id).ToList();
-
-                    title = dataset.Versions.Last().Title;
-                    description = dataset.Versions.Last().Description;
+                    // get latest or other datasetversion
+                    var dsv = dm.GetDatasetVersion(versionId);
+                    string title = dsv.Title;
+                    string description = dsv.Description;
                     datasetInfo.Add("title", title);
                     datasetInfo.Add("description", description);
+                    string descRatio = textRatio(description, 255).ToString();
+                    datasetInfo.Add("descRatio", descRatio);
+
+                    string type = "file";
+                    if (dsv.Dataset.DataStructure.Self is StructuredDataStructure)
+                    {
+                        type = "tabular";
+                    }
+                    datasetInfo.Add("type", type);
+
+                    if (type == "file")
+                    {
+                        string dataStr = "ss";
+                        datasetInfo.Add("dataStr", dataStr);
+                    }
+
+                    if (type == "tabular")
+                    {
+                        string dataStr = "ss";
+                        datasetInfo.Add("dataStr", dataStr);
+                    }
+
                 }
-
             }
-            dqModel.datasetInfo = datasetInfo;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                dm.Dispose();
+                dsm.Dispose();
+                entityPermissionManager.Dispose();
+            }
+            
+            //var datasetversions = dm.GetDatasetVersions(datasetID);
+            //var n = datasetversions.Select(v => v.CreationInfo.Performer).ToList();
 
-            return View(dqModel);
+            dqModel.datasetInfo = datasetInfo;
+            return PartialView(dqModel);
+        }
+
+        private int textRatio(String text, int totalLength)
+        {
+            int ratio;
+            try
+            {
+                ratio = (text.Length * 100) / totalLength;
+            }
+            catch { ratio = 99999; }
+
+            //return (ratio.toFixed(0));
+            return (ratio);
         }
     }
 }

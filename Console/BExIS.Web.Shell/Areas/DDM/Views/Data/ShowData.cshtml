@@ -22,7 +22,7 @@
         show_tabs.Add("show_permission_tab", "true");
         show_tabs.Add("show_publish_tab", "true");
         show_tabs.Add("show_attachments_tab", "true");
-        //show_tabs.Add("show_dq_tab", "true");
+        show_tabs.Add("show_dq_tab", "true");
         
 
         show_tabs.Add("show_tabs_deactivated", "true"); // "false" = also hide request button, if not available in addition to deactivated tabs
@@ -165,15 +165,12 @@
                                           }
 
                                           ///Add the DQ tab by Nafiseh.
-                                          //if (show_tabs["show_dq_tab"] == "true")
-                                          //{
-                                          //    tabs.Add()
-                                          //      .Text("Data Quality")
-                                          //      .LoadContentFrom("ShowDQ", "DQ", new { area = "vim", id = @Model.Id, version = Model.Version })
-                                          //      .HtmlAttributes(new { id = "dq" })
-                                          //      .Enabled(false);
-                                          //
-                                          //}
+                                          tabs.Add()
+                                            .Text("Data Quality")
+                                            .LoadContentFrom("ShowDQ", "DQ", new { area = "vim", datasetID = @Model.Id, versionId = Model.VersionId })
+                                            .HtmlAttributes(new { id = "dq" })
+                                            .Enabled(true);
+
 
                                           if (show_tabs["show_data_structure_tab"] == "true")
                                           {

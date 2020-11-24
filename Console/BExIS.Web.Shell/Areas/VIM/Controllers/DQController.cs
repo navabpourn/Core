@@ -21,9 +21,11 @@ namespace BExIS.Modules.Vim.UI.Controllers
         {
             DQModels dqModel = new DQModels();
             Dictionary<string, string> datasetInfo = new Dictionary<string, string>();
-            //--------
+            List<string> performers = new List<string>();
+            
+        //--------
 
-            DatasetManager dm = new DatasetManager();
+        DatasetManager dm = new DatasetManager();
             DataStructureManager dsm = new DataStructureManager();
             EntityPermissionManager entityPermissionManager = new EntityPermissionManager();
 
@@ -32,34 +34,67 @@ namespace BExIS.Modules.Vim.UI.Controllers
             {
                 if (dm.IsDatasetCheckedIn(datasetID))
                 {
-                    // get latest or other datasetversion
+                    // get all dataset versions
+                    var dsvs = dm.GetDatasetVersions(datasetID);                    
+                    foreach (var d in dsvs){
+                        if (d.Id <= versionId)
+                        {
+                            string performer = d.ModificationInfo.Performer;
+                            if (performer != null && !performers.Contains(performer))
+                            {
+                                performers.Add(performer);
+                            }
+                        }
+                    }
+                    dqModel.performers = performers;
+                    //var performers = dsvs.Select(v => v.CreationInfo.Performer).ToList();
+
+                    // get datasetversion
                     var dsv = dm.GetDatasetVersion(versionId);
                     string title = dsv.Title;
+                    dqModel.title = title;
                     string description = dsv.Description;
-                    datasetInfo.Add("title", title);
-                    datasetInfo.Add("description", description);
-                    string descRatio = textRatio(description, 255).ToString();
-                    datasetInfo.Add("descRatio", descRatio);
+                    dqModel.description = description;
+
+                    var metadata = dsv.Metadata;
 
                     string type = "file";
-                    if (dsv.Dataset.DataStructure.Self is StructuredDataStructure)
+                    //if (dsv.Dataset.DataStructure.Self is StructuredDataStructure)
+                    //{
+                    //    type = "tabular";
+                    //}
+
+                    string dStrDescription = dsv.Dataset.DataStructure.Description;
+                    dqModel.dStrDescription = dStrDescription;
+
+                    DataStructure ds = dsm.AllTypesDataStructureRepo.Get(dsv.Dataset.DataStructure.Id);
+                    if (ds.Self.GetType() == typeof(StructuredDataStructure))
                     {
                         type = "tabular";
-                    }
-                    datasetInfo.Add("type", type);
+                        StructuredDataStructure sds = dsm.StructuredDataStructureRepo.Get(dsv.Dataset.DataStructure.Id);
+                        var dataStrUsage = sds.Datasets;
+                        dqModel.dStrUsage = dataStrUsage.Count();
+                        
+                        var variables = sds.Variables;
+                        
+                        //vs = null;
+                        //int i = 1;
+                        foreach(var variable in variables)
+                        {
+                            string varLabel = variable.Label;                            
+                            var varType = variable.GetType();
+                            int varUsage = variable.DataAttribute.UsagesAsVariable.Count();
+                            //dqModel.variables.Add(Var);
+                        }
 
-                    if (type == "file")
+                        //List<string> variables = 
+                        string fake = "ss";
+                    }
+                    else
                     {
-                        string dataStr = "ss";
-                        datasetInfo.Add("dataStr", dataStr);
-                    }
 
-                    if (type == "tabular")
-                    {
-                        string dataStr = "ss";
-                        datasetInfo.Add("dataStr", dataStr);
                     }
-
+                    dqModel.type = type;
                 }
             }
             catch (Exception ex)
@@ -77,6 +112,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             //var n = datasetversions.Select(v => v.CreationInfo.Performer).ToList();
 
             dqModel.datasetInfo = datasetInfo;
+            dqModel.performers = performers;
             return PartialView(dqModel);
         }
 

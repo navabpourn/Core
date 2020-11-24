@@ -12,18 +12,25 @@ This is the view!
 }
 
 @{
-    string description = Model.datasetInfo["description"];
-    string descRatio = Model.datasetInfo["descRatio"];
-    string type = Model.datasetInfo["type"];
-    string dataStr = Model.datasetInfo["dataStr"];
-
+    string description = Model.description;
+    string type = Model.type;
+    var performers = Model.performers;
+    string dStrDescription = Model.dStrDescription;
+    int dStrUsage = Model.dStrUsage;
 }
 
 <p></p>
 <p>description: @description</p>
-<p>description Ratio: @descRatio</p>
 <p>type: @type</p>
-<p>data structure: @dataStr</p>
+<p>data structure description: @dStrDescription</p>
+<p>data structure usage: @dStrUsage</p>
+<p>number of performers: @performers.Count;</p>
+<p>performers:
+@for (int i = 0; i < performers.Count; ++i)
+{
+    <h3> @performers[i] - </h3>
+}
+
 
 @if (@type == "file")
 {

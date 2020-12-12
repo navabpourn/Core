@@ -11,40 +11,75 @@ using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using BExIS.Dlm.Services.DataStructure;
 using BExIS.Dlm.Entities.DataStructure;
+using BExIS.Dlm.Entities.Party;
+using BExIS.Dlm.Services.Party;
+using BExIS.Security.Services.Subjects;
+using BExIS.Security.Services.Objects;
 
 namespace BExIS.Modules.Vim.UI.Controllers
 {
+
     public class DQController : Controller
     {
+        public class performer
+        {
+            public string performerName;
+            //public List<string> performerDatasets;
+            //public List<string> dsLinks;
+        }
+        public class varVariable
+        {
+            public string varLabel;
+            public string varType;
+            public int varUsage;
+        }
+
+
         // GET: DQ
         public ActionResult ShowDQ(long datasetID, long versionId)
         {
             DQModels dqModel = new DQModels();
             Dictionary<string, string> datasetInfo = new Dictionary<string, string>();
-            List<string> performers = new List<string>();
+            //List<string> performers = new List<string>();
+            List<performer> performers = new List<performer>();
+            List<varVariable> varVariables = new List<varVariable>();
             
-        //--------
+            //--------
 
-        DatasetManager dm = new DatasetManager();
+            DatasetManager dm = new DatasetManager();
             DataStructureManager dsm = new DataStructureManager();
             EntityPermissionManager entityPermissionManager = new EntityPermissionManager();
+            PartyManager pm = new PartyManager();
+            UserManager um = new UserManager();
+            //EntityManager entityManager = new EntityManager();
 
-            // var entityPermissionManager = new EntityPermissionManager();
             try
             {
                 if (dm.IsDatasetCheckedIn(datasetID))
                 {
                     // get all dataset versions
-                    var dsvs = dm.GetDatasetVersions(datasetID);                    
+                    var dsvs = dm.GetDatasetVersions(datasetID);
+                    List<string> performerUserNames = new List<string>();
                     foreach (var d in dsvs){
                         if (d.Id <= versionId)
                         {
                             string performer = d.ModificationInfo.Performer;
-                            if (performer != null && !performers.Contains(performer))
+                            if (performer != null && !performerUserNames.Contains(performer))
                             {
-                                performers.Add(performer);
+                                performerUserNames.Add(performer);
                             }
                         }
+                    }
+                    
+                    foreach(var userName in performerUserNames)
+                    {
+
+                        performer p = new performer();
+                        //var user = userManager.FindByNameAsync(GetUsernameOrDefault()).Result;
+                        //var user = userManager.FindAsync()
+                        p.performerName = FindPerformerNameFromUserName(um, userName);
+                        //p.performerDatasets = FindDatasetsFromPerformerUserName(dm, userName);
+                        performers.Add(p);
                     }
                     dqModel.performers = performers;
                     //var performers = dsvs.Select(v => v.CreationInfo.Performer).ToList();
@@ -58,16 +93,14 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
                     var metadata = dsv.Metadata;
 
-                    string type = "file";
-                    //if (dsv.Dataset.DataStructure.Self is StructuredDataStructure)
-                    //{
-                    //    type = "tabular";
-                    //}
+                    string type = "file"; // Suppose a File format dataset
 
                     string dStrDescription = dsv.Dataset.DataStructure.Description;
                     dqModel.dStrDescription = dStrDescription;
 
                     DataStructure ds = dsm.AllTypesDataStructureRepo.Get(dsv.Dataset.DataStructure.Id);
+
+                    // Tabular data structure
                     if (ds.Self.GetType() == typeof(StructuredDataStructure))
                     {
                         type = "tabular";
@@ -77,19 +110,34 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         
                         var variables = sds.Variables;
                         
-                        //vs = null;
-                        //int i = 1;
+
+                        // Read all variables and provide information
                         foreach(var variable in variables)
                         {
-                            string varLabel = variable.Label;                            
-                            var varType = variable.GetType();
-                            int varUsage = variable.DataAttribute.UsagesAsVariable.Count();
-                            //dqModel.variables.Add(Var);
+                            try
+                            {
+                                varVariable varV = new varVariable(); 
+                                varV.varLabel = variable.Label; // variable name
+                                varV.varType = ""; //variable.GetType().ToString(); // variable type
+                                varV.varUsage = variable.DataAttribute.UsagesAsVariable.Count(); //How many other data structures are using the same variable template
+                                //var varType = variable.GetType();
+                                varVariables.Add(varV);
+                                string fake1 = "ss";  // To use as stop point
+                                
+                            }
+                            catch(Exception ex)
+                            {
+                                throw ex;
+                            }
+                            
                         }
-
+                        varVariables.Count();
+                        dqModel.varVariables = varVariables;
+                        dqModel.varVariables.Count();
                         //List<string> variables = 
-                        string fake = "ss";
+                        string fake2 = "nn";
                     }
+                    // File data structure
                     else
                     {
 
@@ -114,6 +162,39 @@ namespace BExIS.Modules.Vim.UI.Controllers
             dqModel.datasetInfo = datasetInfo;
             dqModel.performers = performers;
             return PartialView(dqModel);
+        }
+
+        private List<string> FindDatasetsFromPerformerUserName(DatasetManager dm, string userName)
+        {
+
+            //List<string> datasetIds = null; // = dm.Select(v => v.CreationInfo.Performer).ToList();
+            
+            //return (datasetIds);
+            throw new NotImplementedException();
+        }
+
+        private string FindPerformerNameFromUserName(UserManager um, string userName)
+        {
+            string fullName = ""; // = dm.Select(v => v.CreationInfo.Performer).ToList();
+            try
+            {
+                foreach(var user in um.Users)
+                {
+                        if(user.Name == userName)
+                        {
+                            fullName = user.FullName;
+                        }
+                    string t = "test";
+                }
+            
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return (fullName); 
+            //throw new NotImplementedException();
         }
 
         private int textRatio(String text, int totalLength)

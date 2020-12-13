@@ -24,7 +24,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
         public class performer
         {
             public string performerName;
-            //public List<string> performerDatasets;
+            public List<long> DatasetIds;
             //public List<string> dsLinks;
         }
         public class varVariable
@@ -36,7 +36,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
 
         // GET: DQ
-        public ActionResult ShowDQ(long datasetID, long versionId)
+        public ActionResult ShowDQ(long datasetId, long versionId)
         {
             DQModels dqModel = new DQModels();
             Dictionary<string, string> datasetInfo = new Dictionary<string, string>();
@@ -55,30 +55,23 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
             try
             {
-                if (dm.IsDatasetCheckedIn(datasetID))
+                if (dm.IsDatasetCheckedIn(datasetId))
                 {
-                    // get all dataset versions
-                    var dsvs = dm.GetDatasetVersions(datasetID);
-                    List<string> performerUserNames = new List<string>();
-                    foreach (var d in dsvs){
-                        if (d.Id <= versionId)
-                        {
-                            string performer = d.ModificationInfo.Performer;
-                            if (performer != null && !performerUserNames.Contains(performer))
-                            {
-                                performerUserNames.Add(performer);
-                            }
-                        }
-                    }
                     
-                    foreach(var userName in performerUserNames)
+                    // get all dataset versions
+                    var dsvs = dm.GetDatasetVersions(datasetId);
+                    //List<string> performerUserNames = new List<string>();
+                    List<string> performerUsernames = FindDatasetPerformers(dm, datasetId, versionId);
+
+                    
+                    foreach(var username in performerUsernames)
                     {
 
                         performer p = new performer();
-                        //var user = userManager.FindByNameAsync(GetUsernameOrDefault()).Result;
-                        //var user = userManager.FindAsync()
-                        p.performerName = FindPerformerNameFromUserName(um, userName);
-                        //p.performerDatasets = FindDatasetsFromPerformerUserName(dm, userName);
+                        p.performerName = FindPerformerNameFromUsername(um, username);
+                        List<long> datasetIds = FindDatasetsFromPerformerUsername(dm, um, username);
+                        p.DatasetIds = datasetIds;
+                        //p.DatasetIds = FindDatasetsFromPerformerUsername(dm, username);
                         performers.Add(p);
                     }
                     dqModel.performers = performers;
@@ -164,16 +157,60 @@ namespace BExIS.Modules.Vim.UI.Controllers
             return PartialView(dqModel);
         }
 
-        private List<string> FindDatasetsFromPerformerUserName(DatasetManager dm, string userName)
+        /// <summary>
+        /// This funcion finds all performers of a dataset.
+        /// </summary>
+        /// <param name="dsvs">A list of dataset versions of a dataset.</param>
+        /// <param name="versionId">The current version Id of a dataset. </param>
+        /// <returns>A list of performers</returns>
+        private List<string> FindDatasetPerformers(DatasetManager dm, long datasetId, long versionId)
         {
-
-            //List<string> datasetIds = null; // = dm.Select(v => v.CreationInfo.Performer).ToList();
-            
-            //return (datasetIds);
-            throw new NotImplementedException();
+            var dsvs = dm.GetDatasetVersions(datasetId);
+            string performer;
+            List<string> performerUsernames = new List<string>();
+            foreach (var d in dsvs)
+            {
+                if (d.Id <= versionId)
+                {
+                    performer = d.ModificationInfo.Performer;
+                    if (performer != null && !performerUsernames.Contains(performer))
+                    {
+                        performerUsernames.Add(performer);
+                    }
+                }
+            }
+            return (performerUsernames);
         }
 
-        private string FindPerformerNameFromUserName(UserManager um, string userName)
+        /// <summary>
+        /// This funcion finds all datasets that a performer is involved.
+        /// </summary>
+        /// <param name="dm">A list of all datasets</param>
+        /// <param name="userName">The performer's username</param>
+        /// <returns>A list of dataset IDs</returns>
+        private List<long> FindDatasetsFromPerformerUsername(DatasetManager dm, UserManager um, string username)
+        {
+            List<long> datasetIds = dm.GetDatasetLatestIds();
+            List<long> Ids = new List<long>();
+            foreach(long datasetId in datasetIds)
+            {
+                List<string> names = FindDatasetPerformers(dm, datasetId, dm.GetDatasetLatestVersionId(datasetId));
+                if (names.Contains(username)){
+                    Ids.Add(datasetId);
+                }
+            }
+            
+            return (Ids);
+            //throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Find the full name of a performer from the username
+        /// </summary>
+        /// <param name="um"></param>
+        /// <param name="userName"></param>
+        /// <returns>The full name</returns>
+        private string FindPerformerNameFromUsername(UserManager um, string userName)
         {
             string fullName = ""; // = dm.Select(v => v.CreationInfo.Performer).ToList();
             try
@@ -184,9 +221,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         {
                             fullName = user.FullName;
                         }
-                    string t = "test";
-                }
-            
+                }            
             }
             catch (Exception ex)
             {

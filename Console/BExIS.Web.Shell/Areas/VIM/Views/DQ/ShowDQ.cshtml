@@ -34,87 +34,110 @@
     }
 </style>
 
-@* **************************************** *@
-@* ********** General Information ********* *@
-@* **************************************** *@
-<table class="left" width="50%">
+<table>
     <tr>
-        <td>Dataset description</td>
-        <td>
-            @if (@description.Length > 0)
-            {<h class="green">&#10004; @description.Length</h>}
-        else
-        { <h class="red">&#10008; @description.Length</h>}
+        <td width="50%">
+            @* **************************************** *@
+            @* ********** General Information ********* *@
+            @* **************************************** *@
+            <table class="left" width="50%">
+                <tr>
+                    <td width="50%">Dataset description</td>
+                    <td width="50%">
+                        @if (@description.Length > 0)
+                        {<h class="green">&#10004; @description.Length</h>}
+                    else
+                    { <h class="red">&#10008; @description.Length</h>}
+                    </td>
+                </tr>
+                <tr>
+                    <td width="50%">Data structure description</td>
+                    <td width="50%">
+                        @if (@description.Length > 0)
+                        {<h class="green">&#10004; @dStrDescription.Length</h>}
+                    else
+                    {<h class="red">&#10008; @dStrDescription.Length</h>}
+                    </td>
+                </tr>
+                <tr>
+                    <td width="50%">Shared data structure</td>
+                    <td width="50%">
+                        @if (@dStrUsage > 1)
+                        {<h class="green">&#10004; @dStrUsage</h>}
+                    else
+                    {<h class="red">&#10008; </h>}
+                    </td>
+                </tr>
+            </table>
         </td>
+
+        @* **************************************** *@
+        @* ********** Metadata Completion ********* *@
+        @* **************************************** *@
+        <td width="50%"></td>
     </tr>
     <tr>
-        <td>Data structure description</td>
-        <td>
-            @if (@description.Length > 0)
-            {<h class="green">&#10004; @dStrDescription.Length</h>}
-        else
-        {<h class="red">&#10008; @dStrDescription.Length</h>}
+        <td width="50%">
+            @* **************************************** *@
+            @* ******** Performers Information ******** *@
+            @* **************************************** *@
+            <p><div>Performers: @performers.Count</div></p>
+            <table class="left">
+                <tr>
+                    <td width="50%"> Name </td>
+                    <td width="50%"> Popularity </td>
+                </tr>
+                @for (int i = 0; i < performers.Count; ++i)
+                {
+                    <tr>
+                        <td width="50%">@performers[i].performerName </td>
+                        <td width="50%">
+                            @if (@performers[i].DatasetIds.Count > 1)
+                            {<h class="green">&#10004; @performers[i].DatasetIds.Count</h>}
+                        else
+                        {<h class="red">&#10008; @performers[i].DatasetIds.Count</h>}
+                        </td>
+                    </tr>
+                }
+            </table>
         </td>
+        <td width="50%"></td>
     </tr>
     <tr>
-        <td>Shared data structure</td>
-        <td>
-            @if (@dStrUsage > 1)
-            {<h class="green">&#10004; @dStrUsage</h>}
-        else
-        {<h class="red">&#10008; </h>}
+        <td width="50%">
+            @* **************************************** *@
+            @* ********* Variable Information ********* *@
+            @* **************************************** *@
+            @if (@type == "file")
+            {
+                <p>THIS IS A FILE FORMAT DATASET!</p>
+            }
+            @if (@type == "tabular")
+            {
+                <p>THIS IS A TABULAR FORMAT DATASET!</p>
+                <table class="left">
+                    <tr>
+                        <td width="50%">Variable name</td>
+                        <td width="50%">Shared variable</td>
+                    </tr>
+                    @for (int i = 0; i < varVariables.Count; ++i)
+                    {
+                        <tr>
+                            <td width="50%">@varVariables[i].varLabel </td>
+                            <td width="50%">
+                                @if (@varVariables[i].varUsage > 0)
+                                {<h class="green">&#10004; @varVariables[i].varUsage</h>}
+                            else
+                            {<h class="red">&#10008; </h>}
+                            </td>
+                        </tr>
+                    }
+                </table>
+            }
         </td>
+        <td width="50%"></td>
     </tr>
 </table>
-
-@* **************************************** *@
-@* ******** Performers Information ******** *@
-@* **************************************** *@
-<p><div>Performers: @performers.Count</div></p>
-<table class="left">
-    <tr>
-        <td>Name</td>
-        <td>Popularity</td>
-    </tr>
-    @for (int i = 0; i < performers.Count; ++i)
-    {
-        <tr>
-            <td>@performers[i].performerName </td>
-            <td></td>
-        </tr>
-    }
-</table>
-
-@* **************************************** *@
-@* ********* Variable Information ********* *@
-@* **************************************** *@
-@if (@type == "file")
-{
-    <p>THIS IS A FILE FORMAT DATASET!</p>
-}
-@if (@type == "tabular")
-{
-    <p>THIS IS A TABULAR FORMAT DATASET!</p>
-    <table class="left">
-        <tr>
-            <td>Variable name</td>
-            <td>Shared variable</td>
-        </tr>
-        @for (int i = 0; i < varVariables.Count; ++i)
-        {
-            <tr>
-                <td>@varVariables[i].varLabel </td>
-                <td>
-                    @if (@varVariables[i].varUsage > 0)
-                    {<h class="green">&#10004; @varVariables[i].varUsage</h>}
-                else
-                {<h class="red">&#10008; </h>}
-                </td>
-            </tr>
-        }
-    </table>
-}
-
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
 

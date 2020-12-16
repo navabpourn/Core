@@ -118,20 +118,29 @@
                 <table class="left">
                     <tr>
                         <td width="50%">Variable name</td>
+                        <td width="50%">Description</td>
                         <td width="50%">Shared variable</td>
+                        <td width="50%">System type</td>
                     </tr>
                     @for (int i = 0; i < varVariables.Count; ++i)
                     {
                         <tr>
                             <td width="50%">@varVariables[i].varLabel </td>
                             <td width="50%">
+                                @if (@varVariables[i].varDescription.Length > 0)
+                                {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
+                                else
+                                {<h class="red">&#10008; </h>}
+                            </td>
+                            <td width="50%">
                                 @if (@varVariables[i].varUsage > 0)
                                 {<h class="green">&#10004; @varVariables[i].varUsage</h>}
-                            else
-                            {<h class="red">&#10008; </h>}
+                                 else
+                                {<h class="red">&#10008; </h>}
                             </td>
+                            <td width="50%"> @varVariables[i].varType</td>
                         </tr>
-                    }
+                     }
                 </table>
             }
         </td>

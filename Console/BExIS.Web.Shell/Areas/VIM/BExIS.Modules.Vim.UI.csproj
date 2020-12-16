@@ -637,6 +637,10 @@
       <Project>{a7fbcc13-7e29-4710-82a1-bd6d6f811fda}</Project>
       <Name>BExIS.Utils.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Components\Utils\BExIS.Utils.NH\BExIS.Utils.NH.csproj">
+      <Project>{0F1EC13E-D685-4F4D-A438-52797B0E53A0}</Project>
+      <Name>BExIS.Utils.NH</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\Components\XML\BExIS.Xml.Helpers\BExIS.Xml.Helpers.csproj">
       <Project>{252F7872-A69C-43A6-84B4-4D2ABDBDD9AB}</Project>
       <Name>BExIS.Xml.Helpers</Name>
@@ -656,6 +660,10 @@
     <ProjectReference Include="..\..\..\..\Modules\DIM\BExIS.Dim.Services\BExIS.Dim.Services.csproj">
       <Project>{cac933a2-6849-4c61-82b4-cbf4052210cc}</Project>
       <Name>BExIS.Dim.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RPM\BExIS.Modules.Rpm.UI.csproj">
+      <Project>{76702A4F-D6E5-416F-BD81-58447514AF05}</Project>
+      <Name>BExIS.Modules.Rpm.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

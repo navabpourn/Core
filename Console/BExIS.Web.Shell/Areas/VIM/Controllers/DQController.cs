@@ -15,6 +15,8 @@ using BExIS.Dlm.Entities.Party;
 using BExIS.Dlm.Services.Party;
 using BExIS.Security.Services.Subjects;
 using BExIS.Security.Services.Objects;
+using BExIS.Modules.Rpm.UI.Models;
+using System.Data;
 
 namespace BExIS.Modules.Vim.UI.Controllers
 {
@@ -30,6 +32,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
         public class varVariable
         {
             public string varLabel;
+            public string varDescription;
             public string varType;
             public int varUsage;
         }
@@ -49,8 +52,11 @@ namespace BExIS.Modules.Vim.UI.Controllers
             DatasetManager dm = new DatasetManager();
             DataStructureManager dsm = new DataStructureManager();
             EntityPermissionManager entityPermissionManager = new EntityPermissionManager();
-            PartyManager pm = new PartyManager();
+            //PartyManager pm = new PartyManager();
             UserManager um = new UserManager();
+            DataContainerManager dataContainerManager = new DataContainerManager();
+            DataAttributeManagerModel daModel = new DataAttributeManagerModel();
+
             //EntityManager entityManager = new EntityManager();
 
             try
@@ -111,11 +117,20 @@ namespace BExIS.Modules.Vim.UI.Controllers
                             {
                                 varVariable varV = new varVariable(); 
                                 varV.varLabel = variable.Label; // variable name
-                                varV.varType = ""; //variable.GetType().ToString(); // variable type
+                                //long variableId = variable.Id;
+                                varV.varDescription = variable.Description;
                                 varV.varUsage = variable.DataAttribute.UsagesAsVariable.Count(); //How many other data structures are using the same variable template
-                                //var varType = variable.GetType();
+                                varV.varType = variable.DataAttribute.DataType.SystemType; // What is the system type?
+                                if (varV.varType == "Double" || varV.varType == "Int")
+                                {
+                                    //List<double> minMaxMean = FindMinMaxMean(variable);
+                                }     
+                                if (varV.varType == "String")
+                                {
+                                    //string mostFrequence = FindMostFrequenceValue(variable);
+                                }
+
                                 varVariables.Add(varV);
-                                string fake1 = "ss";  // To use as stop point
                                 
                             }
                             catch(Exception ex)
@@ -128,6 +143,13 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         dqModel.varVariables = varVariables;
                         dqModel.varVariables.Count();
                         //List<string> variables = 
+
+                        ////////////////////////////////////////////////////////////////////////////////////////////
+                        //Discover a data table
+                        //The limit of row number is count = max int number
+                        DataTable table = null;
+                        long count = dm.RowCount(datasetId, null);
+                        if (count > 0) table = dm.GetLatestDatasetVersionTuples(datasetId, null, null, null, 0, (int)count);
                         string fake2 = "nn";
                     }
                     // File data structure
@@ -156,6 +178,24 @@ namespace BExIS.Modules.Vim.UI.Controllers
             dqModel.performers = performers;
             return PartialView(dqModel);
         }
+
+        //private string FindVariableDataType(long variableId)
+        //{
+        //    DataContainerManager dataContainerManager = new DataContainerManager();
+        //    string variableType = "";
+        //    //DataAttributeModel = new DataAttributeModel();
+        //    var vars = dataContainerManager.DataAttributeRepo.Get().ToList();//.ToList().ForEach(da => DataAttributeStructs.Add(new DataAttributeStruct() { Id = da.Id, Name = da.Name, ShortName = da.ShortName, Description = da.Description, DataType = da.DataType.Name, Unit = da.Unit.Name, InUse = inUse(da), FormalDescriptions = getFormalDescriptions(da) }));
+        //    foreach(var var in vars)
+        //    {
+        //        if(var.Id == variableId)
+        //        {
+        //            variableType = "yes";
+        //        }
+        //    }
+        //    string f = "";
+        //    return (variableType);
+        //    //throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// This funcion finds all performers of a dataset.

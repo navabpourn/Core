@@ -35,6 +35,8 @@ namespace BExIS.Modules.Vim.UI.Controllers
             public string varDescription;
             public string varType;
             public int varUsage;
+            public string min = "";
+            public string max = "";
         }
 
 
@@ -46,10 +48,11 @@ namespace BExIS.Modules.Vim.UI.Controllers
             //List<string> performers = new List<string>();
             List<performer> performers = new List<performer>();
             List<varVariable> varVariables = new List<varVariable>();
-            
-            //--------
+            Dictionary<string, double> datasetSize = new Dictionary<string, double>();
 
-            DatasetManager dm = new DatasetManager();
+        //--------
+
+        DatasetManager dm = new DatasetManager();
             DataStructureManager dsm = new DataStructureManager();
             EntityPermissionManager entityPermissionManager = new EntityPermissionManager();
             //PartyManager pm = new PartyManager();
@@ -99,6 +102,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
                     DataStructure ds = dsm.AllTypesDataStructureRepo.Get(dsv.Dataset.DataStructure.Id);
 
+                    #region
                     // Tabular data structure
                     if (ds.Self.GetType() == typeof(StructuredDataStructure))
                     {
@@ -108,36 +112,55 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         dqModel.dStrUsage = dataStrUsage.Count();
                         
                         var variables = sds.Variables;
+                        double numberOfColumns = variables.Count();
+                        datasetSize.Add("NumberOfColumns", numberOfColumns); //number of columns
+                        //Discover a data table
+                        //The limit of row number is count = max int number
+                        DataTable table = null;
+                        long rowCount = dm.RowCount(datasetId, null);                        
+                        datasetSize.Add("NumberOfRows", (double)rowCount); // number of rows
                         
+                        if (rowCount > 0) table = dm.GetLatestDatasetVersionTuples(datasetId, null, null, null, 0, (int)rowCount);
+                        DataRowCollection dataRows = table.Rows;
 
-                        // Read all variables and provide information
-                        foreach(var variable in variables)
+                        int columnNumber = 3;
+                        //Read all variables and provide information
+                        foreach (var variable in variables)
                         {
+                            columnNumber += 1;
                             try
                             {
-                                varVariable varV = new varVariable(); 
+                                varVariable varV = new varVariable();
                                 varV.varLabel = variable.Label; // variable name
-                                //long variableId = variable.Id;
+                                                                //long variableId = variable.Id;
                                 varV.varDescription = variable.Description;
                                 varV.varUsage = variable.DataAttribute.UsagesAsVariable.Count(); //How many other data structures are using the same variable template
                                 varV.varType = variable.DataAttribute.DataType.SystemType; // What is the system type?
-                                if (varV.varType == "Double" || varV.varType == "Int")
+
+                                // Find data values of a variable
+                                List<string> values = new List<string>();
+                                foreach (DataRow row in dataRows)
                                 {
-                                    //List<double> minMaxMean = FindMinMaxMean(variable);
-                                }     
-                                if (varV.varType == "String")
-                                {
-                                    //string mostFrequence = FindMostFrequenceValue(variable);
+                                    var value = row.ItemArray[columnNumber];//.ToString();
+                                    values.Add(value.ToString());
                                 }
+                                string tof = "";
+                                
+                                
+                                varV.min = values.Min().ToString() + " - " + values.Max().ToString();
+                                //if (varV.varType == "String")
+                                //{
+                                //    //string mostFrequence = FindMostFrequenceValue(variable);
+                                //}
 
                                 varVariables.Add(varV);
-                                
+
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 throw ex;
                             }
-                            
+
                         }
                         varVariables.Count();
                         dqModel.varVariables = varVariables;
@@ -145,17 +168,15 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         //List<string> variables = 
 
                         ////////////////////////////////////////////////////////////////////////////////////////////
-                        //Discover a data table
-                        //The limit of row number is count = max int number
-                        DataTable table = null;
-                        long count = dm.RowCount(datasetId, null);
-                        if (count > 0) table = dm.GetLatestDatasetVersionTuples(datasetId, null, null, null, 0, (int)count);
+                       
                         string fake2 = "nn";
                     }
+                    #endregion
+
                     // File data structure
                     else
                     {
-
+                        //dqModel.datasetSize.Add("", 0);
                     }
                     dqModel.type = type;
                 }
@@ -171,31 +192,11 @@ namespace BExIS.Modules.Vim.UI.Controllers
                 entityPermissionManager.Dispose();
             }
             
-            //var datasetversions = dm.GetDatasetVersions(datasetID);
-            //var n = datasetversions.Select(v => v.CreationInfo.Performer).ToList();
-
             dqModel.datasetInfo = datasetInfo;
+            dqModel.datasetSize = datasetSize;
             dqModel.performers = performers;
             return PartialView(dqModel);
         }
-
-        //private string FindVariableDataType(long variableId)
-        //{
-        //    DataContainerManager dataContainerManager = new DataContainerManager();
-        //    string variableType = "";
-        //    //DataAttributeModel = new DataAttributeModel();
-        //    var vars = dataContainerManager.DataAttributeRepo.Get().ToList();//.ToList().ForEach(da => DataAttributeStructs.Add(new DataAttributeStruct() { Id = da.Id, Name = da.Name, ShortName = da.ShortName, Description = da.Description, DataType = da.DataType.Name, Unit = da.Unit.Name, InUse = inUse(da), FormalDescriptions = getFormalDescriptions(da) }));
-        //    foreach(var var in vars)
-        //    {
-        //        if(var.Id == variableId)
-        //        {
-        //            variableType = "yes";
-        //        }
-        //    }
-        //    string f = "";
-        //    return (variableType);
-        //    //throw new NotImplementedException();
-        //}
 
         /// <summary>
         /// This funcion finds all performers of a dataset.
@@ -269,20 +270,8 @@ namespace BExIS.Modules.Vim.UI.Controllers
             }
 
             return (fullName); 
-            //throw new NotImplementedException();
         }
 
-        private int textRatio(String text, int totalLength)
-        {
-            int ratio;
-            try
-            {
-                ratio = (text.Length * 100) / totalLength;
-            }
-            catch { ratio = 99999; }
-
-            //return (ratio.toFixed(0));
-            return (ratio);
-        }
+        
     }
 }

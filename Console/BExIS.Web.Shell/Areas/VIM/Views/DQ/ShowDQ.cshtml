@@ -18,6 +18,7 @@
     string dStrDescription = Model.dStrDescription;
     int dStrUsage = Model.dStrUsage;
     var varVariables = Model.varVariables;
+    var datasetSize = Model.datasetSize;
 }
 
 <style>
@@ -42,8 +43,8 @@
             @* **************************************** *@
             <table class="left" width="50%">
                 <tr>
-                    <td width="50%">Dataset description</td>
-                    <td width="50%">
+                    <td width="20%">Dataset description</td>
+                    <td width="20%">
                         @if (@description.Length > 0)
                         {<h class="green">&#10004; @description.Length</h>}
                     else
@@ -51,7 +52,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td width="50%">Data structure description</td>
+                    <td width="20%">Data structure description</td>
                     <td width="50%">
                         @if (@description.Length > 0)
                         {<h class="green">&#10004; @dStrDescription.Length</h>}
@@ -115,38 +116,41 @@
             @if (@type == "tabular")
             {
                 <p>THIS IS A TABULAR FORMAT DATASET!</p>
+                <p>Dataset size: @datasetSize["NumberOfRows"] x @datasetSize["NumberOfColumns"]</p>
                 <table class="left">
-                    <tr>
-                        <td width="50%">Variable name</td>
-                        <td width="50%">Description</td>
-                        <td width="50%">Shared variable</td>
-                        <td width="50%">System type</td>
-                    </tr>
-                    @for (int i = 0; i < varVariables.Count; ++i)
-                    {
-                        <tr>
-                            <td width="50%">@varVariables[i].varLabel </td>
-                            <td width="50%">
-                                @if (@varVariables[i].varDescription.Length > 0)
-                                {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
-                                else
-                                {<h class="red">&#10008; </h>}
-                            </td>
-                            <td width="50%">
-                                @if (@varVariables[i].varUsage > 0)
-                                {<h class="green">&#10004; @varVariables[i].varUsage</h>}
-                                 else
-                                {<h class="red">&#10008; </h>}
-                            </td>
-                            <td width="50%"> @varVariables[i].varType</td>
-                        </tr>
-                     }
-                </table>
+            <tr>
+                <td width="50%">Variable name</td>
+                <td width="50%">Description</td>
+                <td width="50%">Shared variable</td>
+                <td width="50%">System type</td>
+                <td width="50%"></td>
+            </tr>
+            @for (int i = 0; i < varVariables.Count; ++i)
+            {
+                <tr>
+                    <td width="50%">@varVariables[i].varLabel </td>
+                    <td width="50%">
+                        @if (@varVariables[i].varDescription.Length > 0)
+                        {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
+                    else
+                    {<h class="red">&#10008; </h>}
+                    </td>
+                    <td width="50%">
+                        @if (@varVariables[i].varUsage > 0)
+                        {<h class="green">&#10004; @varVariables[i].varUsage</h>}
+                    else
+                    {<h class="red">&#10008; </h>}
+                    </td>
+                    <td width="50%"> @varVariables[i].varType</td>
+                    <td width="50%">@varVariables[i].min</td>
+                </tr>
             }
-        </td>
-        <td width="50%"></td>
-    </tr>
-</table>
+        </table>
+    }
+            </td>
+            <td width="50%"></td>
+            </tr>
+        </table>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
 

@@ -132,7 +132,6 @@ namespace BExIS.Modules.Vim.UI.Controllers
                             {
                                 varVariable varV = new varVariable();
                                 varV.varLabel = variable.Label; // variable name
-                                                                //long variableId = variable.Id;
                                 varV.varDescription = variable.Description;
                                 varV.varUsage = variable.DataAttribute.UsagesAsVariable.Count(); //How many other data structures are using the same variable template
                                 varV.varType = variable.DataAttribute.DataType.SystemType; // What is the system type?
@@ -144,9 +143,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                                     var value = row.ItemArray[columnNumber];//.ToString();
                                     values.Add(value.ToString());
                                 }
-                                string tof = "";
-                                
-                                
+                                                               
                                 varV.min = values.Min().ToString() + " - " + values.Max().ToString();
                                 //if (varV.varType == "String")
                                 //{

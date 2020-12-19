@@ -15,11 +15,13 @@
     string description = Model.description;
     string type = Model.type;
     var performers = Model.performers;
+    string performerDatasets = "";
     string dStrDescription = Model.dStrDescription;
     int dStrUsage = Model.dStrUsage;
     var varVariables = Model.varVariables;
     var datasetSize = Model.datasetSize;
 }
+
 
 <style>
     div {
@@ -33,7 +35,14 @@
     h.green {
         color: green;
     }
+
+    h.clickable {
+        color: green;
+        cursor: pointer;
+    }
 </style>
+
+<p id="text">text here!</p>
 
 <table>
     <tr>
@@ -94,9 +103,13 @@
                         <td width="50%">@performers[i].performerName </td>
                         <td width="50%">
                             @if (@performers[i].DatasetIds.Count > 1)
-                            {<h class="green">&#10004; @performers[i].DatasetIds.Count</h>}
-                        else
-                        {<h class="red">&#10008; @performers[i].DatasetIds.Count</h>}
+                            {
+                                performerDatasets = String.Join(",", Model.performers[i].DatasetIds);
+                                <h class="clickable" onclick="OpenFilterSearchPerformer('@performerDatasets')">&#10004; @performers[i].DatasetIds.Count</h>
+
+                            }
+                            else
+                            {<h class="red">&#10008; @performers[i].DatasetIds.Count</h>}
                         </td>
                     </tr>
                 }
@@ -118,39 +131,39 @@
                 <p>THIS IS A TABULAR FORMAT DATASET!</p>
                 <p>Dataset size: @datasetSize["NumberOfRows"] x @datasetSize["NumberOfColumns"]</p>
                 <table class="left">
-            <tr>
-                <td width="50%">Variable name</td>
-                <td width="50%">Description</td>
-                <td width="50%">Shared variable</td>
-                <td width="50%">System type</td>
-                <td width="50%"></td>
-            </tr>
-            @for (int i = 0; i < varVariables.Count; ++i)
-            {
-                <tr>
-                    <td width="50%">@varVariables[i].varLabel </td>
-                    <td width="50%">
-                        @if (@varVariables[i].varDescription.Length > 0)
-                        {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
-                    else
-                    {<h class="red">&#10008; </h>}
-                    </td>
-                    <td width="50%">
-                        @if (@varVariables[i].varUsage > 0)
-                        {<h class="green">&#10004; @varVariables[i].varUsage</h>}
-                    else
-                    {<h class="red">&#10008; </h>}
-                    </td>
-                    <td width="50%"> @varVariables[i].varType</td>
-                    <td width="50%">@varVariables[i].min</td>
-                </tr>
+                    <tr>
+                        <td width="50%">Variable name</td>
+                        <td width="50%">Description</td>
+                        <td width="50%">Shared variable</td>
+                        <td width="50%">System type</td>
+                        <td width="50%"></td>
+                    </tr>
+                    @for (int i = 0; i < varVariables.Count; ++i)
+                    {
+                        <tr>
+                            <td width="50%">@varVariables[i].varLabel </td>
+                            <td width="50%">
+                                @if (@varVariables[i].varDescription.Length > 0)
+                                {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
+                            else
+                            {<h class="red">&#10008; </h>}
+                            </td>
+                            <td width="50%">
+                                @if (@varVariables[i].varUsage > 0)
+                                {<h class="green">&#10004; @varVariables[i].varUsage</h>}
+                            else
+                            {<h class="red">&#10008; </h>}
+                            </td>
+                            <td width="50%"> @varVariables[i].varType</td>
+                            <td width="50%">@varVariables[i].min</td>
+                        </tr>
+                    }
+                </table>
             }
-        </table>
-    }
-            </td>
-            <td width="50%"></td>
-            </tr>
-        </table>
+        </td>
+        <td width="50%"></td>
+    </tr>
+</table>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
 
@@ -162,12 +175,19 @@
             document.getElementById('Warning').textContent = 'There is no Data to show ' + text;
         }
 
-
     });
 
+    function OpenFilterSearchPerformer(performerDatasets) {
+        //Add a Dashboard like view to see the list of datasets.
+        document.getElementById('text').textContent = performerDatasets;
+        var pd = performerDatasets.split(",");
+        //document.getElementById('text').textContent = pd[1];
 
-    //Function proportion(portion, total)
-    //return the ratio of portion to total.
+        //window.open("https://www.w3schools.com");
+    }
+
+        //Function proportion(portion, total)
+        //return the ratio of portion to total.
     function proportion(p, total) {
         try {
             var ratio = (p * 100) / total;

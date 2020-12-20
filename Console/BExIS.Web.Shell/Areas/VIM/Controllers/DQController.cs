@@ -195,13 +195,18 @@ namespace BExIS.Modules.Vim.UI.Controllers
             return PartialView(dqModel);
         }
 
-        /// <summary>
-        /// This funcion finds all performers of a dataset.
-        /// </summary>
-        /// <param name="dsvs">A list of dataset versions of a dataset.</param>
-        /// <param name="versionId">The current version Id of a dataset. </param>
-        /// <returns>A list of performers</returns>
-        private List<string> FindDatasetPerformers(DatasetManager dm, long datasetId, long versionId)
+        public ActionResult ShowDatasetList(string datasetIds, string performerName)
+        {
+            DatasetListModel dsModel = new DatasetListModel();
+            return View(dsModel);
+        }
+            /// <summary>
+            /// This funcion finds all performers of a dataset.
+            /// </summary>
+            /// <param name="dsvs">A list of dataset versions of a dataset.</param>
+            /// <param name="versionId">The current version Id of a dataset. </param>
+            /// <returns>A list of performers</returns>
+            private List<string> FindDatasetPerformers(DatasetManager dm, long datasetId, long versionId)
         {
             var dsvs = dm.GetDatasetVersions(datasetId);
             string performer;

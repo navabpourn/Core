@@ -332,6 +332,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UploadLocalization.zh-CN.resx</DependentUpon>
     </Compile>
+    <Compile Include="Models\DatasetListModel.cs" />
     <Compile Include="Controllers\DQController.cs" />
     <Compile Include="Controllers\HelpController.cs" />
     <Compile Include="Controllers\VisualizationController.cs" />
@@ -594,6 +595,7 @@
     </Content>
     <Content Include="Views\Visualization\Index.cshtml" />
     <Content Include="Views\DQ\ShowDQ.cshtml" />
+    <Content Include="Views\DQ\ShowDatasetList.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

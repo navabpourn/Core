@@ -16,6 +16,7 @@
     string type = Model.type;
     var performers = Model.performers;
     string performerDatasets = "";
+    string performerName = "";
     string dStrDescription = Model.dStrDescription;
     int dStrUsage = Model.dStrUsage;
     var varVariables = Model.varVariables;
@@ -105,7 +106,8 @@
                             @if (@performers[i].DatasetIds.Count > 1)
                             {
                                 performerDatasets = String.Join(",", Model.performers[i].DatasetIds);
-                                <h class="clickable" onclick="OpenFilterSearchPerformer('@performerDatasets')">&#10004; @performers[i].DatasetIds.Count</h>
+                                performerName = @performers[i].performerName;
+                                <h class="clickable" onclick="OpenFilterSearchPerformer('@performerDatasets', '@performerName')">&#10004; @performers[i].DatasetIds.Count</h>
 
                             }
                             else
@@ -177,10 +179,14 @@
 
     });
 
-    function OpenFilterSearchPerformer(performerDatasets) {
+    function OpenFilterSearchPerformer(performerDatasets, performerName) {
         //Add a Dashboard like view to see the list of datasets.
         document.getElementById('text').textContent = performerDatasets;
         var pd = performerDatasets.split(",");
+        var url = '@Url.Action("ShowDatasetPerformer", "DQ", new { datasetIds = "datasetIds", performerName = "performerName"})';
+        url = url.replace('datasetIds', performerDatasets);
+        url = url.replace('performerName', performerName);
+        window.open(url, '_blank');
         //document.getElementById('text').textContent = pd[1];
 
         //window.open("https://www.w3schools.com");

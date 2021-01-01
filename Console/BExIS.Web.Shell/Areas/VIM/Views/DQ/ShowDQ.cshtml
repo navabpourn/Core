@@ -12,170 +12,361 @@
 }
 
 @{
-    string description = Model.description;
+    int minDescriptionLength = Model.datasetDescriptionLength.minDescriptionLength;
+    int descriptionLength = Model.datasetDescriptionLength.currentDescriptionLength;
+    int maxDescriptionLength = Model.datasetDescriptionLength.maxDescriptionLength;
+    int minDataStrDescriptionLength = Model.dataStrDescriptionLength.minDescriptionLength;
+    int currentDataStrDescriptionLength = Model.dataStrDescriptionLength.currentDescriptionLength;
+    int maxDataStrDescriptionLength = Model.dataStrDescriptionLength.maxDescriptionLength;
+    int minDataStrUsage = Model.dataStrUsage.minDataStrUsage;
+    int currentDataStrUsage = Model.dataStrUsage.currentDataStrUsage;
+    int maxDataStrUsage = Model.dataStrUsage.maxDataStrUsage;
+    int minTotalSize = Model.datasetTotalSize.minTotalSize;
+    int currentTotalSize = Model.datasetTotalSize.currentTotalSize;
+    int maxTotalSize = Model.datasetTotalSize.maxTotalSize;
     string type = Model.type;
     var performers = Model.performers;
+    int minPerformersActivity = Model.performersActivity.minActivity;
+    int maxPerformersActivity = Model.performersActivity.maxActivity;
     string performerDatasets = "";
     string performerName = "";
-    string dStrDescription = Model.dStrDescription;
-    int dStrUsage = Model.dStrUsage;
     var varVariables = Model.varVariables;
-    var datasetSize = Model.datasetSize;
+    int metadataTotalCompletion = Model.metadataComplition.totalFields;
+    int metadataRequiredCompletion = Model.metadataComplition.requiredFields;
+    int metadataMinRate = Model.metadataComplition.minRate;
+    int metadataMaxRate = Model.metadataComplition.maxRate;
 }
 
-
-<style>
-    div {
-        text-align: initial;
-    }
-
-    h.red {
-        color: red;
-    }
-
-    h.green {
-        color: green;
-    }
-
-    h.clickable {
-        color: green;
-        cursor: pointer;
-    }
-</style>
-
-<p id="text">text here!</p>
+@*<p id="text">Metadata complition @metadataTotalCompletion%</p>
+<p>
+    <progress max="100" value="@metadataTotalCompletion">hhh</progress>
+</p>*@
 
 <table>
     <tr>
-        <td width="50%">
+        <td>
             @* **************************************** *@
             @* ********** General Information ********* *@
             @* **************************************** *@
-            <table class="left" width="50%">
-                <tr>
-                    <td width="20%">Dataset description</td>
-                    <td width="20%">
-                        @if (@description.Length > 0)
-                        {<h class="green">&#10004; @description.Length</h>}
-                    else
-                    { <h class="red">&#10008; @description.Length</h>}
-                    </td>
-                </tr>
-                <tr>
-                    <td width="20%">Data structure description</td>
-                    <td width="50%">
-                        @if (@description.Length > 0)
-                        {<h class="green">&#10004; @dStrDescription.Length</h>}
-                    else
-                    {<h class="red">&#10008; @dStrDescription.Length</h>}
-                    </td>
-                </tr>
-                <tr>
-                    <td width="50%">Shared data structure</td>
-                    <td width="50%">
-                        @if (@dStrUsage > 1)
-                        {<h class="green">&#10004; @dStrUsage</h>}
-                    else
-                    {<h class="red">&#10008; </h>}
-                    </td>
-                </tr>
-            </table>
-        </td>
-
-        @* **************************************** *@
-        @* ********** Metadata Completion ********* *@
-        @* **************************************** *@
-        <td width="50%"></td>
-    </tr>
-    <tr>
-        <td width="50%">
-            @* **************************************** *@
-            @* ******** Performers Information ******** *@
-            @* **************************************** *@
-            <p><div>Performers: @performers.Count</div></p>
             <table class="left">
                 <tr>
-                    <td width="50%"> Name </td>
-                    <td width="50%"> Popularity </td>
+                    <td></td>
+                    <td></td>
+                    <td><b>Compared to other datasets </b></td>
+                </tr>
+                <tr>
+                    @*** METADATA COMPLITION **********************************@
+                    <td>Metadata complition</td>
+                    <td>@metadataTotalCompletion% of all metadata fields.</td>
+                    <td>
+                        <svg class="metadataRates"
+                             width="200"
+                             height="25">
+                            <rect class="metaRate_left" x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
+                            <rect class="metaRate_center" x="10" y="2" width="60" height="20" style=" fill: gray; opacity: 0.8;" />
+                            <rect class="metaRate_right" x="70" y="2" width="30" height="20" style=" fill: gray; opacity: 0.5;" />
+                            <rect class="metaPointer" x="70" y="1" width="3" height="22" style=" fill: green;" />
+                            Sorry, your browser does not support inline SVG.
+                        </svg>
+                    </td>
+                </tr>
+                <tr>
+                    @*** DATASET SIZE **********************************@
+                    <td> Dataset Size</td>
+                    <td>
+                        @if (@type == "tabular")
+                        {<h class="green"> @currentTotalSize </h> <h>cells</h>}
+                        @if (@type == "file")
+                        {<h class="green">@currentTotalSize</h> <h> KB </h>}
+                    </td>
+                    <td>
+                        <svg class="datasetSizeRates"
+                             width="150"
+                             height="25">
+                            <rect class="datasetZizeRate" x="0" y="2" width="100" height="20" style=" fill: gray; opacity: 0.8;" />
+                            <rect class="datasetSizePointer" x="70" y="1" width="3" height="22" style=" fill: green;" />
+                            Sorry, your browser does not support inline SVG.
+                        </svg>
+                    </td>
+                </tr>
+                <tr>
+                    @*** DATASET DESCRIPTION **********************************@
+                    <td>Dataset description</td>
+                    <td>
+                        @if (@descriptionLength > 0)
+                        {<h class="green">&#10004; @descriptionLength</h> <h> characters</h>}
+                    else
+                    { <h class="red">&#10008; @descriptionLength </h> <h>characters</h>}
+                    </td>
+                    <td>
+                        <svg class="descriptionRates"
+                             width="150"
+                             height="25">
+                            <rect class="descRate" x="0" y="2" width="100" height="20" style=" fill: gray; opacity: 0.8;" />
+                            <rect class="descPointer" x="70" y="1" width="3" height="22" style=" fill: green;" />
+                            Sorry, your browser does not support inline SVG.
+                        </svg>
+                    </td>
+                </tr>
+                <tr>
+                    @*** DATA STRUCTURE DESCRIPTION **********************************@
+                    <td>Data structure description</td>
+                    <td>
+                        @if (currentDataStrDescriptionLength > 0)
+                        {<h class="green">&#10004; @currentDataStrDescriptionLength </h> <h>characters</h>}
+                    else
+                    {<h class="red">&#10008; No description!</h>}
+                    </td>
+                    <td>
+                        <svg class="StrDescriptionRates"
+                             width="150"
+                             height="25">
+                            <rect class="strDescRate" x="0" y="2" width="100" height="20" style=" fill: gray; opacity: 0.8;" />
+                            <rect class="strDescPointer" x="70" y="1" width="3" height="22" style=" fill: green;" />
+                            Sorry, your browser does not support inline SVG.
+                        </svg>
+                    </td>
+                </tr>
+                <tr>
+                    @*** DATA STRUCTURE USAGE **********************************@
+                    <td>Shared data structure</td>
+                    <td>
+                        @if (currentDataStrUsage > 1)
+                        {<h class="green">&#10004; @currentDataStrUsage </h> <h>times used in other datasets.</h>}
+                    else
+                    {<h class="red">&#10008; No description!</h>}
+                    </td>
+                    <td>
+                        <svg class="DataStrUsage"
+                             width="150"
+                             height="25">
+                            <rect class="dataStrUsageRate" x="0" y="2" width="100" height="20" style=" fill: gray; opacity: 0.8;" />
+                            <rect class="dataStrUsagePointer" x="70" y="1" width="3" height="22" style=" fill: green;" />
+                            Sorry, your browser does not support inline SVG.
+                        </svg>
+                    </td>
+                </tr>
+
+            @*** PERFORMERS **********************************@
+                <tr>
+                    <td><b> contributors name </b></td>
+                    <td><b>Contributes in datasets</b></td>
+                    <td><b>Compared to other contributors</b></td>
                 </tr>
                 @for (int i = 0; i < performers.Count; ++i)
                 {
                     <tr>
-                        <td width="50%">@performers[i].performerName </td>
-                        <td width="50%">
-                            @if (@performers[i].DatasetIds.Count > 1)
-                            {
-                                performerDatasets = String.Join(",", Model.performers[i].DatasetIds);
-                                performerName = @performers[i].performerName;
-                                <h class="clickable" onclick="OpenFilterSearchPerformer('@performerDatasets', '@performerName')">&#10004; @performers[i].DatasetIds.Count</h>
+                        <td>@performers[i].performerName </td>
 
-                            }
-                            else
-                            {<h class="red">&#10008; @performers[i].DatasetIds.Count</h>}
-                        </td>
+                        @if (@performers[i].DatasetIds.Count > 1)
+                        {
+                            performerDatasets = String.Join(",", Model.performers[i].DatasetIds);
+                            performerName = @performers[i].performerName;
+                    <td>
+                        <h class="clickable" onclick="OpenFilterSearchPerformer('@performerDatasets', '@performerName')">&#10004; @performers[i].DatasetIds.Count </h> <h> times</h>
+                    </td>
+                            <td>
+                                <svg class="performerRates"
+                                     width="150"
+                                     height="25">
+                                    <rect class="performerRate" x="0" y="2" width="100" height="20" style=" fill: gray; opacity: 0.8;" />
+                                    <rect class="performerPointer" x=@performers[i].performerRate y="1" width="3" height="22" style=" fill: green;" />
+                                    Sorry, your browser does not support inline SVG.
+                                </svg>
+                            </td>
+                        }
+
                     </tr>
                 }
             </table>
         </td>
-        <td width="50%"></td>
+
+        @*** CIRCLE METADATA COMPLITION **********************************@
+        <td>
+            <svg class="progress-ring"
+                 width="120"
+                 height="120">
+                <circle class="progress-ring__circle"
+                        stroke="white"
+                        stroke-width="8"
+                        fill="transparent"
+                        r="44"
+                        cx="60"
+                        cy="60" />
+            </svg>
+            <p>Metadata Completion: @metadataTotalCompletion%</p>
+        </td>
     </tr>
+    </table>
+<table>
     <tr>
-        <td width="50%">
+        <td>
             @* **************************************** *@
-            @* ********* Variable Information ********* *@
+            @* ************* DATA DETAILS ************* *@
             @* **************************************** *@
             @if (@type == "file")
             {
-                <p>THIS IS A FILE FORMAT DATASET!</p>
+                @*<p>THIS IS A FILE FORMAT DATASET!</p>*@
             }
             @if (@type == "tabular")
             {
-                <p>THIS IS A TABULAR FORMAT DATASET!</p>
-                <p>Dataset size: @datasetSize["NumberOfRows"] x @datasetSize["NumberOfColumns"]</p>
-                <table class="left">
+                @*<p>THIS IS A TABULAR FORMAT DATASET!</p>
+                <p>Dataset size: @currentTotalSize cells</p>*@
+                <table>
                     <tr>
-                        <td width="50%">Variable name</td>
-                        <td width="50%">Description</td>
-                        <td width="50%">Shared variable</td>
-                        <td width="50%">System type</td>
-                        <td width="50%"></td>
+                        <td><b></b></td>
+                        <td><b>Variable name</b></td>
+                        <td><b>Description</b></td>
+                        <td><b>Variable usage</b></td>
+                        <td><b>Data distribution</b></td>
                     </tr>
                     @for (int i = 0; i < varVariables.Count; ++i)
                     {
                         <tr>
-                            <td width="50%">@varVariables[i].varLabel </td>
-                            <td width="50%">
+                            <td>
+                                @if (@varVariables[i].varType == "String"){<p>𝓐</p>}
+                                else if (@varVariables[i].varType == "DateTime"){<p>⌛</p>}
+                                else if (@varVariables[i].varType == "Boolean") {<p>⌹</p>}
+                                else{<p>﹟ </p>}
+                            </td>
+                            <td>@varVariables[i].varLabel</td>
+                            <td>
                                 @if (@varVariables[i].varDescription.Length > 0)
                                 {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
                             else
                             {<h class="red">&#10008; </h>}
                             </td>
-                            <td width="50%">
+                            <td>
                                 @if (@varVariables[i].varUsage > 0)
                                 {<h class="green">&#10004; @varVariables[i].varUsage</h>}
                             else
                             {<h class="red">&#10008; </h>}
                             </td>
-                            <td width="50%"> @varVariables[i].varType</td>
-                            <td width="50%">@varVariables[i].min</td>
+                            @*<td> @varVariables[i].varType</td>*@
+                            <td>@varVariables[i].min - @varVariables[i].max</td>
                         </tr>
                     }
                 </table>
             }
         </td>
-        <td width="50%"></td>
     </tr>
 </table>
+
+
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
-
 <script type="text/javascript">
 
     $(document).ready(function () {
+        //console.log(w);
 
         function messageNoData(text) {
             document.getElementById('Warning').textContent = 'There is no Data to show ' + text;
         }
+
+        // Metadata completion progress circle
+        var circle = document.querySelector('circle');
+        var RADIUS = 44; //radius = (width / 2) - (strokeWidth * 2)
+        var CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+        function progress(value, value1) {
+            var progress = value / 100;
+            var dashoffset = CIRCUMFERENCE * (1 - progress);
+
+
+            var intValue = parseInt(value);
+             switch (true) {
+                case (intValue <= 20):
+                    circle.style.stroke = '#98FB98';
+                    break;
+                case (intValue <= 40):
+                    circle.style.stroke = '#00FF7F';
+                    break;
+                case (intValue <= 60):
+                    circle.style.stroke = '#3CB371';
+                    break;
+                case (intValue <= 80):
+                    circle.style.stroke = '#2E8B57';
+                     break;
+                 default:
+                    circle.style.stroke = '#008000';
+
+            }
+            circle.style.strokeDashoffset = dashoffset;
+
+            intValue = parseInt(value1);
+            switch (true) {
+                case (intValue <= 20):
+                    circle.style.fill = '#DCDCDC';
+                    break;
+                case (intValue <= 40):
+                    circle.style.fill = '#D3D3D3';
+                    break;
+                case (intValue <= 60):
+                    circle.style.fill = '#C0C0C0';
+                    break;
+                case (intValue <= 80):
+                    circle.style.fill = '#A9A9A9';
+                    break;
+                default:
+                    circle.style.fill = '#808080';
+            }
+        }
+        circle.style.strokeDasharray = CIRCUMFERENCE;
+        var metadataTotalCompletion = '@metadataTotalCompletion';
+        var metadataRequiredCompletion = '@metadataRequiredCompletion'
+         progress(metadataTotalCompletion, metadataRequiredCompletion);
+
+        function bulletMetadataRates(min, max, point) {
+            leftRect.setAttribute("width", min);
+            centerRect.setAttribute("x", min);
+            var w = max - min;
+            centerRect.setAttribute("width", w);
+            rightRect.setAttribute("x", max);
+            w = 100 - max;
+            rightRect.setAttribute("width", w);
+            pointer.setAttribute("x", point);
+        }
+
+        //Metadata rating
+        var minRate = @metadataMinRate;
+        var maxRate = @metadataMaxRate;
+        var currentRate = @metadataTotalCompletion;
+        var leftRect = document.querySelector('.metaRate_left');
+        var centerRect = document.querySelector('.metaRate_center');
+        var rightRect = document.querySelector('.metaRate_right');
+        var pointer = document.querySelector('.metaPointer');
+        bulletMetadataRates(minRate, maxRate, currentRate);
+
+        function bulletRates(min, max, current) {
+            var point = (100 * current) / (max - min);
+            pointer.setAttribute("x", Math.round(point));
+        }
+        //Dataset description rating
+        minRate = @minDescriptionLength;
+        maxRate = @maxDescriptionLength;
+        currentRate = @descriptionLength;
+        pointer = document.querySelector('.descPointer');
+        bulletRates(minRate, maxRate, currentRate);
+
+        //Data structure description rating
+        minRate = @minDataStrDescriptionLength;
+        maxRate = @maxDataStrDescriptionLength;
+        currentRate = @currentDataStrDescriptionLength;
+        pointer = document.querySelector('.strDescPointer');
+        bulletRates(minRate, maxRate, currentRate);
+
+        minRate = @minDataStrUsage;
+        maxRate = @maxDataStrUsage;
+        currentRate = @currentDataStrUsage;
+        pointer = document.querySelector('.dataStrUsagePointer');
+        bulletRates(minRate, maxRate, currentRate);
+
+        //Dataset size rating
+        minRate = @minTotalSize;
+        maxRate = @maxTotalSize;
+        currentRate = @currentTotalSize;
+        pointer = document.querySelector('.datasetSizePointer');
+        bulletRates(minRate, maxRate, currentRate);
 
     });
 
@@ -183,25 +374,50 @@
         //Add a Dashboard like view to see the list of datasets.
         document.getElementById('text').textContent = performerDatasets;
         var pd = performerDatasets.split(",");
-        var url = '@Url.Action("ShowDatasetPerformer", "DQ", new { datasetIds = "datasetIds", performerName = "performerName"})';
-        url = url.replace('datasetIds', performerDatasets);
+        var url = '@Url.Action("Index", "Home", new { area = "ddm", SelectedItem = "performerName", parent = "Person" })';
         url = url.replace('performerName', performerName);
         window.open(url, '_blank');
         //document.getElementById('text').textContent = pd[1];
-
         //window.open("https://www.w3schools.com");
     }
 
-        //Function proportion(portion, total)
-        //return the ratio of portion to total.
-    function proportion(p, total) {
-        try {
-            var ratio = (p * 100) / total;
-        }
-        catch { var ratio = 99999; }
+            </script>
 
-        //return (ratio.toFixed(0));
-        return (ratio.toFixed(2));
-    }
 
-</script>
+            <style>
+                div {
+                    text-align: initial;
+                }
+
+                h.red {
+                    color: red;
+                }
+
+                h.green {
+                    color: green;
+                }
+
+                h.clickable {
+                    color: green;
+                    cursor: pointer;
+                }
+
+                .progress-ring {
+                    stroke: grey;
+                }
+
+                .progress-ring__circle {
+                    stroke-linecap: square;
+                }
+
+                .metaRate_left,
+                .metaRate_right {
+                    fill: gray;
+                    opacity: 0.5;
+                }
+
+                .metaRate_center {
+                    fill: gray;
+                    opacity: 0.8;
+                }
+            </style>

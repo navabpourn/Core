@@ -15,10 +15,13 @@ namespace BExIS.Modules.Vim.UI.Models
         public dataStrUsage dataStrUsage = new dataStrUsage();
         public performersActivity performersActivity = new performersActivity();
         public string type { get; set; }
-        public List<int> ColumnRowNumbers = new List<int>(); //column . row
+        //public List<int> ColumnRowNumbers = new List<int>(); //column . row
+        public int columnNumber = 0;
+        public int rowNumber = 0;
         public string dStrDescription { get; set; }
-        public Controllers.DQController.metadataComplition metadataComplition = new Controllers.DQController.metadataComplition();
-        public List<Controllers.DQController.performer> performers = new List<Controllers.DQController.performer>(); 
-        public List<Controllers.DQController.varVariable> varVariables = new List<Controllers.DQController.varVariable>();        
+        public metadataComplition metadataComplition = new metadataComplition();
+        public List<performer> performers = new List<performer>(); 
+        public List<varVariable> varVariables = new List<varVariable>();
+        public List<datasetInformation> datasetsInformation = new List<datasetInformation>();
     }
 }

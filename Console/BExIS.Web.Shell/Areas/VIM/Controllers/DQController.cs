@@ -24,30 +24,47 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
     public class DQController : Controller
     {
+        public class datasetInformation{
+            public string type;
+            public long datasetId;
+            public int metadataComplition;
+            public int descriptionLength;
+            public int structureDescriptionLength;
+            public int structureUsage;
+            public int datasetSize;
+            public List<int> performersRate = new List<int>();
+        }
         public class datasetDescriptionLength
         {
             public int minDescriptionLength;
             public int currentDescriptionLength;
             public int maxDescriptionLength;
+            public double medianDescriptionLength;
         }
         public class dataStrDescriptionLength
         {
             public int minDescriptionLength;
             public int currentDescriptionLength;
             public int maxDescriptionLength;
+            public double medianDescriptionLength;
         }
         public class dataStrUsage
         {
             public int minDataStrUsage;
             public int currentDataStrUsage;
             public int maxDataStrUsage;
+            public double medianDataStrUsage;
         }
 
         public class datasetTotalSize
         {
-            public int minTotalSize;
-            public int currentTotalSize;
-            public int maxTotalSize;
+            public int minSizeTabular = 0;
+            public int maxSizeTabular = 0;
+            public double medianSizeTabular = 0;
+            public int minSizeFile = 0;
+            public int maxSizeFile = 0;
+            public double medianSizeFile = 0; 
+            public int currentTotalSize = 0;
         }
 
         public class performer
@@ -60,6 +77,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
         {
             public int minActivity;
             public int maxActivity;
+            public double medianActivity;
         }
 
         public class metadataComplition
@@ -68,6 +86,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             public int requiredFields;
             public int minRate;
             public int maxRate;
+            public double medianRate;
         }
         public class varVariable
         {
@@ -75,8 +94,12 @@ namespace BExIS.Modules.Vim.UI.Controllers
             public string varDescription;
             public string varType;
             public int varUsage;
-            public string min = "";
-            public string max = "";
+            public double min;
+            public double max;
+            public int missing = 0;
+            public bool uniqueValue = false;
+            public int uniqueValueNumber;
+            public string mostFrequent;
         }
 
 
@@ -88,6 +111,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             //List<string> performers = new List<string>();
             List<performer> performers = new List<performer>();
             List<varVariable> varVariables = new List<varVariable>();
+            List<datasetInformation> datasetsInformation = new List<datasetInformation>();
             Dictionary<string, double> datasetSize = new Dictionary<string, double>();
             //--------
 
@@ -108,72 +132,27 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
             //////////////////////////////////////////////////////////////////////////
             DatasetVersion currentDatasetVersion = dm.GetDatasetVersion(versionId); //Current dataset version
-            DataStructure currentDataStr = dsm.AllTypesDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id);            
+            DataStructure currentDataStr = dsm.AllTypesDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id);
             
             //Find the dataset Type
             string currentDatasetType = "file";
             if (currentDataStr.Self.GetType() == typeof(StructuredDataStructure)) { currentDatasetType = "tabular";  }
             dqModel.type = currentDatasetType;
 
-
-            List<long> datasetIds = dm.GetDatasetLatestIds();
-            List<int> metadataRates = new List<int>();
-            List<int> dsDescLength = new List<int>();
-            List<int> dstrDescLength = new List<int>();
-            List<int> dstrUsage = new List<int>();
-            List<int> datasetTotalSize = new List<int>();
-
-            foreach (long Id in datasetIds)
-            {
-                if (dm.IsDatasetCheckedIn(Id))
-                {
-                    // get last dataset versions
-                    DatasetVersion datasetVersion = dm.GetDatasetVersions(Id).Last();
-                    DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id);
-                    metadataRates.Add(GetMetadataRate(datasetVersion));
-                    dsDescLength.Add(datasetVersion.Description.Length);
-                    dstrDescLength.Add(datasetVersion.Dataset.DataStructure.Description.Length);
-                    dstrUsage.Add(dataStr.Datasets.Count());
-                    datasetTotalSize.Add(GetDatasetTotalSize(Id, datasetVersion, dataStr, currentDatasetType)); //return null or number                    
-                }
-            }
-            //Add information about min and max metadata complition
-            dqModel.metadataComplition.minRate = metadataRates.Min();
-            dqModel.metadataComplition.maxRate = metadataRates.Max();
-
-            //Add information about min and max dataset description length
-            dqModel.datasetDescriptionLength.minDescriptionLength = dsDescLength.Min();
-            dqModel.datasetDescriptionLength.maxDescriptionLength = dsDescLength.Max();
-
-            //Add information about min and max data structure description length
-            dqModel.dataStrDescriptionLength.minDescriptionLength = dstrDescLength.Min();
-            dqModel.dataStrDescriptionLength.maxDescriptionLength = dstrDescLength.Max();
-            
-            //Add information about min and max data structure usage
-            dqModel.dataStrUsage.minDataStrUsage = dstrUsage.Min();
-            dqModel.dataStrUsage.maxDataStrUsage = dstrUsage.Max();
-
-            //Add information about dataset total size
-            dqModel.datasetTotalSize.minTotalSize = datasetTotalSize.Min();
-            dqModel.datasetTotalSize.maxTotalSize = datasetTotalSize.Max();
-
-            //CURRENT DATASET VERSION
-            dqModel.metadataComplition.totalFields = GetMetadataRate(currentDatasetVersion); //current dataset version: metadata rate
-            dqModel.metadataComplition.requiredFields = 100; //Need to calculate: metadataStructureId = dsv.Dataset.MetadataStructure.Id;
-            dqModel.datasetDescriptionLength.currentDescriptionLength = currentDatasetVersion.Description.Length; // Current dataset vesion: dataset description length
-            dqModel.dataStrDescriptionLength.currentDescriptionLength = currentDatasetVersion.Dataset.DataStructure.Description.Length; // Current dataset version: data structure description length
-            dqModel.dataStrUsage.currentDataStrUsage = currentDataStr.Datasets.Count();
-            dqModel.datasetTotalSize.currentTotalSize = GetDatasetTotalSize(datasetId, currentDatasetVersion, currentDataStr, currentDatasetType);
-            /////////////////////////////////////////////////////////////////////////
-
             #region performers
             List<int> activities = new List<int>();
+
             foreach (var user in um.Users)
             {
-                activities.Add(FindDatasetsFromPerformerUsername(dm, um, user.Name).Count());
+                int activity = FindDatasetsFromPerformerUsername(dm, um, user.Name).Count();
+                if (activity > 0)
+                {
+                    activities.Add(FindDatasetsFromPerformerUsername(dm, um, user.Name).Count());
+                }
             }
             dqModel.performersActivity.minActivity = activities.Min();
             dqModel.performersActivity.maxActivity = activities.Max();
+            dqModel.performersActivity.medianActivity = medianCalc(activities);
 
             List<string> performerUsernames = FindDatasetPerformers(dm, datasetId, versionId); //Find performers of the current dataset.
             foreach (var username in performerUsernames) //foreach performer of the current dataset
@@ -188,156 +167,264 @@ namespace BExIS.Modules.Vim.UI.Controllers
             dqModel.performers = performers;
             #endregion
 
+            List<long> datasetIds = dm.GetDatasetLatestIds();
+            List<int> metadataRates = new List<int>();
+            List<int> dsDescLength = new List<int>();
+            List<int> dstrDescLength = new List<int>();
+            List<int> dstrUsage = new List<int>();
+            List<int> datasetSizeTabular = new List<int>();
+            List<int> datasetSizeFile = new List<int>();
+
+            foreach (long Id in datasetIds)
+            {
+                if (dm.IsDatasetCheckedIn(Id))
+                {
+                    DatasetVersion datasetVersion = dm.GetDatasetLatestVersion(Id);  //get last dataset versions
+                    DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id);
+                    int metadataRate = GetMetadataRate(datasetVersion);
+                    metadataRates.Add(metadataRate);
+                    dsDescLength.Add(datasetVersion.Description.Length);
+                    dstrDescLength.Add(datasetVersion.Dataset.DataStructure.Description.Length);
+                    dstrUsage.Add(dataStr.Datasets.Count());
+                    string type = "file";
+                    if (dataStr.Self.GetType() == typeof(StructuredDataStructure)) { type = "tabular"; }
+                    int size = GetDatasetTotalSize(Id, type); //return dataset size
+                    if (size >= 0)
+                    {  //if result is not producable
+                        if (type == "file") { datasetSizeFile.Add(size); }
+                        if (type == "tabular") { datasetSizeTabular.Add(size); }
+                    }
+                    List<int> pfRates = new List<int>();
+                    List<string> pfs = FindDatasetPerformers(dm, Id); //A list of usernames
+                    foreach (var username in pfs) //foreach performer of the current dataset
+                    {
+                        List<long> pfIds = FindDatasetsFromPerformerUsername(dm, um, username); //Find all datasets in wich the username is involved.
+                        int pfRate = (100 * pfIds.Count()) / (activities.Max() - activities.Min()); //A number between 0-100
+                        pfRates.Add(pfRate);
+                    }
+
+                    //Collect information for each dataset.
+                    datasetInformation datasetInformation = new datasetInformation();
+                    datasetInformation.type = type;
+                    datasetInformation.datasetId = Id;
+                    datasetInformation.metadataComplition = metadataRate;
+                    datasetInformation.descriptionLength = datasetVersion.Description.Length;
+                    datasetInformation.structureDescriptionLength = datasetVersion.Dataset.DataStructure.Description.Length;
+                    datasetInformation.structureUsage = dataStr.Datasets.Count();
+                    datasetInformation.datasetSize = size;
+                    datasetInformation.performersRate = pfRates;
+                    datasetsInformation.Add(datasetInformation);
+                }
+            }
+            
+            dqModel.datasetsInformation = datasetsInformation;
+            
+            //Add information about min and max metadata complition
+            dqModel.metadataComplition.minRate = metadataRates.Min();
+            dqModel.metadataComplition.maxRate = metadataRates.Max();
+            dqModel.metadataComplition.medianRate = medianCalc(metadataRates);
+
+            //Add information about min and max dataset description length
+            dqModel.datasetDescriptionLength.minDescriptionLength = dsDescLength.Min();
+            dqModel.datasetDescriptionLength.maxDescriptionLength = dsDescLength.Max();
+            dqModel.datasetDescriptionLength.medianDescriptionLength = medianCalc(dsDescLength);
+
+            //Add information about min and max data structure description length
+            dqModel.dataStrDescriptionLength.minDescriptionLength = dstrDescLength.Min();
+            dqModel.dataStrDescriptionLength.maxDescriptionLength = dstrDescLength.Max();
+            dqModel.dataStrDescriptionLength.medianDescriptionLength = medianCalc(dstrDescLength);
+
+            //Add information about min and max data structure usage
+            dqModel.dataStrUsage.minDataStrUsage = dstrUsage.Min();
+            dqModel.dataStrUsage.maxDataStrUsage = dstrUsage.Max();
+            dqModel.dataStrUsage.medianDataStrUsage = medianCalc(dstrUsage);
+
+            //Add information about dataset total size
+            if (datasetSizeTabular.Count() > 0)
+            {
+                dqModel.datasetTotalSize.minSizeTabular = datasetSizeTabular.Min();
+                dqModel.datasetTotalSize.maxSizeTabular = datasetSizeTabular.Max();
+                dqModel.datasetTotalSize.medianSizeTabular = medianCalc(datasetSizeTabular);
+            }
+            if (datasetSizeFile.Count() > 0)
+            {
+                dqModel.datasetTotalSize.minSizeFile = datasetSizeFile.Min();
+                dqModel.datasetTotalSize.maxSizeFile = datasetSizeFile.Max();
+                dqModel.datasetTotalSize.medianSizeFile = medianCalc(datasetSizeFile);
+            }
+
+            //CURRENT DATASET VERSION
+            dqModel.metadataComplition.totalFields = GetMetadataRate(currentDatasetVersion); //current dataset version: metadata rate
+            dqModel.metadataComplition.requiredFields = 100; //Need to calculate: metadataStructureId = dsv.Dataset.MetadataStructure.Id;
+            dqModel.datasetDescriptionLength.currentDescriptionLength = currentDatasetVersion.Description.Length; // Current dataset vesion: dataset description length
+            dqModel.dataStrDescriptionLength.currentDescriptionLength = currentDatasetVersion.Dataset.DataStructure.Description.Length; // Current dataset version: data structure description length
+            dqModel.dataStrUsage.currentDataStrUsage = currentDataStr.Datasets.Count();
+            //dqModel.datasetTotalSize.currentTotalSize = GetDatasetTotalSize(datasetId, currentDatasetVersion, currentDataStr, currentDatasetType);
+            /////////////////////////////////////////////////////////////////////////
+
             #region TABULAR FORMAT DATASET                
             if (currentDatasetType == "tabular")
             {
-                StructuredDataStructure sds = dsm.StructuredDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id);
-                    
-                var variables = sds.Variables;
-                dqModel.ColumnRowNumbers.Add(variables.Count()); //number of columns
-                long rowCount = dm.RowCount(datasetId, null);
-                dqModel.ColumnRowNumbers.Add(Convert.ToInt32(rowCount)); // number of rows
-
-                DataTable table = null;
-                if (rowCount > 0) table = dm.GetLatestDatasetVersionTuples(datasetId, null, null, null, 0, (int)rowCount);
-                DataRowCollection dataRows = table.Rows;
-
-                int columnNumber = 3; //First four columns are added from system.
-                foreach (var variable in variables)
+                int count = 0;
+                try
                 {
-                    columnNumber += 1;
-                    try
+                    count = dm.GetDatasetVersionEffectiveTupleIds(currentDatasetVersion).Count();
+                }
+                catch
+                {
+                    
+                }
+                StructuredDataStructure sds = dsm.StructuredDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id);
+
+
+                var variables = sds.Variables;
+                dqModel.columnNumber = variables.Count();
+
+                int columnNumber = -1; //First four columns are added from system.
+                if (variables.Count() > 0)
+                {
+                    foreach (var variable in variables)
                     {
+                        columnNumber += 1;
+                        string missingValue = variable.MissingValue; //MISSING VALUE
                         varVariable varV = new varVariable();
                         varV.varLabel = variable.Label; // variable name
                         varV.varDescription = variable.Description;
                         varV.varUsage = variable.DataAttribute.UsagesAsVariable.Count(); //How many other data structures are using the same variable template
                         varV.varType = variable.DataAttribute.DataType.SystemType; // What is the system type?
-                        // Find data values of a variable
-                        List<string> values = new List<string>();
-                        foreach (DataRow row in dataRows)
+                        varV.missing = 100;
+                        try
                         {
-                            var value = row.ItemArray[columnNumber];//.ToString();
-                            values.Add(value.ToString());
-                        }
+                            DataTable table = dm.GetDatasetVersionTuples(versionId, 0, count);
+                            DataColumnCollection columns = table.Columns;
+                            DataRowCollection rows = table.Rows;
 
-                        if (varV.varType != "string")
-                        {
-                            varV.min = values.Min().ToString();
-                            varV.max = values.Max().ToString();
-                        }
-                        else if (varV.varType == "String")
-                        {
-                            List<string> dataFrequency = FindMostFrequenceValue(values);
-                            varV.max = dataFrequency[0];
-                            varV.min = dataFrequency[1];
-                        }
+                            dqModel.datasetTotalSize.currentTotalSize = columns.Count * rows.Count;
 
-                        varVariables.Add(varV);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
+                            double min = 0;
+                            double max = 0;
+                            int missing = rows.Count;
+                            bool b = true; //first value
+                            Dictionary<string, int> frequency = new Dictionary<string, int>();
+                            foreach (DataRow row in rows)
+                            {
+                                var value = row.ItemArray[columnNumber];//.ToString();
+                                if (value == null || value.ToString() == missingValue)
+                                {
+                                    missing -= 1;
+                                }
 
+                                //if value is numeric and it is in the first row
+                                else if (varV.varType != "String" && varV.varType != "DateTime" && varV.varType != "Boolean") //&& varV.varType != "DateTime"
+                                {
+                                    if (b == true)
+                                    {
+                                        min = Convert.ToDouble(value);
+                                        max = Convert.ToDouble(value);
+                                        b = false;
+                                    }
+                                    else
+                                    {
+                                        if (Convert.ToDouble(value) < min) { min = Convert.ToDouble(value); }
+                                        if (Convert.ToDouble(value) > max) { max = Convert.ToDouble(value); }
+                                    }
+                                }
+
+                                else //if data type is string or date or bool
+                                {
+                                    if (frequency.ContainsKey(value.ToString()))
+                                    {
+                                        frequency[value.ToString()] += 1;
+                                    }
+                                    else
+                                    {
+                                        frequency[value.ToString()] = 1;
+                                    }
+                                }
+                            }
+                            varV.min = min;
+                            varV.max = max;
+                            if (rows.Count > 0) { varV.missing = 100 * missing / rows.Count; }
+                            if (frequency.Count() > 0)
+                            {
+                                var sortedDict = from entry in frequency orderby entry.Value ascending select entry;
+                                if (sortedDict.First().Value == 1)
+                                {
+                                    varV.uniqueValue = true;
+                                    varV.uniqueValueNumber = sortedDict.Count();
+                                }
+                                else
+                                {
+                                    varV.uniqueValue = false;
+                                    varV.uniqueValueNumber = 0;
+                                    varV.mostFrequent = sortedDict.First().Key;
+                                }
+                            }
+                            varVariables.Add(varV);
+                        }
+                        catch
+                        {
+                            dqModel.datasetTotalSize.currentTotalSize = -1;
+                        }
+                        dqModel.varVariables = varVariables;
                     }
-                    dqModel.varVariables = varVariables;                    
-                }
-                #endregion
 
-                #region file format dataset
-                // File data structure
-                else
-                {
-                    //dqModel.datasetSize.Add("", 0);
                 }
-                #endregion
-                           
+            }
+
+            #endregion
+
+            #region file format dataset
+            // File data structure
+            else
+            {
+                //dqModel.datasetSize.Add("", 0);
+            }
+            #endregion
+
             return PartialView(dqModel);
         }
 
-        /// <summary>
-        /// Find the most frequence value in a list of data values
-        /// </summary>
-        /// <param name="values">A list of data values</param>
-        /// <returns>A list of two elements</returns>
-        /// <returns>If most frequent finds, 0:value, 1:population</returns>
-        /// <returns>If most population is 1, 0:"unique values", 1:numbers of uique values </returns>
-        private List<string> FindMostFrequenceValue(List<string> values)
+
+
+        private int GetDatasetTotalSize(long id, string type)
         {
-            List<string> mostFrequency = new List<string>();
+            int size = 0;
+            DatasetManager dm = new DatasetManager();                        
 
-            var counts = new Dictionary<string, int>();
-            int population = 0;
-            foreach (var value in values)
+            if (type == "tabular")
             {
-                int count;
-                counts.TryGetValue(value, out count);
-                count++;
-                //Automatically replaces the entry if it exists;
-                //no need to use 'Contains'
-                counts[value] = count;
-            }
-
-            string mostCommonValue = null;
-            foreach (var pair in counts)
-            {
-                if (pair.Value > population)
+                try
                 {
-                    population = pair.Value;
-                    mostCommonValue = pair.Key;
+                    DataTable table = dm.GetLatestDatasetVersionTuples(id, true);
+                    DataColumnCollection columns = table.Columns;
+                    DataRowCollection rows = table.Rows;
+
+                    size = columns.Count * rows.Count;
+                }
+                catch
+                {
+                    size = -1;
                 }
             }
-            if (population == 1)
+            if (type == "file")
             {
-                mostFrequency.Add("unique values");
-                mostFrequency.Add(values.Count().ToString());
+                size = 0; // GetDatasetTotalSizeFile();
             }
-            else
-            {
-                mostFrequency.Add(mostCommonValue);
-                mostFrequency.Add(population.ToString());
-            }           
-            return (mostFrequency);
+
+            return (size);
         }
 
-        private int GetDatasetTotalSize(long datasetId, DatasetVersion datasetVersion, DataStructure dataStr, string currentDatasetType)
+        private double medianCalc(List<int> intList)
         {
-            int size = -1; 
-            string datasetType = "file";            
-            if (dataStr.Self.GetType() == typeof(StructuredDataStructure)) 
-            { 
-                datasetType = "tabular";                
-            }
+            List<int> sortedList = intList.OrderBy(i => i).ToList();
             
-            if (datasetType == currentDatasetType && datasetType == "tabular")
-            {
-                size = GetDatasetTotalSizeTabular(datasetId, datasetVersion, dataStr);
-            }
-            if (datasetType == currentDatasetType && datasetType == "file")
-            {
-                size = 1; // GetDatasetTotalSizeFile();
-            }
-
-            return (size);
-
-        }
-
-        private int GetDatasetTotalSizeTabular(long datasetId, DatasetVersion datasetVersion, DataStructure dataSt)
-        {
-            int size = -1;
-           
-            DataStructureManager dsm = new DataStructureManager();
-            StructuredDataStructure sds = dsm.StructuredDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id);
-            var variables = sds.Variables;
-            int numberOfColumns = variables.Count();
-            DatasetManager dm = new DatasetManager();
-            int numberOfRows = Convert.ToInt32(dm.RowCount(datasetId, null));
-            if (numberOfRows < 0) { numberOfRows = 0;  }
-
-            size = numberOfColumns * numberOfRows;
-            return (size);
-
+            //get the median
+            int size = sortedList.Count();
+            int mid = size / 2;
+            double median = (size % 2 != 0) ? (double)sortedList[mid] : ((double)sortedList[mid] + (double)sortedList[mid - 1]) / 2;
+            
+            return (median);
         }
 
         /// <summary>
@@ -350,34 +437,10 @@ namespace BExIS.Modules.Vim.UI.Controllers
             XmlDocument metadata = dsv.Metadata;
             string xmlFrag = metadata.OuterXml;
             List<int> metaInfo = GetMetaInfoArray(xmlFrag);
+            // [0] number of all metadata qttributes, [1] number of filled metadata atributes
+            // [2] number of all required metadata attributes, [3] number of filled required metadata attributes
             int rate = (metaInfo[1] * 100) / metaInfo[0]; //percentage of all metadata fields contains information
             return (rate);
-        }
-
-        private List<int> GetMetadataComplitionRates(DatasetManager dm, int percent)
-        {
-            List<int> minMaxRate = new List<int>();
-            List<long> datasetIds = dm.GetDatasetLatestIds();
-            List<int> ratings = new List<int>();
-            foreach (long datasetId in datasetIds)
-            {
-                if (dm.IsDatasetCheckedIn(datasetId))
-                {
-                    // get all dataset versions
-                    var dsv = dm.GetDatasetVersions(datasetId).Last();
-                    XmlDocument metadata = dsv.Metadata;
-                    string xmlFrag = metadata.OuterXml;
-                    List<int> metaInfo = GetMetaInfoArray(xmlFrag);
-                    int rate = (metaInfo[1] * 100) / metaInfo[0]; //percentage of all metadata fields contains information
-                    ratings.Add(rate);
-                }
-            }
-            int minRate = ratings.Min();
-            int maxRate = ratings.Max();
-
-            minMaxRate.Add(minRate);
-            minMaxRate.Add(maxRate);
-            return (minMaxRate);
         }
 
         /// <summary>
@@ -423,10 +486,10 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
             // Close the reader.
             reader.Close();
-            metaInfo.Add(countMetaAttr);
-            metaInfo.Add(countMetaComplition);
-            metaInfo.Add(100);
-            metaInfo.Add(100);
+            metaInfo.Add(countMetaAttr); // number of all metadata qttributes
+            metaInfo.Add(countMetaComplition); // number of filled metadata atributes
+            metaInfo.Add(100); // number of all required metadata attributes
+            metaInfo.Add(100); // number of filled required metadata attributes
             return (metaInfo);
         }
 
@@ -461,6 +524,23 @@ namespace BExIS.Modules.Vim.UI.Controllers
             return (performerUsernames);
         }
 
+        private List<string> FindDatasetPerformers(DatasetManager dm, long datasetId) //latest version
+        {
+            var dsvs = dm.GetDatasetVersions(datasetId);
+            string performer;
+            List<string> performerUsernames = new List<string>();
+            foreach (var d in dsvs)
+            {
+                performer = d.ModificationInfo.Performer;
+                if (performer != null && !performerUsernames.Contains(performer))
+                {
+                    performerUsernames.Add(performer);
+                }
+            }
+            return (performerUsernames);
+        }
+
+
         /// <summary>
         /// This funcion finds all datasets that a performer is involved.
         /// </summary>
@@ -478,8 +558,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     Ids.Add(datasetId);
                 }
             }            
-            return (Ids);
-            //throw new NotImplementedException();
+            return (Ids);            
         }
 
         /// <summary>

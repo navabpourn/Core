@@ -166,7 +166,7 @@
 
                                           ///Add the DQ tab by Nafiseh.
                                           tabs.Add()
-                                            .Text("Data Quality")
+                                            .Text("Dataset Quality")
                                             .LoadContentFrom("ShowDQ", "DQ", new { area = "vim", datasetID = @Model.Id, versionId = Model.VersionId })
                                             .HtmlAttributes(new { id = "dq" })
                                             .Enabled(true);

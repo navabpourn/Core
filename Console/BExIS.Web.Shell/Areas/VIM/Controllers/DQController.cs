@@ -32,9 +32,10 @@ namespace BExIS.Modules.Vim.UI.Controllers
             public int descriptionLength;
             public int structureDescriptionLength;
             public int structureUsage;
-            public int datasetSize;
+            public int datasetSizeTabular;            
             public int columnNumber;
             public int rowNumber;
+            public double datasetSizeFile; 
             public int fileNumber;
             public List<int> performersRate = new List<int>();
         }
@@ -62,33 +63,33 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
         public class datasetTotalSize
         {
-            public int minSizeTabular = 0;
-            public int maxSizeTabular = 0;
-            public double medianSizeTabular = 0;
-            public int minSizeFile = 0;
-            public int maxSizeFile = 0;
-            public double medianSizeFile = 0; 
-            public int currentTotalSize = 0;
+            public int minSizeTabular = -1;
+            public int maxSizeTabular = -1;
+            public double medianSizeTabular = -1;
+            public double minSizeFile = -1;
+            public double maxSizeFile = -1;
+            public double medianSizeFile = -1; 
+            public double currentTotalSize = -1;
         }
 
         public class datasetRowNumber
         {
             public int minRowNumber;
-            public int currentRowNumber;
+            public int currentRowNumber=-1;
             public int maxRowNumber;
             public double medianRowNumber;
         }
         public class datasetColNumber
         {
             public int minColNumber;
-            public int currentColNumber;
+            public int currentColNumber =-1;
             public int maxColNumber;
             public double medianColNumber;
         }
         public class datasetFileNumber
         {
             public int minFileNumber;
-            public int currentFileNumber;
+            public int currentFileNumber=-1;
             public int maxFileNumber;
             public double medianFileNumber;
         }
@@ -210,107 +211,128 @@ namespace BExIS.Modules.Vim.UI.Controllers
             List<int> datasetRows = new List<int>();
             List<int> datasetCols = new List<int>();
             List<double> datasetSizeFile = new List<double>();
-            List<int> fileNumber = new List<int>();
+            List<int> datasetFileNumber = new List<int>();
+            int fileNumber = 0;
             List<int> sizeTabular = new List<int>(); //collect size, column number, and row number for one dataset
 
-            //foreach (long Id in datasetIds)
-            //{
-            //    if (dm.IsDatasetCheckedIn(Id))
-            //    {
-            //        DatasetVersion datasetVersion = dm.GetDatasetLatestVersion(Id);  //get last dataset versions
-            //        DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id);
-            //        int metadataRate = GetMetadataRate(datasetVersion);
-            //        metadataRates.Add(metadataRate);
-            //        dsDescLength.Add(datasetVersion.Description.Length);
-            //        dstrDescLength.Add(datasetVersion.Dataset.DataStructure.Description.Length);
-            //        dstrUsage.Add(dataStr.Datasets.Count());
-            //        string type = "file";
-            //        if (dataStr.Self.GetType() == typeof(StructuredDataStructure)) { type = "tabular"; }
-            //        if (type == "tabular"){
-            //            sizeTabular= GetTabularSize(Id);
-            //            datasetSizeTabular.Add(sizeTabular[0]);
-            //            datasetCols.Add(sizeTabular[1]); //column number
-            //            datasetRows.Add(sizeTabular[2]); //row number                        
-            //        }                      
-            //        else if (type == "file") { 
-            //        }
+            foreach (long Id in datasetIds)
+            {
+                if (dm.IsDatasetCheckedIn(Id))
+                {
+                    DatasetVersion datasetVersion = dm.GetDatasetLatestVersion(Id);  //get last dataset versions
 
-            //        List<int> pfRates = new List<int>();
-            //        List<string> pfs = FindDatasetPerformers(dm, Id); //A list of usernames
-            //        foreach (var username in pfs) //foreach performer of the current dataset
-            //        {
-            //            List<long> pfIds = FindDatasetsFromPerformerUsername(dm, um, username); //Find all datasets in wich the username is involved.
-            //            int pfRate = pfIds.Count();
-            //            pfRates.Add(pfRate);
-            //        }
+                    DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id);
+                    int metadataRate = GetMetadataRate(datasetVersion);
+                    metadataRates.Add(metadataRate);
+                    dsDescLength.Add(datasetVersion.Description.Length);
+                    dstrDescLength.Add(datasetVersion.Dataset.DataStructure.Description.Length);
+                    dstrUsage.Add(dataStr.Datasets.Count());
+                    string type = "file";
+                    if (dataStr.Self.GetType() == typeof(StructuredDataStructure)) { type = "tabular"; }
+                    if (type == "tabular")
+                    {
+                        sizeTabular = GetTabularSize(Id);
+                        datasetSizeTabular.Add(sizeTabular[0]);
+                        datasetCols.Add(sizeTabular[1]); //column number
+                        datasetRows.Add(sizeTabular[2]); //row number  
+                        fileNumber = -1;
+                        datasetSizeFile.Add(-1);
+                    }
+                    else if (type == "file")
+                    {
+                        List<ContentDescriptor> contentDescriptors = datasetVersion.ContentDescriptors.ToList();
+                        fileNumber = contentDescriptors.Count;
+                        datasetSizeFile.Add(GetFileDatasetSize(datasetVersion));
+                        datasetFileNumber.Add(fileNumber);
+                        sizeTabular[0] = -1; //no tabular
+                        sizeTabular[1] = -1; //no column
+                        sizeTabular[2] = -1; //no row
+                    }
+                    List<int> pfRates = new List<int>();
+                    List<string> pfs = FindDatasetPerformers(dm, Id); //A list of usernames
+                    foreach (var username in pfs) //foreach performer of the current dataset
+                    {
+                        List<long> pfIds = FindDatasetsFromPerformerUsername(dm, um, username); //Find all datasets in wich the username is involved.
+                        int pfRate = pfIds.Count();
+                        pfRates.Add(pfRate);
+                    }
 
-            //        //Collect information for each dataset.
-            //        datasetInformation datasetInformation = new datasetInformation();
-            //        datasetInformation.type = type;
-            //        datasetInformation.datasetId = Id;
-            //        datasetInformation.metadataComplition = metadataRate;
-            //        datasetInformation.descriptionLength = datasetVersion.Description.Length;
-            //        datasetInformation.structureDescriptionLength = datasetVersion.Dataset.DataStructure.Description.Length;
-            //        datasetInformation.structureUsage = dataStr.Datasets.Count();
-            //        datasetInformation.datasetSize = sizeTabular[0];
-            //        datasetInformation.columnNumber = sizeTabular[1];
-            //        datasetInformation.rowNumber = sizeTabular[2];
-            //        datasetInformation.performersRate = pfRates;
-            //        datasetsInformation.Add(datasetInformation);
-            //    }
-            //}
+                    List<int> dSec = datasetSecurity(Id);
+                    //Collect information for each dataset.
+                    datasetInformation datasetInformation = new datasetInformation();
+                    datasetInformation.type = type;
+                    datasetInformation.datasetId = Id;
+                    datasetInformation.metadataComplition = metadataRate;
+                    datasetInformation.descriptionLength = datasetVersion.Description.Length;
+                    datasetInformation.structureDescriptionLength = datasetVersion.Dataset.DataStructure.Description.Length;
+                    datasetInformation.structureUsage = dataStr.Datasets.Count();
+                    datasetInformation.datasetSizeTabular = sizeTabular[0];
+                    datasetInformation.columnNumber = sizeTabular[1];
+                    datasetInformation.rowNumber = sizeTabular[2];
+                    datasetInformation.fileNumber = fileNumber;
+                    datasetInformation.datasetSizeFile = datasetSizeFile.Sum();
+                    datasetInformation.performersRate = pfRates;
+                    datasetsInformation.Add(datasetInformation);
+                }
+            }
 
-            //dqModel.datasetsInformation = datasetsInformation;
+            dqModel.datasetsInformation = datasetsInformation;
 
-            ////Add information about min and max metadata complition
-            //dqModel.metadataComplition.minRate = metadataRates.Min();
-            //dqModel.metadataComplition.maxRate = metadataRates.Max();
-            //dqModel.metadataComplition.medianRate = medianCalc(metadataRates);
+            //Add information about min and max metadata complition
+            dqModel.metadataComplition.minRate = metadataRates.Min();
+            dqModel.metadataComplition.maxRate = metadataRates.Max();
+            dqModel.metadataComplition.medianRate = medianCalc(metadataRates);
 
-            ////Add information about min and max dataset description length
-            //dqModel.datasetDescriptionLength.minDescriptionLength = dsDescLength.Min();
-            //dqModel.datasetDescriptionLength.maxDescriptionLength = dsDescLength.Max();
-            //dqModel.datasetDescriptionLength.medianDescriptionLength = medianCalc(dsDescLength);
+            //Add information about min and max dataset description length
+            dqModel.datasetDescriptionLength.minDescriptionLength = dsDescLength.Min();
+            dqModel.datasetDescriptionLength.maxDescriptionLength = dsDescLength.Max();
+            dqModel.datasetDescriptionLength.medianDescriptionLength = medianCalc(dsDescLength);
 
-            ////Add information about min and max data structure description length
-            //dqModel.dataStrDescriptionLength.minDescriptionLength = dstrDescLength.Min();
-            //dqModel.dataStrDescriptionLength.maxDescriptionLength = dstrDescLength.Max();
-            //dqModel.dataStrDescriptionLength.medianDescriptionLength = medianCalc(dstrDescLength);
+            //Add information about min and max data structure description length
+            dqModel.dataStrDescriptionLength.minDescriptionLength = dstrDescLength.Min();
+            dqModel.dataStrDescriptionLength.maxDescriptionLength = dstrDescLength.Max();
+            dqModel.dataStrDescriptionLength.medianDescriptionLength = medianCalc(dstrDescLength);
 
-            ////Add information about min and max data structure usage
-            //dqModel.dataStrUsage.minDataStrUsage = dstrUsage.Min();
-            //dqModel.dataStrUsage.maxDataStrUsage = dstrUsage.Max();
-            //dqModel.dataStrUsage.medianDataStrUsage = medianCalc(dstrUsage);
+            //Add information about min and max data structure usage
+            dqModel.dataStrUsage.minDataStrUsage = dstrUsage.Min();
+            dqModel.dataStrUsage.maxDataStrUsage = dstrUsage.Max();
+            dqModel.dataStrUsage.medianDataStrUsage = medianCalc(dstrUsage);
 
-            ////Add information about dataset total size
-            //if (datasetSizeTabular.Count() > 0)
-            //{
-            //    dqModel.datasetTotalSize.minSizeTabular = datasetSizeTabular.Min();
-            //    dqModel.datasetTotalSize.maxSizeTabular = datasetSizeTabular.Max();
-            //    dqModel.datasetTotalSize.medianSizeTabular = medianCalc(datasetSizeTabular);
+            //Add information about dataset total size
+            if (datasetSizeTabular.Count() > 0)
+            {
+                dqModel.datasetTotalSize.minSizeTabular = datasetSizeTabular.Min();
+                dqModel.datasetTotalSize.maxSizeTabular = datasetSizeTabular.Max();
+                dqModel.datasetTotalSize.medianSizeTabular = medianCalc(datasetSizeTabular);
 
-            //    dqModel.datasetRowNumber.minRowNumber = datasetRows.Min();
-            //    dqModel.datasetRowNumber.maxRowNumber = datasetRows.Max();
-            //    dqModel.datasetRowNumber.medianRowNumber = medianCalc(datasetRows);
+                dqModel.datasetRowNumber.minRowNumber = datasetRows.Min();
+                dqModel.datasetRowNumber.maxRowNumber = datasetRows.Max();
+                dqModel.datasetRowNumber.medianRowNumber = medianCalc(datasetRows);
 
-            //    dqModel.datasetColNumber.minColNumber = datasetCols.Min();
-            //    dqModel.datasetColNumber.maxColNumber = datasetCols.Max();
-            //    dqModel.datasetColNumber.medianColNumber = medianCalc(datasetCols);
-            //}
-            //if (datasetSizeFile.Count() > 0)
-            //{
-            //    dqModel.datasetTotalSize.minSizeFile = datasetSizeFile.Min();
-            //    dqModel.datasetTotalSize.maxSizeFile = datasetSizeFile.Max();
-            //    dqModel.datasetTotalSize.medianSizeFile = medianCalc(datasetSizeFile);
-            //}
+                dqModel.datasetColNumber.minColNumber = datasetCols.Min();
+                dqModel.datasetColNumber.maxColNumber = datasetCols.Max();
+                dqModel.datasetColNumber.medianColNumber = medianCalc(datasetCols);
+            }
+            if (datasetSizeFile.Count() > 0)
+            {
+                dqModel.datasetTotalSize.minSizeFile = datasetSizeFile.Min();
+                dqModel.datasetTotalSize.maxSizeFile = datasetSizeFile.Max();
+                dqModel.datasetTotalSize.medianSizeFile = medianCalc(datasetSizeFile);
+            }
+            if (datasetFileNumber.Count > 0)
+            {
+                dqModel.datasetFileNumber.minFileNumber = datasetFileNumber.Min();
+                dqModel.datasetFileNumber.maxFileNumber = datasetFileNumber.Max();
+                dqModel.datasetFileNumber.medianFileNumber = medianCalc(datasetFileNumber);
+            }
 
-            ////CURRENT DATASET VERSION
-            //dqModel.metadataComplition.totalFields = GetMetadataRate(currentDatasetVersion); //current dataset version: metadata rate
-            //dqModel.metadataComplition.requiredFields = 100; //Need to calculate: metadataStructureId = dsv.Dataset.MetadataStructure.Id;
-            //dqModel.datasetDescriptionLength.currentDescriptionLength = currentDatasetVersion.Description.Length; // Current dataset vesion: dataset description length
-            //dqModel.dataStrDescriptionLength.currentDescriptionLength = currentDatasetVersion.Dataset.DataStructure.Description.Length; // Current dataset version: data structure description length
-            //dqModel.dataStrUsage.currentDataStrUsage = currentDataStr.Datasets.Count();
-            ////dqModel.datasetTotalSize.currentTotalSize = GetDatasetTotalSize(datasetId, currentDatasetVersion, currentDataStr, currentDatasetType);
+            //CURRENT DATASET VERSION
+            dqModel.metadataComplition.totalFields = GetMetadataRate(currentDatasetVersion); //current dataset version: metadata rate
+            dqModel.metadataComplition.requiredFields = 100; //Need to calculate: metadataStructureId = dsv.Dataset.MetadataStructure.Id;
+            dqModel.datasetDescriptionLength.currentDescriptionLength = currentDatasetVersion.Description.Length; // Current dataset vesion: dataset description length
+            dqModel.dataStrDescriptionLength.currentDescriptionLength = currentDatasetVersion.Dataset.DataStructure.Description.Length; // Current dataset version: data structure description length
+            dqModel.dataStrUsage.currentDataStrUsage = currentDataStr.Datasets.Count();
+            //dqModel.datasetTotalSize.currentTotalSize = GetDatasetTotalSize(datasetId, currentDatasetVersion, currentDataStr, currentDatasetType);
             /////////////////////////////////////////////////////////////////////////
 
             #region TABULAR FORMAT DATASET                
@@ -437,7 +459,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             // File data structure
             else
             {
-                List<FileInformation> files = new List<FileInformation>();                
+                //List<FileInformation> files = new List<FileInformation>();                
                 List<fileInformation> filesInformation = new List<fileInformation>();
                 if (currentDatasetVersion != null)
                 {
@@ -454,15 +476,16 @@ namespace BExIS.Modules.Vim.UI.Controllers
                                 string name = uri.Split('\\').Last();
                                 fileInformation.fileName = name.Split('.')[0];
                                 fileInformation.fileFormat = name.Split('.')[1];
-                                double volum = 0;
+                                double volum = -1;
                                 fileInformation.fileSize = volum;
 
                                 filesInformation.Add(fileInformation);
                             }
 
-                        }
-                        
+                        }                        
                     }
+                    dqModel.fileNumber = contentDescriptors.Count;
+                    dqModel.datasetTotalSize.currentTotalSize = -1;
                 }
                 dqModel.filesInformation = filesInformation;
                 //files = getFilesByDatasetId(datasetId, entityType, versionId);
@@ -472,7 +495,36 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
             return PartialView(dqModel);
         }
-      
+
+        private double GetFileDatasetSize(DatasetVersion datasetVersion)
+        {
+            double size = -1;
+            return (size);
+        }
+
+        /// <summary>
+        /// security level is the information about dataset restriction. 
+        /// </summary>
+        /// <param name="id">datasetId</param>
+        /// <returns>security: a list of integer</returns>
+        /// <remarks>security[0]: 1=dataset is public; 0=dataset is restricted.</remarks>
+        /// <remarks>security[1]: if dataset is restricted, the number of users with the read access.</remarks>
+        /// <remarks>security[2]: The number of users exist in the system</remarks>
+        private List<int> datasetSecurity(long id)
+        {
+            List<int> security = new List<int>(); //[0]:public,[1]:read access, [2]:how many users 
+            EntityPermissionManager epm = new EntityPermissionManager();
+            //bool access = entityPermissionManager.HasEffectiveRight(HttpContext.User.Identity.Name, typeof(Dataset), datasetID, RightType.Read);
+            //var publicRights = entityPermissionManager.GetRights(null, entityId, instanceId);
+            //foreach (var subject in subjectsDb)
+            //{
+            //    var rights = entityPermissionManager.GetRights(subject.Id, entityId, instanceId);
+            //    var effectiveRights = entityPermissionManager.GetEffectiveRights(subject.Id, entityId, instanceId);
+
+            //    subjects.Add(EntityPermissionGridRowModel.Convert(subject, rights, effectiveRights));
+            //}
+            return (security);
+        }
 
         private List<int> GetTabularSize(long id)
         {
@@ -510,6 +562,22 @@ namespace BExIS.Modules.Vim.UI.Controllers
             int mid = size / 2;
             double median = (size % 2 != 0) ? (double)sortedList[mid] : ((double)sortedList[mid] + (double)sortedList[mid - 1]) / 2;
             
+            return (median);
+        }
+        private double medianCalc(List<double> doubleList)
+        {
+            List<int> intList = new List<int>();
+            foreach(double d in doubleList)
+            {
+                intList.Add((int)Math.Round(d));
+            }
+            List<int> sortedList = intList.OrderBy(i => i).ToList();
+
+            //get the median
+            int size = sortedList.Count();
+            int mid = size / 2;
+            double median = (size % 2 != 0) ? (double)sortedList[mid] : ((double)sortedList[mid] + (double)sortedList[mid - 1]) / 2;
+
             return (median);
         }
 

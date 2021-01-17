@@ -598,6 +598,7 @@
     <Content Include="Views\Visualization\Index.cshtml" />
     <Content Include="Views\DQ\ShowDatasetList.cshtml" />
     <Content Include="Views\DQ\testView.cshtml" />
+    <Content Include="Views\DQ\ShowDQ.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

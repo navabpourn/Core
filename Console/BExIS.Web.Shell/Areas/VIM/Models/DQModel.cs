@@ -16,11 +16,13 @@ namespace BExIS.Modules.Vim.UI.Models
         public performersActivity performersActivity = new performersActivity();
         public datasetColNumber datasetColNumber = new datasetColNumber();
         public datasetRowNumber datasetRowNumber = new datasetRowNumber();
+        public datasetFileNumber datasetFileNumber = new datasetFileNumber();
         public List<fileInformation> filesInformation = new List<fileInformation>();
         public string type { get; set; }
         //public List<int> ColumnRowNumbers = new List<int>(); //column . row
-        public int columnNumber = 0;
-        public int rowNumber = 0;
+        public int columnNumber = -1;
+        public int rowNumber = -1;
+        public int fileNumber = -1;
         public string dStrDescription { get; set; }
         public metadataComplition metadataComplition = new metadataComplition();
         public List<performer> performers = new List<performer>(); 

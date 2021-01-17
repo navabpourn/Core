@@ -545,6 +545,8 @@
     <Content Include="Content\2013.2.611\Windows7\sprite.png" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\legend.png" />
+    <Content Include="Content\legend3.png" />
     <Content Include="Content\Site.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -594,8 +596,8 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\Visualization\Index.cshtml" />
-    <Content Include="Views\DQ\ShowDQ.cshtml" />
     <Content Include="Views\DQ\ShowDatasetList.cshtml" />
+    <Content Include="Views\DQ\testView.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -662,6 +664,10 @@
     <ProjectReference Include="..\..\..\..\Modules\DIM\BExIS.Dim.Services\BExIS.Dim.Services.csproj">
       <Project>{cac933a2-6849-4c61-82b4-cbf4052210cc}</Project>
       <Name>BExIS.Dim.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMM\IDIV.Modules.Mmm.UI.csproj">
+      <Project>{58F2040A-EEB5-4175-A439-B6DBCE50BE01}</Project>
+      <Name>IDIV.Modules.Mmm.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\RPM\BExIS.Modules.Rpm.UI.csproj">
       <Project>{76702A4F-D6E5-416F-BD81-58447514AF05}</Project>

@@ -14,6 +14,9 @@ namespace BExIS.Modules.Vim.UI.Models
         public datasetTotalSize datasetTotalSize = new datasetTotalSize();
         public dataStrUsage dataStrUsage = new dataStrUsage();
         public performersActivity performersActivity = new performersActivity();
+        public datasetColNumber datasetColNumber = new datasetColNumber();
+        public datasetRowNumber datasetRowNumber = new datasetRowNumber();
+        public List<fileInformation> filesInformation = new List<fileInformation>();
         public string type { get; set; }
         //public List<int> ColumnRowNumbers = new List<int>(); //column . row
         public int columnNumber = 0;

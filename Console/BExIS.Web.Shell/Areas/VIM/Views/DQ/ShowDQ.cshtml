@@ -33,11 +33,23 @@
     int maxSizeFile = Model.datasetTotalSize.maxSizeFile;
     double medianSizeFile = Model.datasetTotalSize.medianSizeFile;
     int currentTotalSize = Model.datasetTotalSize.currentTotalSize;
-    string sizeK = "";
     var columnNumber = Model.columnNumber;
     var rowNumber = Model.rowNumber;
     string type = Model.type;
     var performers = Model.performers;
+    string p_names = "";
+    string p_ids = "";
+    string p_rates = "";
+    for(int i=0; i<performers.Count; ++i)
+    {
+        p_names += performers[i].performerName + "/";
+        p_rates += performers[i].performerRate.ToString() + "/";
+        for(int j=0; j< performers[i].DatasetIds.Count; ++j)
+        {
+            p_ids += performers[i].DatasetIds[j].ToString() + ",";
+        }
+        p_ids += "/";
+    }
     int minPerformersActivity = Model.performersActivity.minActivity;
     int maxPerformersActivity = Model.performersActivity.maxActivity;
     double medianPerformersActivity = Model.performersActivity.medianActivity;
@@ -50,8 +62,6 @@
     int metadataMaxRate = Model.metadataComplition.maxRate;
     double metadaMedianRate = Model.metadataComplition.medianRate;
     var datasetsInformation = Model.datasetsInformation;
-    int aux1 = 0;
-    int aux2 = 0;
 
 }
 
@@ -60,17 +70,17 @@
         <progress max="100" value="@metadataTotalCompletion">hhh</progress>
     </p>*@
 
-<table>
+<table id="generalInfo">
     <tr>
         <td>
             @* **************************************** *@
             @* ********** General Information ********* *@
             @* **************************************** *@
-            <table class="left">
+            <table id="left" class="left">
                 <tr>
                     <td></td>
                     <td></td>
-                    <td><b>Versus all</b></td>
+                    <td><b>Versus all</b> &nbsp;&nbsp; <b onclick="openLegend()">&#8505;</b></td>
                     <td>
                         <div>
                             @if (datasetsInformation.Count > 0)
@@ -98,37 +108,10 @@
                 </tr>
                 <tr>
                     @*** METADATA COMPLITION **********************************@
-
                     <td>Metadata complition</td>
                     <td>@metadataTotalCompletion% of all metadata fields.</td>
-                    <td>
-                        @*<div id ="myDiv"class="tooltip">
-                            <span class="tooltiptext">Green indicates the current dataset. Blue indicates the median.</span>*@
-                            <svg class="metadataRates"
-                                 width="200"
-                                 height="30">
-                                <rect class="metaRate_left" x="0" y="2" width="10" height="16" style=" fill: gray; opacity: 0.5;" />
-                                <rect class="metaRate" x="10" y="2" width="90" height="16" style=" fill: gray; opacity: 0.8;" />
-                                <rect class="metaMedian" x="75" y="1" width="3" height="18" style=" fill:blue;" />
-                                <rect class="metaPointer" x="70" y="1" width="3" height="18" style=" fill:green;" />
-                                <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0%</text>
-                                <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@metadataMaxRate%</text>
-                                Sorry, your browser does not support inline SVG.
-                            </svg>                        
-                    </td>
-                    <td>
-                        <svg class="DSmetadataRates"
-                             width="200"
-                             height="30"
-                             style="display: none;">
-                            <rect class="DSmetaRate_left" x="0" y="2" width="10" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="DSmetaRate" x="10" y="2" width="90" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="DSmetaMedian" x="75" y="1" width="3" height="18" style=" fill:blue;" />
-                            <rect class="DSmetaPointer" x="70" y="1" width="3" height="18" style=" fill:green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0%</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@metadataMaxRate%</text>
-                        </svg>
-                    </td>
+                    <td id="metadataTotalComplition" />
+                    <td id="DSmetadataTotalComplition" />                        
                 </tr>
                 <tr>
                     @*** DATASET SIZE **********************************@
@@ -139,45 +122,8 @@
                         @if (@type == "file")
                         {<h class="green">@currentTotalSize</h> <h> KB </h>}
                     </td>
-                    <td>
-                        <svg class="datasetSizeRates"
-                             width="150"
-                             height="30">
-                            <rect class="datasetSizeRate_left" x="0" y="2" width="10" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="datasetSizeRate" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="datasetSizeMedian" x="75" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="datasetSizePointer" x="70" y="1" width="3" height="18" style=" fill: green;" />
-                            @sizeK = @minSizeTabular;
-                            @if (@minSizeTabular >= 1000) { sizeK = Math.Round((double)(@minSizeTabular / 1000)).ToString() + "K"; }
-                            else { sizeK = @minSizeTabular.ToString(); }
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">@sizeK</text>
-                            @sizeK = @maxSizeTabular;
-                            @if (@maxSizeTabular >= 1000) { sizeK = Math.Round((double)(@maxSizeTabular / 1000)).ToString() + "K"; }
-                            else { sizeK = @maxSizeTabular.ToString(); }
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@sizeK</text>
-                            }
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>
-                    <td>
-                        <svg class="DSdatasetSizeRates"
-                             width="150"
-                             height="30"
-                             style="display: none" ;>
-                            <rect class="DSdatasetSizeRate_left" x="0" y="2" width="10" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="DSdatasetSizeRate" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="DSdatasetSizeMedian" x="75" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="DSdatasetSizePointer" x="70" y="1" width="3" height="18" style=" fill: green;" />
-                            @if (@minSizeTabular >= 1000) { sizeK = Math.Round((double)(@minSizeTabular / 1000)).ToString() + "K"; }
-                            else { sizeK = @minSizeTabular.ToString(); }
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">@minSizeTabular</text>
-                            @if (@maxSizeTabular >= 1000) { sizeK = Math.Round((double)(@maxSizeTabular / 1000)).ToString() + "K"; }
-                            else { sizeK = @maxSizeTabular.ToString(); }
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@sizeK</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>
-                @*<td></td>*@ @*DELETE IT*@
+                    <td id="datasetSizeRates" />                       
+                    <td id="DSdatasetSizeRates" />                        
                 </tr>
                 <tr>
                     @*** DATASET DESCRIPTION **********************************@
@@ -185,35 +131,11 @@
                     <td>
                         @if (@descriptionLength > 0)
                         {<h class="green">&#10004; @descriptionLength</h> <h> characters</h>}
-                    else
-                    { <h class="red">&#10008; @descriptionLength </h> <h>characters</h>}
+                        else
+                        { <h class="red">&#10008; @descriptionLength </h> <h>characters</h>}
                     </td>
-                    <td>
-                        <svg class="descriptionRates"
-                             width="150"
-                             height="30">
-                            <rect class="descRate_left" x="0" y="2" width="10" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="descRate" x="10" y="2" width="90" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="descMedian" x="75" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="descPointer" x="70" y="1" width="3" height="18" style=" fill: green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxDescriptionLength</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>
-                    <td>
-                        <svg class="DSdescriptionRates"
-                             width="200"
-                             height="30"
-                             style="display: none;">
-                            <rect class="DSdescRate_left" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="DSdescRate" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="DSdescMedian" x="75" y="1" width="3" height="18" style=" fill:blue;" />
-                            <rect class="DSdescPointer" x="70" y="1" width="3" height="18" style=" fill:green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxDescriptionLength</text>
-                        </svg>
-                    </td>
+                    <td id="descriptionRates" />                        
+                    <td id="DSdescriptionRates" />                        
                 </tr>
                 <tr>
                     @*** DATA STRUCTURE DESCRIPTION **********************************@
@@ -221,36 +143,11 @@
                     <td>
                         @if (currentDataStrDescriptionLength > 0)
                         {<h class="green">&#10004; @currentDataStrDescriptionLength </h> <h>characters</h>}
-                    else
-                    {<h class="red">&#10008; No description!</h>}
+                        else
+                        {<h class="red">&#10008; No description!</h>}
                     </td>
-                    <td>
-                        <svg class="StrDescriptionRates"
-                             width="150"
-                             height="30">
-                            <rect class="strDescRate_left" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="strDescRate" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="strDescMedian" x="75" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="strDescPointer" x="70" y="1" width="3" height="18" style=" fill: green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxDataStrDescriptionLength</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>
-                    <td>
-                        <svg class="DSStrDescriptionRates"
-                             width="150"
-                             height="30"
-                             style="display: none;">
-                            <rect class="DSstrDescRate_left" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="DSstrDescRate" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="DSstrDescMedian" x="75" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="DSstrDescPointer" x="70" y="1" width="3" height="18" style=" fill: green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxDataStrDescriptionLength</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>
+                    <td id="strDescriptionRates" />                       
+                    <td id="DSStrDescriptionRates" />                        
                 </tr>
                 <tr>
                     @*** DATA STRUCTURE USAGE **********************************@
@@ -258,95 +155,25 @@
                     <td>
                         @if (currentDataStrUsage > 1)
                         {<h class="green">&#10004; @currentDataStrUsage </h> <h>times used in other datasets.</h>}
-                    else
-                    {<h class="red">&#10008; No description!</h>}
+                        else
+                        {<h class="red">&#10008; No description!</h>}
                     </td>
-                    <td>
-                        <svg class="DataStrUsage"
-                             width="150"
-                             height="30">
-                            <rect class="dataStrUsageRate_left" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="dataStrUsageRate" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="dataStrUsageMedian" x="75" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="dataStrUsagePointer" x="70" y="1" width="3" height="18" style=" fill: green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxDataStrUsage</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                        </td>
-                    <td>
-                        <svg class="DSDataStrUsage"
-                             width="150"
-                             height="30"
-                             style="display: none;">
-                            <rect class="DSdataStrUsageRate_left" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="DSdataStrUsageRate" x="0" y="2" width="100" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="DSdataStrUsageMedian" x="75" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="DSdataStrUsagePointer" x="70" y="1" width="3" height="18" style=" fill: green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">0</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxDataStrUsage</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>
+                    <td id="dataStrUsage" />                        
+                    <td id="DSdataStrUsage" />                        
                 </tr>
 
                 @*** PERFORMERS **********************************@
-                <tr>
-                    <td><b> contributors name </b></td>
+                <tr  id="performerRate">
+                    <td><b> Contributor name </b></td>
                     <td><b>Contributes in datasets</b></td>
                     <td><b>Versus all</b></td>
-                </tr>
-                @for (int i = 0; i < performers.Count; ++i)
-                {
-            <tr>
-                <td>@performers[i].performerName </td>
+                    
+                </tr>                
+                @*<tr id="performerRate"></tr>*@
 
-                @if (@performers[i].DatasetIds.Count > 1)
-                {
-                    performerDatasets = String.Join(",", Model.performers[i].DatasetIds);
-                    performerName = @performers[i].performerName;
-                    <td>
-                        <h class="clickable" onclick="OpenFilterSearchPerformer('@performerDatasets', '@performerName')">&#10004; @performers[i].DatasetIds.Count </h> <h> times</h>
-                    </td>
-                    <td>
-                        @if(@performers[i].DatasetIds.Count > 1) { aux1 = 100 * @minPerformersActivity / @maxPerformersActivity; aux2 = 100 - aux1; }
-                        <svg class="performerRates"
-                             width="150"
-                             height="30">
-                            <rect class="performerRate_left" x="0" y="2" width="@aux1" height="16" style=" fill: gray; opacity: 0.5;" />
-                            <rect class="performerRate" x="@aux1" y="2" width="@aux2" height="16" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="performerMedian" x="@medianPerformersActivity" y="1" width="3" height="18" style=" fill: blue;" />
-                            <rect class="performerPointer" x=@performers[i].performerRate y="1" width="3" height="18" style=" fill: green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">@minPerformersActivity</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxPerformersActivity</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                        @*<script>
-                                bullet(@minPerformersActivity, @maxPerformersActivity, @performers[i].performerRate, @medianPerformersActivity,
-                                    document.querySelector('.performerRate_left'), document.querySelector('.performerRate'),
-                                    document.querySelector('.performerPointer'), document.querySelector('.performerMedian'));
-                        </script>*@
-                    </td>
-                    @*<td>
-                        <svg class="DSperformerRates"
-                             width="150"
-                             height="30">
-                            <rect class="DSperformerRate" x="0" y="2" width="100" height="20" style=" fill: gray; opacity: 0.8;" />
-                            <rect class="DSperformerMedian" x="@medianPerformersActivity" y="1" width="3" height="22" style=" fill: blue;" />
-                            <rect class="DSperformerPointer" x=@performers[i].performerRate y="1" width="3" height="22" style=" fill: green;" />
-                            <text x="0" y="30" text-anchor="start" style="font-size:x-small;">@minPerformersActivity</text>
-                            <text x="100" y="30" text-anchor="end" style="font-size:x-small;">@maxPerformersActivity</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>*@
-                }
-
-            </tr>
-                }
             </table>
         </td>
-        <td>
-
+</tr>
 </table>
 <table>
     <tr>
@@ -374,15 +201,15 @@
                     @for (int i = 0; i < varVariables.Count; ++i)
                     {
                 <tr>
-                    <td>
+                    <td class="dataType">
                         @if (@varVariables[i].varType == "String")
-                        {<p>𝓐</p>}
+                        {<p>Abc</p>}
                         else if (@varVariables[i].varType == "DateTime")
-                        {<p>⌛</p>}
+                        {<p>01/01</p>}
                         else if (@varVariables[i].varType == "Boolean")
-                        {<p>⌹</p>}
+                        {<p>T|F</p>}
                         else
-                        {<p>﹟ </p>}
+                        {<p>123</p>}
                     </td>
                     <td>@varVariables[i].varLabel</td>
                     <td>
@@ -418,11 +245,11 @@
                         {
                             if (@varVariables[i].uniqueValue == true)
                             {
-                                <h>@varVariables[i].uniqueValueNumber Unique values</h>
+                                <h>@varVariables[i].uniqueValueNumber <b style="color:green;">Unique values</b></h>
                             }
                             else
                             {
-                                <h>Most frequent: @varVariables[i].mostFrequent</h>
+                                <h>@varVariables[i].mostFrequent<b style="color:green;">Most frequent</b></h>
                             }
                         }
                     }
@@ -439,58 +266,7 @@
     </tr>
 </table>
 
-<table>
-    <tr>
-        <td>
-            <svg width="200"
-                 height="30">
-                <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
-                <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
-                <rect x="75" y="1" width="3" height="22" style=" fill:blue;" />
-                <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
-                <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
-                <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
-                Sorry, your browser does not support inline SVG.
-            </svg>
-        </td>
-        <td>
-            <svg width="200"
-                 height="30">
-                <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
-                <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
-                <rect x="75" y="1" width="3" height="22" style=" fill:darkorange;" />
-                <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
-                <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
-                <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
-                Sorry, your browser does not support inline SVG.
-            </svg>
-        </td>
-        <td>
-            <svg width="200"
-                 height="30">
-                <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
-                <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
-                <rect x="75" y="1" width="3" height="22" style=" fill:orange;" />
-                <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
-                <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
-                <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
-                Sorry, your browser does not support inline SVG.
-            </svg>
-        </td>
-        <td>
-            <svg width="200"
-                 height="30">
-                <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
-                <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
-                <rect x="75" y="1" width="3" height="22" style=" fill:darkblue;" />
-                <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
-                <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
-                <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
-                Sorry, your browser does not support inline SVG.
-            </svg>
-        </td>
-    </tr>
-</table>
+
 
 
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
@@ -504,89 +280,117 @@
             document.getElementById('Warning').textContent = 'There is no Data to show ' + text;
         }
 
-        //function bulletMetadataRates(min, point, median) {
-        //    leftRect.setAttribute("width", min);
-        //    rightRect.setAttribute("x", min);
-        //    var w = 100 - min;
-        //    rightRect.setAttribute("width", w);
-        //    pointer.setAttribute("x", point);
-        //    medianPointer.setAttribute("x", median);
-        //}
-
-        //function bulletMetadataRates(min, max, point) {
-        //    leftRect.setAttribute("width", min);
-        //    centerRect.setAttribute("x", min);
-        //    var w = max - min;
-        //    centerRect.setAttribute("width", w);
-        //    rightRect.setAttribute("x", max);
-        //    w = 100 - max;
-        //    rightRect.setAttribute("width", w);
-        //    pointer.setAttribute("x", point);
-        //}
-
-
 
         //Metadata rating
-        bullet(@metadataMinRate, @metadataMaxRate, @metadataTotalCompletion, @metadaMedianRate,
-            document.querySelector('.metaRate_left'), document.querySelector('.metaRate'),
-            document.querySelector('.metaPointer'), document.querySelector('.metaMedian'));
-
-        //Dataset description rating-->-->
-        bullet(@minDescriptionLength, @maxDescriptionLength, @descriptionLength, @medianDescriptionLength,
-            document.querySelector('.descRate_left'), document.querySelector('.descRate'),
-            document.querySelector('.descPointer'), document.querySelector('.descMedian'));
-
-
-        //Data structure description rating
-        bullet(@minDataStrDescriptionLength, @maxDataStrDescriptionLength, @currentDataStrDescriptionLength, @medianDataStrDescriptionLength,
-            document.querySelector('.strDescRate_left'), document.querySelector('.strDescRate'),
-            document.querySelector('.strDescPointer'), document.querySelector('.strDescMedian'));
-
-        bullet(@minDataStrUsage, @maxDataStrUsage, @currentDataStrUsage, @medianDataStrUsage,
-            document.querySelector('.dataStrUsageRate_left'), document.querySelector('.dataStrUsageRate'),
-            document.querySelector('.dataStrUsagePointer'), document.querySelector('.dataStrUsageMedian'));
-
-
+        document
+            .getElementById("metadataTotalComplition")
+            .appendChild(indicators(@metadataMinRate, @metadataMaxRate, @metadataTotalCompletion, @metadaMedianRate));
+        //Dataset description rating
+        document
+            .getElementById("descriptionRates")
+            .appendChild(indicators(@minDescriptionLength, @maxDescriptionLength, @descriptionLength, @medianDescriptionLength));
         //Dataset size rating
         if ('@type' == "tabular") {
-            bullet(@minSizeTabular, @maxSizeTabular, @currentTotalSize, @medianSizeTabular,
-                document.querySelector('.datasetSizeRate_left'), document.querySelector('.datasetSizeRate'),
-                document.querySelector('.datasetSizePointer'), document.querySelector('.datasetSizeMedian'));
+            document
+                .getElementById("datasetSizeRates")
+                .appendChild(indicators(@minSizeTabular, @maxSizeTabular, @currentTotalSize, @medianSizeTabular));
         }
-       
+        //Data structure description rating
+        document
+            .getElementById("strDescriptionRates")
+            .appendChild(indicators(@minDataStrDescriptionLength, @maxDataStrDescriptionLength, @currentDataStrDescriptionLength, @medianDataStrDescriptionLength));
+        //Data structure usage
+        document
+            .getElementById("dataStrUsage")
+            .appendChild(indicators(@minDataStrUsage, @maxDataStrUsage, @currentDataStrUsage, @medianDataStrUsage));
+        //Performers
+        var names = '@p_names'.split("/");
+        var rates = '@p_rates'.split("/");
+        var ids = '@p_ids'.split("/");
+        for (var i = 0; i < names.length-1; i++) {
+            addPerformer(names[i], rates[i], ids[i]);
+        }
+
 
     });
 
-    function bulletRatesCompare(min, max, current, median, pointer, medianPointer) {
-        var medianPoint = (100 * (median - min)) / (max - min);
-        medianPointer.setAttribute("x", Math.round(medianPoint));
-        var point = (100 * (current - min)) / (max - min);
-        pointer.setAttribute("x", Math.round(point));
+
+    function addPerformer(name, rate, ids) {
+        var table = document.getElementById("left");
+        var row = table.insertRow();
+        //row.setAttribute("id", "pf");
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        cell1.innerHTML = name;
+        cell2.innerHTML = ids.length + " times";
+        cell3.appendChild(indicators(@minPerformersActivity, @maxPerformersActivity, rate, @medianPerformersActivity));
+    }
+
+    function indicators(min, max, current, median){
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        var d = 5; //deviation from the x=0
+        svg.setAttribute("width", 200);
+        svg.setAttribute("height", 30);
+        var minIndex = (100 * min) / max;
+        console.log("min, max: ", min, ", ", max);
+        console.log("minIdex: ", minIndex);
+        svg.appendChild(addRect(d, 7, minIndex, 16, "fill:gray;opacity:0.4;")); //left rect
+        console.log("leftRect: ", d, minIndex)
+        var endRight = 100 - minIndex;
+        console.log("endRight: ", endRight);        
+        svg.appendChild(addRect(minIndex + d, 7, endRight, 16, "fill:gray;opacity:0.7;")); //main rect
+        console.log("rightRect: ", minIndex + d, endRight);
+        var medianIndex = Math.round((100 * median) / max);
+        svg.appendChild(addRect(medianIndex+d, 6, 2, 18, "fill:black;")); //median indicator
+        var currentIndex = Math.round((100 * current) / max);
+        //svg.appendChild(addRect(currentIndex, 6, 2, 18, "fill:green;")); //median indicator
+        svg.appendChild(addPolygon(currentIndex+d, 7));
+        const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        tooltip.innerHTML = "Min: " + min + "&#013;Median: " + median + "&#013;Max: " + max;
+        svg.appendChild(tooltip);
+        svg.appendChild(addText(d, 30, "start", "0"));
+        svg.appendChild(addText(100 + d, 30, "end", max));
+        console.log("minText, maxText: ", d, 100 + d);
+        console.log("-------");
+        return svg;
+    }
+
+    function addPolygon(x,y) {
+        const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        var points = x + "," + y + " " + (x - 4) + "," + (y - 5) + " " + (x + 4) + "," + (y - 5); 
+        polygon.setAttribute("points", points);
+        polygon.setAttribute("style", "fill: green; stroke: green; stroke - width: 1");
+        return polygon;
 
     }
 
-    function bullet(min, max, current, median, leftRect, mainRect, pointer, medianPointer) {
-        if (max > 0) {
-            leftRect.setAttribute("width", (100 * min) / max);
-            mainRect.setAttribute("x", (100 * min) / max);
-            mainRect.setAttribute("width", 100 - ((100 * min) / max));
-            var medianPoint = (100 * median) / max;
-            medianPointer.setAttribute("x", Math.round(medianPoint));
-            var point = (100 * current) / max;
-            pointer.setAttribute("x", Math.round(point));
-            console.log("current: ", (100 * current) / max);
-        }
-        else {
-            leftRect.setAttribute("width", 0);
-            mainRect.setAttribute("x", 0);
-            mainRect.setAttribute("width", 100);
-            var medianPoint = 0;
-            medianPointer.setAttribute("x", 0);
-            var point = 0;
-            pointer.setAttribute("x", 0);
-            console.log("current: ", 0);
-        }
+    function addSvg(w, h) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", w);
+        svg.setAttribute("height", h);
+        svg.appendChild(addRect(0, 1, 100, 20, "fill:gray;opacity:0.5"));
+        return svg;
     }
+    function addRect(x,y,w,h,style) {
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", x);
+        rect.setAttribute("y", y);
+        rect.setAttribute("width", w);
+        rect.setAttribute("height", h);
+        rect.setAttribute("style", style);
+        return rect;
+    }
+    function addText(x, y, anchor, t) {
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", x);
+        text.setAttribute("y", y);
+        text.setAttribute("text-anchor", anchor);
+        text.setAttribute("style", "font-size:x-small");
+        text.textContent = t;
+        return text;
+    }
+
 
     function dqDetail() {
         var doc = document.getElementById('datasetSelector');
@@ -595,31 +399,45 @@
         var dsInf = doc.value.split(',');
         console.log(dsInf);
 
+
         if (doc.value == "all") {
-            document.querySelector('.DSmetadataRates').style.display = "none";
-            document.querySelector('.DSdatasetSizeRates').style.display = "none";
-            document.querySelector('.DSdescriptionRates').style.display = "none";
-            document.querySelector('.DSStrDescriptionRates').style.display = "none";
-            document.querySelector('.DSDataStrUsage').style.display = "none";
+            document.getElementById("DSmetadataTotalComplition").innerHTML = '';
+            document.getElementById("DSdatasetSizeRates").innerHTML = '';
+            document.getElementById("DSdescriptionRates").innerHTML = '';
+            document.getElementById("DSStrDescriptionRates").innerHTML = '';
+            document.getElementById("DSdataStrUsage").innerHTML = '';
 
         }
         else {
-            document.querySelector('.DSmetadataRates').style.display = "block";
-            document.querySelector('.DSdatasetSizeRates').style.display = "block";
-            document.querySelector('.DSdescriptionRates').style.display = "block";
-            document.querySelector('.DSStrDescriptionRates').style.display = "block";
-            document.querySelector('.DSDataStrUsage').style.display = "block";
+            document.getElementById("DSmetadataTotalComplition").innerHTML = '';
+            document.getElementById("DSdatasetSizeRates").innerHTML = '';
+            document.getElementById("DSdescriptionRates").innerHTML = '';
+            document.getElementById("DSStrDescriptionRates").innerHTML = '';
+            document.getElementById("DSdataStrUsage").innerHTML = '';
 
-            bullet(@metadataMinRate, @metadataMaxRate, dsInf[1], @metadaMedianRate, document.querySelector('.DSmetaRate_left'), document.querySelector('.DSmetaRate'), document.querySelector('.DSmetaPointer'), document.querySelector('.DSmetaMedian'));
+            document
+            .getElementById("DSmetadataTotalComplition")
+                .appendChild(indicators(@metadataMinRate, @metadataMaxRate, dsInf[1], @metadaMedianRate));
 
             if ('@type' == "tabular") {
-                bullet(@minSizeTabular, @maxSizeTabular, dsInf[5], @medianSizeTabular, document.querySelector('.DSdatasetSizeRate_left'), document.querySelector('.DSdatasetSizeRate'), document.querySelector('.DSdatasetSizePointer'), document.querySelector('.DSdatasetSizeMedian')); }
+                document
+                    .getElementById("DSdatasetSizeRates")
+                    .appendChild(indicators(@minSizeTabular, @maxSizeTabular, dsInf[5], @medianSizeTabular));
+            }
 
-            bullet(@minDescriptionLength, @maxDescriptionLength, dsInf[2], @medianDescriptionLength, document.querySelector('.DSdescRate_left'), document.querySelector('.DSdescRate'), document.querySelector('.DSdescPointer'), document.querySelector('.DSdescMedian'));
-            bullet(@minDataStrDescriptionLength, @maxDataStrDescriptionLength, dsInf[3], @medianDataStrDescriptionLength, document.querySelector('.DSstrDescRate_left'), document.querySelector('.DSstrDescRate'), document.querySelector('.DSstrDescPointer'), document.querySelector('.DSstrDescMedian'));
-            bullet(@minDataStrUsage, @maxDataStrUsage, dsInf[4], @medianDataStrUsage, document.querySelector('.DSdataStrUsageRate_left'), document.querySelector('.DSdataStrUsageRate'), document.querySelector('.DSdataStrUsagePointer'), document.querySelector('.DSdataStrUsageMedian'));
-            console.log("DSTR_Usage: ", dsInf[4]);
+            document
+                .getElementById("DSdescriptionRates")
+                .appendChild(indicators(@minDescriptionLength, @maxDescriptionLength, dsInf[2], @medianDescriptionLength));
 
+            document
+                .getElementById("DSStrDescriptionRates")
+                .appendChild(indicators(@minDataStrDescriptionLength, @maxDataStrDescriptionLength, dsInf[3], @medianDataStrDescriptionLength));
+
+            document
+                .getElementById("DSdataStrUsage")
+                .appendChild(indicators(@minDataStrUsage, @maxDataStrUsage, dsInf[4], @medianDataStrUsage));
+
+           
         }
     }
 
@@ -680,25 +498,28 @@
     .tooltip {
         position: relative;
         display: inline-block;
-        border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+        border-bottom: 1px dotted black;
     }
 
-        /* Tooltip text */
-        .tooltip .tooltiptext {
-            visibility: hidden;
+    .tooltip .tooltiptext {
+        visibility: hidden;
             width: 120px;
             background-color: black;
             color: #fff;
             text-align: center;
-            padding: 5px 0;
             border-radius: 6px;
-            /* Position the tooltip text - see examples below! */
+            padding: 5px 0;
+            /* Position the tooltip */
             position: absolute;
             z-index: 1;
         }
 
-        /* Show the tooltip text when you mouse over the tooltip container */
         .tooltip:hover .tooltiptext {
             visibility: visible;
         }
+
+    .dataType {
+        font-family: Brush Script MT;
+        font-style: oblique;
+    }
 </style>

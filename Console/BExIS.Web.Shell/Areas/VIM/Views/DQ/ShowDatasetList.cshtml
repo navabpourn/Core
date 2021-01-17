@@ -12,7 +12,191 @@
     <title>ShowDatasetPerformer</title>
 </head>
 <body>
-    <div> 
+    <div>
+        <table>
+            <tr class="header">
+                <td><p></p></td>
+                <td><p>Text</p></td>
+                <td><p>Number</p></td>
+                <td><p>Time</p></td>
+                <td><p>Boolean</p></td>
+            </tr>
+            <tr>
+                <td class="header"><p>1</p></td>
+                <td style="font-size:150%;">&#128462;</td>
+                <td style="font-size:150%;"># </td>
+                <td>&#x1F4C6;</p></td>
+                <td>⌹</p></td>
+            </tr>
+            <tr class="type2">
+                <td class="header">4</td>
+                <td>Abc</td>
+                <td>123</td>
+                <td>01/01</td>
+                <td>0|1</td>
+            </tr>
+            <tr class="dataType">
+                <td class="header">5 x</td>
+                <td>Abc</td>
+                <td>123</td>
+                <td>01/01</td>
+                <td>0|1</td>
+            </tr>
+            <tr class="type3">
+                <td class="header">6</td>
+                <td>Abc</td>
+                <td>123</td>
+                <td>01/01</td>
+                <td>0|1</td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <td>
+                    <svg width="200"
+                         height="40">
+                        <rect x="0" y="7" width="10" height="16" style=" fill: gray; opacity: 0.5;" />
+                        <rect x="10" y="7" width="80" height="16" style=" fill: gray; opacity: 0.8;" />
+                        <rect x="75" y="6" width="3" height="18" style=" fill:darkblue;" />
+                        <rect x="60" y="6" width="3" height="18" style=" fill:green;" />
+                        <polygon points="52,2 48,2 50,7" style="fill:green;stroke:green;stroke-width:1" />
+                        <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
+                        <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
+                        Sorry, your browser does not support inline SVG.
+                    </svg>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <svg width="200"
+                         height="40">
+                        <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
+                        <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
+                        <rect x="75" y="1" width="3" height="22" style=" fill:blue;" />
+                        <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
+                        <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
+                        <text x="100" y="31" text-anchor="end" style="font-size:x-small;">This</text>
+                        Sorry, your browser does not support inline SVG.
+                    </svg>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <svg width="200"
+                         height="40">
+                        <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
+                        <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
+                        <rect x="75" y="1" width="3" height="22" style=" fill:darkorange;" />
+                        <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
+                        <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
+                        <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
+                        Sorry, your browser does not support inline SVG.
+                    </svg>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <svg width="200"
+                         height="40">
+                        <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
+                        <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
+                        <rect x="75" y="1" width="3" height="22" style=" fill:orange;" />
+                        <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
+                        <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
+                        <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
+                        Sorry, your browser does not support inline SVG.
+                    </svg>
+                </td>
+            </tr>
+            <tr>
+                <td title="like me!" >
+                    <svg width="200"
+                         height="40">
+                        <rect x="0" y="2" width="10" height="20" style=" fill: gray; opacity: 0.5;" />
+                        <rect x="10" y="2" width="80" height="20" style=" fill: gray; opacity: 0.8;" />
+                        <rect x="75" y="1" width="3" height="22" style=" fill:purple;" />
+                        <rect x="60" y="1" width="3" height="22" style=" fill:green;" />
+                        <text x="0" y="31" text-anchor="start" style="font-size:x-small;">0</text>
+                        <text x="100" y="31" text-anchor="end" style="font-size:x-small;">32K</text>
+                        @*<text x="105" y="20"><title>Tooltip 1&#013;Tooltip 2 </title>text1</text>*@
+                        
+                        Sorry, your browser does not support inline SVG.
+                    </svg>
+
+
+                </td>
+            </tr>
+
+        </table>
+
+
     </div>
 </body>
 </html>
+
+<script>
+
+</script>
+
+<style>
+    table, th, td {
+        border: 1px solid gray;
+        text-align:center;
+    }
+    td {
+        width: 200px;
+        height: 50px;
+    }
+    .header {
+        background-color: lightslategray;
+    }
+    .type1 {
+        font-family: verdana;
+        font-style: oblique;
+        font-weight: bold;
+    }
+    .type2 {
+        font-family: Brush Script MT;
+        font-style: oblique;
+        font-weight: bold;
+    }
+    .dataType {
+        font-family: Brush Script MT;
+        font-style: oblique;
+    }
+    .type3 {
+        font-family: Papyrus;
+        font-style: oblique;
+        font-weight: bold;
+    }
+    .type4 {
+        font-family: Papyrus;
+        font-weight: bold;
+    }
+    .type5 {
+        font-family: Papyrus;
+    }
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted black;
+    }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            /* Position the tooltip */
+            position: absolute;
+            z-index: 1;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
+</style>

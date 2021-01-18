@@ -19,10 +19,12 @@ namespace BExIS.Modules.Vim.UI.Models
         public datasetFileNumber datasetFileNumber = new datasetFileNumber();
         public List<fileInformation> filesInformation = new List<fileInformation>();
         public string type { get; set; }
+        public int isPublic { get; set; } //1:true; 0:false;
         //public List<int> ColumnRowNumbers = new List<int>(); //column . row
-        public int columnNumber = -1;
-        public int rowNumber = -1;
-        public int fileNumber = -1;
+        public int columnNumber { get; set; }
+        public int rowNumber { get; set; }
+        public int fileNumber { get; set; }
+        public int userNumber { get; set; }
         public string dStrDescription { get; set; }
         public metadataComplition metadataComplition = new metadataComplition();
         public List<performer> performers = new List<performer>(); 

@@ -47,6 +47,7 @@
     var fileNumber = Model.fileNumber;
     var filesInformation = Model.filesInformation;
     string type = Model.type;
+    var isPublic = Model.isPublic;
     var performers = Model.performers;
     string p_names = "";
     string p_ids = "";
@@ -75,11 +76,6 @@
     var datasetsInformation = Model.datasetsInformation;
     int help;
 }
-
-@*<p id="text">Metadata complition @metadataTotalCompletion%</p>
-    <p>
-        <progress max="100" value="@metadataTotalCompletion">hhh</progress>
-    </p>*@
 
 <table id="generalInfo">
     <tr>
@@ -115,7 +111,8 @@
                                             ps += "," + p.ToString();
                                         }
                                         string ds = @dataset.type.ToString() + "," + @dataset.metadataComplition.ToString() + "," + @dataset.descriptionLength.ToString() + "," + @dataset.structureDescriptionLength.ToString() + ","
-                                            + @dataset.structureUsage.ToString() + "," + @dataset.datasetSizeFile.ToString() + "," + @dataset.columnNumber.ToString() + "," + @dataset.rowNumber.ToString() + "," + @dataset.fileNumber.ToString() + @ps;
+                                            + @dataset.structureUsage.ToString() + "," + @dataset.datasetSizeFile.ToString() + "," + @dataset.columnNumber.ToString() + "," + @dataset.rowNumber.ToString() + "," 
+                                            + @dataset.fileNumber.ToString() +"," + @dataset.isPublic + "," + @ps;
 
                                         <option value="@ds" label="@dataset.datasetId">@dataset.datasetId</option>
 
@@ -129,12 +126,31 @@
                     @*** FILE FORMAT *****************************************@
                     <td>File format</td>
                     <td></td>
-                    <td><h class="green"></h>@type</td>
+                    <td><h class="green">@type</h></td>
                     <td id="DSFileFormat" />
                 </tr>
                 <tr>
+                    @*** IS PUBLIC *****************************************@
+                    <td>Dataset is public</td>
+                    <td></td>
+
+                    @if (@isPublic == 1) //is public
+                    {
+                        <td>
+                            <h class="green">&#10004;</h>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <h class="red">&#10008;</h>
+                        </td>
+                    }
+                    <td id="DSisPublic" />
+                </tr>
+                <tr>
                     @*** METADATA COMPLITION **********************************@
-                    <td>Metadata complition</td>
+                    <td>Metadata completion</td>
                     <td>@metadataTotalCompletion% of all metadata fields.</td>
                     <td id="metadataTotalComplition" />
                     <td id="DSmetadataTotalComplition" />
@@ -311,7 +327,7 @@
                         <td><b>Variable name</b></td>
                         <td><b>Description</b></td>
                         <td><b>Variable usage</b></td>
-                        <td><b>Data complition</b></td>
+                        <td><b>Data completion</b></td>
                         <td><b>Data distribution</b></td>
                     </tr>
                     @for (int i = 0; i < varVariables.Count; ++i)
@@ -590,12 +606,14 @@
     function dqDetail() {
         var doc = document.getElementById('datasetSelector');
         //doc.value = [0]type, [1]metadataComplition, [2]descriptionLength, [3]structureDescriptionLength,
-        // [4]structureUsage, [5]datasetSize, [6]columnNumber, [7]rowNumber, [8]fileNumber, [9]ps;
+        // [4]structureUsage, [5]datasetSize, [6]columnNumber, [7]rowNumber, [8]fileNumber, [9]isPublic, [10]ps;
 
         var dsInf = doc.value.split(',');
+        console.log(dsInf);
         var actual = "other" //if information of other dataset
         var type = dsInf[0];
         console.log("type: ", type);
+        console.log("-type: ", '@type');
 
 
         if (doc.value == "all") {
@@ -606,10 +624,11 @@
             document.getElementById("DSdataStrUsage").innerHTML = '';
             document.getElementById("DSdatasetColNumns").innerHTML = '';
             document.getElementById("DSdatasetRowNumns").innerHTML = '';
+            document.getElementById("DSisPublic").innerHTML = '';
         }
         else {
             document.getElementById("DSFileFormat").innerHTML = type;
-            document.getElementById("DSFileFormat").style.color = "#4E94CF";
+            document.getElementById("DSFileFormat").style.color = '#4E94CF';
             document.getElementById("DSmetadataTotalComplition").innerHTML = '';
             document.getElementById("DSdescriptionRates").innerHTML = '';
             document.getElementById("DSStrDescriptionRates").innerHTML = '';
@@ -617,80 +636,83 @@
             document.getElementById("DSdatasetColNumns").innerHTML = '';
             document.getElementById("DSdatasetRowNumns").innerHTML = '';
 
+            if (dsInf[9] == 1) { //is public
+                document.getElementById("DSisPublic").innerHTML = '&#10004;';
+                document.getElementById("DSisPublic").style.color = '#4E94CF';
+            }
+            else if (dsInf[9] == 0) { //non-public
+                document.getElementById("DSisPublic").innerHTML = '&#10008;';
+                document.getElementById("DSisPublic").style.color = '#cf4e4e';
+            }
+
             document
-            .getElementById("DSmetadataTotalComplition")
+                .getElementById("DSmetadataTotalComplition")
                 .appendChild(indicators(@metadataMinRate, @metadataMaxRate, dsInf[1], @metadaMedianRate, actual));
 
-            if (type == "tabular") {
-                if (dsInf[6] >= 0) { //column number
-                    document
-                        .getElementById("DSdatasetColNumns")
-                        .appendChild(indicators(@minColNumber, @maxColNumber, dsInf[6], @medianColNumber, actual));
-                }
-                else {
-                    document
-                        .getElementById("DSdatasetColNumns")
-                        .innerHTML = "No data!";
-                    document
-                        .getElementById("DSdatasetColNumns")
-                        .style.color = "gray";
-                }
-                if (dsInf[7] >= 0) { //row number
-                    document
-                        .getElementById("DSdatasetRowNumns")
-                        .appendChild(indicators(@minRowNumber, @maxRowNumber, dsInf[7], @medianRowNumber, actual));
-                }
-                else { //rowNumber == -1
-                    document
-                        .getElementById("DSdatasetRowNumns")
-                        .innerHTML = "No data!";
-                    document
-                        .getElementById("DSdatasetRowNumns")
-                        .style.color = "gray";
-                }
-            }
-            else { //type=file
-                if (dsInf[8] >= 0) { //file number
-                    document
-                        .getElementById("DSdatasetColNumns") //file number
-                        .appendChild(indicators(@minFileNumber, @maxFileNumber, dsInf[8], @medianFileNumber, actual));
-                }
-                else {
-                    document
-                        .getElementById("DSdatasetColNumns") //file number
-                        .innerHTML = "No data!";
-                    document
-                        .getElementById("DSdatasetColNumns")
-                        .style.color = "gray";
-                }
-                if (dsInf[5] >= 0) { //file dataset size
-                    document
-                        .getElementById("DSdatasetRowNumns") //file size
-                        .appendChild(indicators(@minSizeFile, @maxSizeFile, dsInf[5], @medianSizeFile, actual));
-                }
-                else {
-                    document
-                        .getElementById("DSdatasetRowNumns") //file size
-                        .innerHTML = "No data!";
-                    document
-                        .getElementById("DSdatasetRowNumns")
-                        .style.color = "gray";
-                }
-
-            }
-
-            document
-                .getElementById("DSdescriptionRates")
+            document.getElementById("DSdescriptionRates")
                 .appendChild(indicators(@minDescriptionLength, @maxDescriptionLength, dsInf[2], @medianDescriptionLength, actual));
-
-            document
-                .getElementById("DSStrDescriptionRates")
+            document.getElementById("DSStrDescriptionRates")
                 .appendChild(indicators(@minDataStrDescriptionLength, @maxDataStrDescriptionLength, dsInf[3], @medianDataStrDescriptionLength, actual));
-
-            document
-                .getElementById("DSdataStrUsage")
+            document.getElementById("DSdataStrUsage")
                 .appendChild(indicators(@minDataStrUsage, @maxDataStrUsage, dsInf[4], @medianDataStrUsage, actual));
 
+
+            if ('@type' == type) {
+                console.log("types are the same: ", type);
+                if (type == "tabular") {
+                    console.log("type is tabular");
+                    if (dsInf[6] >= 0) { //column number
+                        document.getElementById("DSdatasetColNumns")
+                            .appendChild(indicators(@minColNumber, @maxColNumber, dsInf[6], @medianColNumber, actual));
+                    }
+                    else if (dsInf[6] < 0) {
+                        document.getElementById("DSdatasetColNumns").innerHTML = "No data!";
+                        document.getElementById("DSdatasetColNumns").style.color = "gray";
+                    }
+                    if (dsInf[7] >= 0) { //row number
+                        document.getElementById("DSdatasetRowNumns").appendChild(indicators(@minRowNumber, @maxRowNumber, dsInf[7], @medianRowNumber, actual));
+                    }
+                    else { //rowNumber == -1
+                        document.getElementById("DSdatasetRowNumns").innerHTML = "No data!";
+                        document.getElementById("DSdatasetRowNumns").style.color = "gray";
+                    }
+                }
+                if (type == "file") {
+                    console.log("type is file");
+                    if (dsInf[8] >= 0) { //file number
+                        document.getElementById("DSdatasetColNumns") //file number
+                            .appendChild(indicators(@minFileNumber, @maxFileNumber, dsInf[8], @medianFileNumber, actual));
+                    }
+                    else {
+                        document.getElementById("DSdatasetColNumns").innerHTML = "No data!";
+                        document.getElementById("DSdatasetColNumns").style.color = "gray";
+                    }
+                    if (dsInf[5] >= 0) { //file dataset size
+                        document.getElementById("DSdatasetRowNumns").appendChild(indicators(@minSizeFile, @maxSizeFile, dsInf[5], @medianSizeFile, actual));
+                    }
+                    else {
+                        document.getElementById("DSdatasetRowNumns").innerHTML = "No data!";
+                        document.getElementById("DSdatasetRowNumns").style.color = "gray";
+                    }
+                }
+            }
+            else { //if types are different
+                console.log("types are different");
+                if (type == "tabular") {
+                    console.log("type is tabular");                    
+                    document.getElementById("DSdatasetColNumns").innerHTML = '1 File';
+                    document.getElementById("DSdatasetColNumns").style.color = "&#10004;";
+                    document.getElementById("DSdatasetRowNumns").innerHTML = 'Infeasible!';
+                    document.getElementById("DSdatasetRowNumns").style.color = "gray";
+                }
+                if (type == "file") {
+                    console.log("type is file");
+                    document.getElementById("DSdatasetColNumns").innerHTML = 'Infeasible!';
+                    document.getElementById("DSdatasetColNumns").style.color = "gray";
+                    document.getElementById("DSdatasetRowNumns").innerHTML = 'Infeasible!';
+                    document.getElementById("DSdatasetRowNumns").style.color = "gray";
+                }
+            }
 
         }
     }

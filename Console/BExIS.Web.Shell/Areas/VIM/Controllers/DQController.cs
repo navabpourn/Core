@@ -20,6 +20,7 @@ using System.Data;
 using System.Xml;
 using IDIV.Modules.Mmm.UI.Models;
 
+
 namespace BExIS.Modules.Vim.UI.Controllers
 {
 
@@ -28,6 +29,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
         public class datasetInformation{
             public string type;
             public long datasetId;
+            public int isPublic;
             public int metadataComplition;
             public int descriptionLength;
             public int structureDescriptionLength;
@@ -200,6 +202,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                 performers.Add(p);
             }
             dqModel.performers = performers;
+            dqModel.isPublic = entityPermissionManager.GetRights(null, 1, datasetId);
             #endregion
 
             List<long> datasetIds = dm.GetDatasetLatestIds();
@@ -212,6 +215,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             List<int> datasetCols = new List<int>();
             List<double> datasetSizeFile = new List<double>();
             List<int> datasetFileNumber = new List<int>();
+            List<int> restrictions = new List<int>();
             int fileNumber = 0;
             List<int> sizeTabular = new List<int>(); //collect size, column number, and row number for one dataset
 
@@ -220,7 +224,21 @@ namespace BExIS.Modules.Vim.UI.Controllers
                 if (dm.IsDatasetCheckedIn(Id))
                 {
                     DatasetVersion datasetVersion = dm.GetDatasetLatestVersion(Id);  //get last dataset versions
-
+                    
+                    var publicRights = entityPermissionManager.GetRights(null, 1, Id); //1:public; 0:restricted
+                    restrictions.Add(publicRights);
+                    //bool b = entityPermissionManager.HasEffectiveRight(user, typeof(Dataset), Id, Security.Entities.Authorization.RightType.Read);
+                    //int readUser = 0;
+                    dqModel.userNumber = um.Users.Count();
+                    //foreach (var user in um.Users)
+                    //{
+                    //    var b = entityPermissionManager.HasEffectiveRight(user, typeof(Dataset), Id, Security.Entities.Authorization.RightType.Read);
+                    //    if ()
+                    //    {
+                    //        readUser += 1;
+                    //    }
+                    //}
+                    //restrictions = datasetRestrictions(entityPermissionManager, datasetType, um, Id); //[0]:isPublic; [1]:% of read access
                     DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id);
                     int metadataRate = GetMetadataRate(datasetVersion);
                     metadataRates.Add(metadataRate);
@@ -257,11 +275,11 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         pfRates.Add(pfRate);
                     }
 
-                    List<int> dSec = datasetSecurity(Id);
                     //Collect information for each dataset.
                     datasetInformation datasetInformation = new datasetInformation();
                     datasetInformation.type = type;
                     datasetInformation.datasetId = Id;
+                    datasetInformation.isPublic = restrictions[0];
                     datasetInformation.metadataComplition = metadataRate;
                     datasetInformation.descriptionLength = datasetVersion.Description.Length;
                     datasetInformation.structureDescriptionLength = datasetVersion.Dataset.DataStructure.Description.Length;
@@ -271,7 +289,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     datasetInformation.rowNumber = sizeTabular[2];
                     datasetInformation.fileNumber = fileNumber;
                     datasetInformation.datasetSizeFile = datasetSizeFile.Sum();
-                    datasetInformation.performersRate = pfRates;
+                    datasetInformation.performersRate = pfRates;                    
                     datasetsInformation.Add(datasetInformation);
                 }
             }
@@ -502,29 +520,6 @@ namespace BExIS.Modules.Vim.UI.Controllers
             return (size);
         }
 
-        /// <summary>
-        /// security level is the information about dataset restriction. 
-        /// </summary>
-        /// <param name="id">datasetId</param>
-        /// <returns>security: a list of integer</returns>
-        /// <remarks>security[0]: 1=dataset is public; 0=dataset is restricted.</remarks>
-        /// <remarks>security[1]: if dataset is restricted, the number of users with the read access.</remarks>
-        /// <remarks>security[2]: The number of users exist in the system</remarks>
-        private List<int> datasetSecurity(long id)
-        {
-            List<int> security = new List<int>(); //[0]:public,[1]:read access, [2]:how many users 
-            EntityPermissionManager epm = new EntityPermissionManager();
-            //bool access = entityPermissionManager.HasEffectiveRight(HttpContext.User.Identity.Name, typeof(Dataset), datasetID, RightType.Read);
-            //var publicRights = entityPermissionManager.GetRights(null, entityId, instanceId);
-            //foreach (var subject in subjectsDb)
-            //{
-            //    var rights = entityPermissionManager.GetRights(subject.Id, entityId, instanceId);
-            //    var effectiveRights = entityPermissionManager.GetEffectiveRights(subject.Id, entityId, instanceId);
-
-            //    subjects.Add(EntityPermissionGridRowModel.Convert(subject, rights, effectiveRights));
-            //}
-            return (security);
-        }
 
         private List<int> GetTabularSize(long id)
         {

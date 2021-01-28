@@ -106,13 +106,20 @@
                                     @foreach (var dataset in Model.datasetsInformation)
                                     {
                                         string ps = "";
-                                        foreach (var p in dataset.performersRate)
+                                        foreach (var p in dataset.performerNames)
                                         {
                                             ps += "," + p.ToString();
                                         }
-                                        string ds = @dataset.type.ToString() + "," + @dataset.metadataComplition.ToString() + "," + @dataset.descriptionLength.ToString() + "," + @dataset.structureDescriptionLength.ToString() + ","
-                                            + @dataset.structureUsage.ToString() + "," + @dataset.datasetSizeFile.ToString() + "," + @dataset.columnNumber.ToString() + "," + @dataset.rowNumber.ToString() + "," 
-                                            + @dataset.fileNumber.ToString() +"," + @dataset.isPublic + "," + @ps;
+                                        string ds = @dataset.type.ToString() + "," 
+                                            + @dataset.metadataComplition.ToString() + "," 
+                                            + @dataset.descriptionLength.ToString() + "," 
+                                            + @dataset.structureDescriptionLength.ToString() + ","
+                                            + @dataset.structureUsage.ToString() + "," 
+                                            + @dataset.datasetSizeFile.ToString() + "," 
+                                            + @dataset.columnNumber.ToString() + "," 
+                                            + @dataset.rowNumber.ToString() + "," 
+                                            + @dataset.fileNumber.ToString() +"," 
+                                            + @dataset.isPublic + "," + @ps;
 
                                         <option value="@ds" label="@dataset.datasetId">@dataset.datasetId</option>
 
@@ -124,17 +131,17 @@
                 </tr>
                 <tr>
                     @*** FILE FORMAT *****************************************@
-                    <td>File format</td>
+                    <td>Dataset format</td>
                     <td></td>
                     <td><h class="green">@type</h></td>
                     <td id="DSFileFormat" />
                 </tr>
                 <tr>
                     @*** IS PUBLIC *****************************************@
-                    <td>Dataset is public</td>
+                    <td>Restricted dataset</td>
                     <td></td>
 
-                    @if (@isPublic == 1) //is public
+                    @if (@isPublic == 0) //is public
                     {
                         <td>
                             <h class="green">&#10004;</h>
@@ -151,7 +158,20 @@
                 <tr>
                     @*** METADATA COMPLITION **********************************@
                     <td>Metadata completion</td>
-                    <td>@metadataTotalCompletion% of all metadata fields.</td>
+                    <td>
+                        @if (@metadataTotalCompletion > 50)
+                        {
+                            <h class="green">@metadataTotalCompletion%</h><h> of all fields</h>
+                        }
+                        else if (@metadataTotalCompletion <= 50 || @metadataTotalCompletion > 10)
+                        {
+                            <h class="orange">@metadataTotalCompletion%</h><h> of all fields</h>
+                        }
+                        else
+                        {
+                            <h class="red">@metadataTotalCompletion%</h><h> of all fields</h>
+                        }
+                    </td>
                     <td id="metadataTotalComplition" />
                     <td id="DSmetadataTotalComplition" />
                 </tr>
@@ -185,7 +205,8 @@
                         {
                             if (@rowNumber > 1000)
                             {
-                                <h class="green">Math.Round(@rowNumber / 1000) K</h><h> Rows</h>;
+                                double r = rowNumber / 1000;
+                                <h class="green">@Math.Round(r) K</h><h> Rows</h>;
                             }
                             else if (@rowNumber > 0)
                             {
@@ -204,7 +225,8 @@
                         {
                             if (@currentTotalSize > 1000)
                             {
-                                <h class="green">&#10004; Math.Round(@currentTotalSize / 1000) K</h>
+                                double s = rowNumber / 1000;
+                                <h class="green">&#10004; @Math.Round(s) K</h>
 
                             }
                             else if (@currentTotalSize > 0)
@@ -253,7 +275,7 @@
                     <td>Shared data structure</td>
                     <td>
                         @if (currentDataStrUsage > 1)
-                        {<h class="green">&#10004; @currentDataStrUsage </h> <h>times used in other datasets.</h>}
+                        {<h class="green">&#10004; @currentDataStrUsage</h><h> times in other datasets</h>}
                     else
                     {<h class="red">&#10008; No description!</h>}
                     </td>
@@ -265,8 +287,8 @@
                 <tr id="performerRate">
                     <td><b> Contributor name </b></td>
                     <td><b>Contributes in datasets</b></td>
-                    <td><b>@*Versus all*@</b></td>
-
+                    <td></td>
+                    <td></td>
                 </tr>
                 @*<tr id="performerRate"></tr>*@
 
@@ -284,7 +306,7 @@
             {
                 <table>
                     <tr>
-                        <td><b>Type</b></td>
+                        <td><b>Extension</b></td>
                         <td><b>File name</b></td>
                         @*<td><b>Description</b></td>*@
                         <td><b>Size</b></td>
@@ -321,76 +343,87 @@
             {
                 @*<p>THIS IS A TABULAR FORMAT DATASET!</p>
                     <p>Dataset size: @currentTotalSize cells</p>*@
-                <table>
-                    <tr>
-                        <td><b>Type</b></td>
-                        <td><b>Variable name</b></td>
-                        <td><b>Description</b></td>
-                        <td><b>Variable usage</b></td>
-                        <td><b>Data completion</b></td>
-                        <td><b>Data distribution</b></td>
-                    </tr>
-                    @for (int i = 0; i < varVariables.Count; ++i)
-                    {
-                        <tr>
-                            <td class="dataType">
-                                @if (@varVariables[i].varType == "String")
-                                {<p>Abc</p>}
-                                else if (@varVariables[i].varType == "DateTime")
-                                {<p>01/01</p>}
-                                else if (@varVariables[i].varType == "Boolean")
-                                {<p>T|F</p>}
-                                else
-                                {<p>123</p>}
-                            </td>
-                            <td>@varVariables[i].varLabel</td>
-                            <td>
-                                @if (@varVariables[i].varDescription.Length > 0)
-                                {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
-                            else
-                            {<h class="red">&#10008; </h>}
-                            </td>
-                            <td>
-                                @if (@varVariables[i].varUsage > 0)
-                                {<h class="green">&#10004; @varVariables[i].varUsage</h>}
-                            else
-                            {<h class="red">&#10008; </h>}
-                            </td>
-                            <td>
-                                <svg width="110"
-                                     height="20">
-                                    <rect x="0" y="2" width="@varVariables[i].missing" height="15" style="fill: #14bb1aff; opacity: 0.7;" />
-                                    <text x="50" y="13" text-anchor="middle" style="font-size:small; fill:black;">@varVariables[i].missing%</text>
-                                    Sorry, your browser does not support inline SVG.
-                                </svg>
-                            </td>
-                            <td>
-                                @if (rowNumber > 0)
-                                {
-                                    if (@varVariables[i].varType != "String" && @varVariables[i].varType != "DateTime" && @varVariables[i].varType != "Boolean")
-                                    {
-                                        <h>@varVariables[i].min - @varVariables[i].max</h>
-                                    }
-                                    else
-                                    {
-                                        if (@varVariables[i].uniqueValue == true)
-                                        {
-                                            <h>@varVariables[i].uniqueValueNumber <b style="color: #14bb1aff;">Unique values</b></h>
-                                        }
-                                        else
-                                        {
-                                            <h>@varVariables[i].mostFrequent<b style="color: #14bb1aff;">Most frequent</b></h>
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    <h class="gray">No data!</h>
-                                }
+        <table>
+            <tr>
+                <td><b>Data type</b></td>
+                <td><b>Variable name</b></td>
+                <td><b>Description length</b></td>
+                <td><b>Shared variable</b></td>
+                <td><b>Data completion</b></td>
+                <td><b>Data distribution</b></td>
+            </tr>
+            <tr>
+                <td><b></b></td>
+                <td><b></b></td>
+                <td>[characters]</td>
+                <td><h>[times in other structures]</h></td>
+                <td></td>
+                <td></td>
+            </tr>            
 
-                        </tr>
-                    }
-                </table>
+
+            @for (int i = 0; i < varVariables.Count; ++i)
+            {
+                <tr>
+                    <td class="dataType">
+                        @if (@varVariables[i].varType == "String")
+                        {<p>Abc</p>}
+                        else if (@varVariables[i].varType == "DateTime")
+                        {<p>01/01</p>}
+                        else if (@varVariables[i].varType == "Boolean")
+                        {<p>T|F</p>}
+                        else
+                        {<p>123</p>}
+                    </td>
+                    <td>@varVariables[i].varLabel</td>
+                    <td>
+                        @if (@varVariables[i].varDescription.Length > 0)
+                        {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
+                    else
+                    {<h class="red">&#10008; </h>}
+                    </td>
+                    <td>
+                        @if (@varVariables[i].varUsage > 0)
+                        {<h class="green">&#10004; @varVariables[i].varUsage</h>}
+                    else
+                    {<h class="red">&#10008; </h>}
+                    </td>
+                    <td>
+                        <svg width="110"
+                             height="15">
+                            <rect x="0" y="2" width="100" height="15" style="fill: gray; opacity: 0.3;" />
+                            <rect x="0" y="2" width="@varVariables[i].missing" height="15" style="fill: #14bb1aff; opacity: 0.7;" />
+                            <text x="0" y="14" text-anchor="start" style="font-size:small; fill:black;">@varVariables[i].missing%</text>
+                            Sorry, your browser does not support inline SVG.
+                        </svg>
+                    </td>
+                    <td>
+                        @if (rowNumber > 0)
+                        {
+                            if (@varVariables[i].varType != "String" && @varVariables[i].varType != "DateTime" && @varVariables[i].varType != "Boolean")
+                            {
+                                <h>@varVariables[i].min - @varVariables[i].max</h>
+                            }
+                            else
+                            {
+                                if (@varVariables[i].uniqueValue == true)
+                                {
+                                    <h>@varVariables[i].uniqueValueNumber <b style="color: #14bb1aff;">Unique values</b></h>
+                                }
+                                else
+                                {
+                                    <h>@varVariables[i].mostFrequent<b style="color: #14bb1aff;">Most frequent</b></h>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <h class="gray">No data!</h>
+                        }
+
+                </tr>
+            }
+        </table>
             }
         </td>
     </tr>
@@ -524,7 +557,6 @@
         var url = '@Url.Action("showDatasetList", "DQ", new { area = "vim", Name = "performerName", Datasets = "ids" })';
         url = url.replace('Name', performerName);
         url = url.replace('Datasets', pd);
-        console.log("url:", url);
         window.open(url, '_blank');
         //document.getElementById('text').textContent = pd[1];
         //window.open("https://www.w3schools.com");
@@ -538,12 +570,13 @@
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
         cell1.innerHTML = name;
-        cell2.innerHTML = ids.length + " times";
+        cell2.innerHTML = ids.length + " times &#129133";  //&#129133;
         cell2.setAttribute("class", "clickable");
         var func = "OpenIds('" + name + "','," + ids + "')";
         cell2.setAttribute("onClick", func);
-        console.log(cell2);
         cell3.appendChild(indicators(@minPerformersActivity, @maxPerformersActivity, rate, @medianPerformersActivity, "actual"));
+        var cell4 = row.insertCell(3);
+        cell4.setAttribute("id", name);
     }
 
     function indicators(min, max, current, median, actual){
@@ -606,15 +639,16 @@
     function dqDetail() {
         var doc = document.getElementById('datasetSelector');
         //doc.value = [0]type, [1]metadataComplition, [2]descriptionLength, [3]structureDescriptionLength,
-        // [4]structureUsage, [5]datasetSize, [6]columnNumber, [7]rowNumber, [8]fileNumber, [9]isPublic, [10]ps;
+        // [4]structureUsage, [5]datasetSize, [6]columnNumber, [7]rowNumber, [8]fileNumber, [9]isPublic, [10]performers;
 
-        var dsInf = doc.value.split(',');
-        console.log(dsInf);
+        var dsInf = doc.value.split(",");        
         var actual = "other" //if information of other dataset
         var type = dsInf[0];
-        console.log("type: ", type);
-        console.log("-type: ", '@type');
-
+        var names = '@p_names'.split("/");
+        var newNames = [];
+        for (var i = 10; i < dsInf.length; ++i) {
+            newNames[newNames.length] = dsInf[i];
+        }
 
         if (doc.value == "all") {
             document.getElementById("DSFileFormat").innerHTML = '';
@@ -624,7 +658,10 @@
             document.getElementById("DSdataStrUsage").innerHTML = '';
             document.getElementById("DSdatasetColNumns").innerHTML = '';
             document.getElementById("DSdatasetRowNumns").innerHTML = '';
-            document.getElementById("DSisPublic").innerHTML = '';
+            document.getElementById("DSisPublic").innerHTML = '';  
+            for (var i = 0; i < names.length - 1; i++) {
+                document.getElementById(names[i]).innerHTML = '';
+            }
         }
         else {
             document.getElementById("DSFileFormat").innerHTML = type;
@@ -635,12 +672,22 @@
             document.getElementById("DSdataStrUsage").innerHTML = '';
             document.getElementById("DSdatasetColNumns").innerHTML = '';
             document.getElementById("DSdatasetRowNumns").innerHTML = '';
+            for (var i = 0; i < names.length - 1; i++) {
+                if (newNames.indexOf(names[i]) >= 0) { //if the same contributor
+                    document.getElementById(names[i]).innerHTML = '&#10004;';
+                    document.getElementById(names[i]).style.color = '#4E94CF';
+                }
+                else { //if s/he is not the contributor
+                    document.getElementById(names[i]).innerHTML = '&#10008;';
+                    document.getElementById(names[i]).style.color = 'gray';
+                }
+            }
 
-            if (dsInf[9] == 1) { //is public
+            if (dsInf[9] == 0) { //is public
                 document.getElementById("DSisPublic").innerHTML = '&#10004;';
                 document.getElementById("DSisPublic").style.color = '#4E94CF';
             }
-            else if (dsInf[9] == 0) { //non-public
+            else if (dsInf[9] == 1) { //non-public
                 document.getElementById("DSisPublic").innerHTML = '&#10008;';
                 document.getElementById("DSisPublic").style.color = '#cf4e4e';
             }
@@ -658,9 +705,7 @@
 
 
             if ('@type' == type) {
-                console.log("types are the same: ", type);
                 if (type == "tabular") {
-                    console.log("type is tabular");
                     if (dsInf[6] >= 0) { //column number
                         document.getElementById("DSdatasetColNumns")
                             .appendChild(indicators(@minColNumber, @maxColNumber, dsInf[6], @medianColNumber, actual));
@@ -678,7 +723,6 @@
                     }
                 }
                 if (type == "file") {
-                    console.log("type is file");
                     if (dsInf[8] >= 0) { //file number
                         document.getElementById("DSdatasetColNumns") //file number
                             .appendChild(indicators(@minFileNumber, @maxFileNumber, dsInf[8], @medianFileNumber, actual));
@@ -697,16 +741,13 @@
                 }
             }
             else { //if types are different
-                console.log("types are different");
                 if (type == "tabular") {
-                    console.log("type is tabular");                    
                     document.getElementById("DSdatasetColNumns").innerHTML = '1 File';
                     document.getElementById("DSdatasetColNumns").style.color = "&#10004;";
                     document.getElementById("DSdatasetRowNumns").innerHTML = 'Infeasible!';
                     document.getElementById("DSdatasetRowNumns").style.color = "gray";
                 }
                 if (type == "file") {
-                    console.log("type is file");
                     document.getElementById("DSdatasetColNumns").innerHTML = 'Infeasible!';
                     document.getElementById("DSdatasetColNumns").style.color = "gray";
                     document.getElementById("DSdatasetRowNumns").innerHTML = 'Infeasible!';
@@ -728,7 +769,9 @@
     h.red {
         color: red;
     }
-
+    h1.orange{
+        color:orange;
+    }
     h.green {
         color: #14bb1aff;
     }

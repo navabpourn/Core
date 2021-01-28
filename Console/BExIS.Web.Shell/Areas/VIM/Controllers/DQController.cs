@@ -39,7 +39,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             public int rowNumber;
             public double datasetSizeFile; 
             public int fileNumber;
-            public List<int> performersRate = new List<int>();
+            public List<string> performerNames = new List<string>();
         }
         public class datasetDescriptionLength
         {
@@ -65,33 +65,33 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
         public class datasetTotalSize
         {
-            public int minSizeTabular = -1;
-            public int maxSizeTabular = -1;
-            public double medianSizeTabular = -1;
-            public double minSizeFile = -1;
-            public double maxSizeFile = -1;
-            public double medianSizeFile = -1; 
-            public double currentTotalSize = -1;
+            public int minSizeTabular;
+            public int maxSizeTabular;
+            public double medianSizeTabular;
+            public double minSizeFile;
+            public double maxSizeFile;
+            public double medianSizeFile; 
+            public double currentTotalSize;
         }
 
         public class datasetRowNumber
         {
             public int minRowNumber;
-            public int currentRowNumber=-1;
+            public int currentRowNumber;
             public int maxRowNumber;
             public double medianRowNumber;
         }
         public class datasetColNumber
         {
             public int minColNumber;
-            public int currentColNumber =-1;
+            public int currentColNumber;
             public int maxColNumber;
             public double medianColNumber;
         }
         public class datasetFileNumber
         {
             public int minFileNumber;
-            public int currentFileNumber=-1;
+            public int currentFileNumber;
             public int maxFileNumber;
             public double medianFileNumber;
         }
@@ -266,13 +266,14 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         sizeTabular[1] = -1; //no column
                         sizeTabular[2] = -1; //no row
                     }
-                    List<int> pfRates = new List<int>();
-                    List<string> pfs = FindDatasetPerformers(dm, Id); //A list of usernames
-                    foreach (var username in pfs) //foreach performer of the current dataset
+                    List<string> pfs = new List<string>();
+                    List<string> usernames = FindDatasetPerformers(dm, Id); //A list of usernames
+                    foreach (var username in usernames) //foreach performer of the current dataset
                     {
-                        List<long> pfIds = FindDatasetsFromPerformerUsername(dm, um, username); //Find all datasets in wich the username is involved.
-                        int pfRate = pfIds.Count();
-                        pfRates.Add(pfRate);
+                        //List<long> pfIds = FindDatasetsFromPerformerUsername(dm, um, username); //Find all datasets in wich the username is involved.
+                        //int pfRate = pfIds.Count();
+                        //pfRates.Add(pfRate);
+                        pfs.Add(FindPerformerNameFromUsername(um, username));
                     }
 
                     //Collect information for each dataset.
@@ -289,7 +290,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     datasetInformation.rowNumber = sizeTabular[2];
                     datasetInformation.fileNumber = fileNumber;
                     datasetInformation.datasetSizeFile = datasetSizeFile.Sum();
-                    datasetInformation.performersRate = pfRates;                    
+                    datasetInformation.performerNames = pfs;
                     datasetsInformation.Add(datasetInformation);
                 }
             }
@@ -536,9 +537,9 @@ namespace BExIS.Modules.Vim.UI.Controllers
             }
             catch
             {
-                sizeTabular.Add(-1);
-                sizeTabular.Add(-1);
-                sizeTabular.Add(-1);
+                sizeTabular.Add(0);
+                sizeTabular.Add(0);
+                sizeTabular.Add(0);
             }
             return (sizeTabular);
         }

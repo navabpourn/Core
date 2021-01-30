@@ -159,11 +159,11 @@
                     @*** METADATA COMPLITION **********************************@
                     <td>Metadata completion</td>
                     <td>
-                        @if (@metadataTotalCompletion > 50)
+                        @if (@metadataTotalCompletion >= 50)
                         {
                             <h class="green">@metadataTotalCompletion%</h><h> of all fields</h>
                         }
-                        else if (@metadataTotalCompletion <= 50 || @metadataTotalCompletion > 10)
+                        else if (@metadataTotalCompletion < 50 && @metadataTotalCompletion >= 10)
                         {
                             <h class="orange">@metadataTotalCompletion%</h><h> of all fields</h>
                         }
@@ -185,9 +185,9 @@
                     </td>
                     <td>
                         @if (@type == "tabular")
-                        {<h class="green"> &#10004; @columnNumber</h><h> Variables</h>}
+                        {<h class="green"> &#10004; @columnNumber</h><h> variables</h>}
                         @if (@type == "file")
-                        {<h class="green">&#10004; @filesInformation.Count</h><h> Files</h>}
+                        {<h class="green">&#10004; @filesInformation.Count</h><h> files</h>}
                     </td>
                     <td id="datasetColNumns" />
                     <td id="DSdatasetColNumns"></td>
@@ -206,11 +206,11 @@
                             if (@rowNumber > 1000)
                             {
                                 double r = rowNumber / 1000;
-                                <h class="green">@Math.Round(r) K</h><h> Rows</h>;
+                                <h class="green">@Math.Round(r) K</h><h> rows</h>;
                             }
                             else if (@rowNumber > 0)
                             {
-                                <h class="green">&#10004; @rowNumber</h><h> Rows</h>;
+                                <h class="green">&#10004; @rowNumber</h><h> rows</h>;
                             }
                             else if (@rowNumber == 0)
                             {
@@ -529,20 +529,11 @@
 
         // Get the modal
         var modal = document.getElementById("myModal");
-        // Get the button that opens the modal
         var btn = document.getElementById("openLegend");
-        // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
-        // When the user clicks the button, open the modal
         btn.onclick = function () {
             modal.style.display = "block";
         }
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function () {
-            modal.style.display = "none";
-        }
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
+        window.onclick = function (event) { //Click anywhere outside of the modal, close it
             if (event.target == modal) {
                 modal.style.display = "none";
             }
@@ -570,9 +561,8 @@
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
         cell1.innerHTML = name;
-        cell2.innerHTML = ids.length + " times &#129133";  //&#129133;
-        cell2.setAttribute("class", "clickable");
-        var func = "OpenIds('" + name + "','," + ids + "')";
+        cell2.innerHTML = "<h class=\"green\">" + ids.length + "</h><h> times </h><h class=\"clickable\">&#129133</h>";  //&#129133;
+        var func = "OpenIds('" + name + "','" + ids + "')";
         cell2.setAttribute("onClick", func);
         cell3.appendChild(indicators(@minPerformersActivity, @maxPerformersActivity, rate, @medianPerformersActivity, "actual"));
         var cell4 = row.insertCell(3);
@@ -766,22 +756,22 @@
         text-align: initial;
     }
 
-    h.red {
+    .red {
         color: red;
     }
-    h1.orange{
+    .orange{
         color:orange;
     }
-    h.green {
+    .green {
         color: #14bb1aff;
     }
 
-    h.gray {
+    .gray {
         color: gray;
     }
 
-    h.clickable {
-        color: #14bb1aff;
+    .clickable {
+        /*color: #14bb1aff;*/
         cursor: pointer;
     }
 
@@ -844,7 +834,4 @@
         font-size: large;
     }
 
-    .clickable {
-        cursor: pointer;
-    }
 </style>

@@ -545,8 +545,6 @@
     <Content Include="Content\2013.2.611\Windows7\sprite.png" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\legend.png" />
-    <Content Include="Content\legend3.png" />
     <Content Include="Content\Site.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

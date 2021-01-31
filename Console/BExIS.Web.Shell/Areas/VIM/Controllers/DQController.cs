@@ -19,7 +19,8 @@ using BExIS.Modules.Rpm.UI.Models;
 using System.Data;
 using System.Xml;
 using IDIV.Modules.Mmm.UI.Models;
-
+using System.IO;
+using Vaiona.Utils.Cfg;
 
 namespace BExIS.Modules.Vim.UI.Controllers
 {
@@ -224,7 +225,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                 if (dm.IsDatasetCheckedIn(Id))
                 {
                     DatasetVersion datasetVersion = dm.GetDatasetLatestVersion(Id);  //get last dataset versions
-                    
+
                     var publicRights = entityPermissionManager.GetRights(null, 1, Id); //1:public; 0:restricted
                     restrictions.Add(publicRights);
                     //bool b = entityPermissionManager.HasEffectiveRight(user, typeof(Dataset), Id, Security.Entities.Authorization.RightType.Read);
@@ -483,7 +484,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                 if (currentDatasetVersion != null)
                 {
                     List<ContentDescriptor> contentDescriptors = currentDatasetVersion.ContentDescriptors.ToList();
-
+                    double totalSize = 0;
                     if (contentDescriptors.Count > 0)
                     {                        
                         foreach (ContentDescriptor cd in contentDescriptors)
@@ -492,27 +493,52 @@ namespace BExIS.Modules.Vim.UI.Controllers
                             {
                                 fileInformation fileInformation = new fileInformation();
                                 string uri = cd.URI;
-                                string name = uri.Split('\\').Last();
-                                fileInformation.fileName = name.Split('.')[0];
-                                fileInformation.fileFormat = name.Split('.')[1];
-                                double volum = -1;
-                                fileInformation.fileSize = volum;
+                                //string name = uri.Split('\\').Last();
+                                //fileInformation.fileName = name.Split('.')[0];
+                                //fileInformation.fileFormat = name.Split('.')[1];
 
+                                String path = Server.UrlDecode(uri);
+                                path = Path.Combine(AppConfiguration.DataPath, path);
+                                Stream fileStream = System.IO.File.OpenRead(path);
+
+                                if (fileStream != null)
+                                {
+                                    FileStream fs = fileStream as FileStream;
+                                    if (fs != null)
+                                    {
+                                        FileInformation fileInfo = new FileInformation(fs.Name.Split('\\').LastOrDefault(), MimeMapping.GetMimeMapping(fs.Name), (uint)fs.Length, uri);
+                                        fileInformation.fileName = fileInfo.Name.Split('.')[0];
+                                        fileInformation.fileFormat = fileInfo.Name.Split('.')[1];
+                                        fileInformation.fileSize = fileInfo.Size;
+                                        totalSize += fileInfo.Size;
+                                    }
+                                }
+                                else
+                                {
+                                    //fileInformation.fileName = null;
+                                    //fileInformation.fileFormat = null;
+                                    //fileInformation.fileSize = -1;
+                                }
                                 filesInformation.Add(fileInformation);
                             }
 
                         }                        
                     }
                     dqModel.fileNumber = contentDescriptors.Count;
-                    dqModel.datasetTotalSize.currentTotalSize = -1;
+                    dqModel.datasetTotalSize.currentTotalSize = totalSize;
                 }
                 dqModel.filesInformation = filesInformation;
-                //files = getFilesByDatasetId(datasetId, entityType, versionId);
-                //dqModel.datasetSize.Add("", 0);
             }
             #endregion
 
             return PartialView(dqModel);
+        }
+
+        private Stream getFileStream(string uri)
+        {
+            String path = Server.UrlDecode(uri);
+            path = Path.Combine(AppConfiguration.DataPath, path);
+            return System.IO.File.OpenRead(path);
         }
 
         private double GetFileDatasetSize(DatasetVersion datasetVersion)

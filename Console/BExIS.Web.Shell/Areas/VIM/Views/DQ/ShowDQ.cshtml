@@ -77,6 +77,23 @@
     int help;
 }
 
+@*<table>
+    <tr>
+        <td></td>
+        <td>Number</td>
+        <td>Text</td>
+        <td>DateTime</td>
+        <td>Boolean</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td class="dataType"><p>123</p></td>
+        <td class="dataType"><p>Abc</p></td>
+        <td class="dataType"><p>01/01</p></td>
+        <td class="dataType"><p>T|F</p></td>
+    </tr>
+</table>*@
+
 <table id="generalInfo">
     <tr>
         <td>
@@ -193,7 +210,7 @@
                     <td id="DSdatasetColNumns"></td>
                 </tr>
                 <tr>
-                    @*** DATA ROWS/FILES **********************************@
+                    @*** DATA ROWS/FILE SIZE **********************************@
                     <td>
                         @if (@type == "tabular")
                         {<h>Number of rows</h>}
@@ -206,7 +223,7 @@
                             if (@rowNumber > 1000)
                             {
                                 double r = rowNumber / 1000;
-                                <h class="green">@Math.Round(r) K</h><h> rows</h>;
+                                <h class="green">@Math.Round(r)K</h><h> rows</h>;
                             }
                             else if (@rowNumber > 0)
                             {
@@ -223,17 +240,17 @@
                         }
                         @if (@type == "file")
                         {
-                            if (@currentTotalSize > 1000)
+                            if (currentTotalSize > 1000)
                             {
-                                double s = rowNumber / 1000;
-                                <h class="green">&#10004; @Math.Round(s) K</h>
+                                double s = currentTotalSize / 1000;
+                                <h class="green">&#10004; @Math.Round(s)K</h>
 
                             }
                             else if (@currentTotalSize > 0)
                             {
                                 <h class="green">&#10004; @currentTotalSize</h>
                             }
-                            else if (@currentTotalSize == 0)
+                            else if (@currentTotalSize <= 0)
                             {
                                 <h class="red">&#10008; 0</h>
                             }
@@ -320,7 +337,8 @@
 
                             @if (filesInformation[i].fileSize > 1000)
                             {
-                                <td>Math.round(filesInformation[i].fileSize/1000)</td>
+                                double s = filesInformation[i].fileSize / 1000;
+                                <td><h class="green">@Math.Round(s)K</h></td>
                             }
                             else if (@filesInformation[i].fileSize >= 0)
                             {
@@ -732,7 +750,7 @@
             }
             else { //if types are different
                 if (type == "tabular") {
-                    document.getElementById("DSdatasetColNumns").innerHTML = '1 File';
+                    document.getElementById("DSdatasetColNumns").innerHTML = "<h class=\"blue\">1</h><h> file</h>";                   
                     document.getElementById("DSdatasetColNumns").style.color = "&#10004;";
                     document.getElementById("DSdatasetRowNumns").innerHTML = 'Infeasible!';
                     document.getElementById("DSdatasetRowNumns").style.color = "gray";
@@ -765,7 +783,9 @@
     .green {
         color: #14bb1aff;
     }
-
+    .blue {
+        color: #4E94CF;
+    }
     .gray {
         color: gray;
     }

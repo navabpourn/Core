@@ -1,4 +1,6 @@
-﻿@{
+﻿@model BExIS.Modules.Vim.UI.Models.ExternalLink
+
+@{
     ViewBag.Title = "ShowDatasetList";
 }
 
@@ -6,50 +8,79 @@
 {
 }
 
+@section LeftPane
+{
+    <p id="name"></p>
+}
 
-<table id="dsList">
-    <tr>    
-        <td id="name"></td>
-        <td><b> contributed in dataset</b></td>
-    </tr>
-</table>
+    @{
+        var datasetsInfos = Model.datasetInfos;
+    }
 
-<script type="text/javascript">
+
+    <table id="resources_table" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th><b>Id</b></th>
+                <th><b>Title</b></th>
+            </tr>
+        </thead>
+        <tbody id="datasetInfos">
+        </tbody>
+    </table>
+
+
+
+    <script type="text/javascript">
 
     $(document).ready(function () {
-        //console.log(w);
-
+        //read url
         var queryString = decodeURIComponent(window.location.search);
         queryString = queryString.substring(1);
         var queries = queryString.split("&");
-        console.log("queries:", queries);
+
+        //decode name
         var name = queries[0].split("=");
         document.getElementById("name").innerHTML = "<b>"+name[0]+"</b>";
+
+        //decode ids
         var idList = queries[1].split("=");
         var ids = idList[0].split(",");
-        var table = document.getElementById("dsList");
-        console.log("ids, length: ", ids, ids.length);
-        for (i = 1; i < ids.length; ++i) {
-            console.log("i, ids[i]: ",i, "-",ids[i]);
-            var row = table.insertRow();
-            //row.setAttribute("id", "pf");
-            var cell1 = row.insertCell(0);
-            var cell2 = row.insertCell(1);
-            cell2.innerHTML = ids[i];
-            console.log("ids[", i, "]: ", ids[i]);
-            cell2.setAttribute("style", "cursor: pointer;");
-            var func = "OpenIds('" + ids[i] + "')";
-            cell2.setAttribute("onClick", func);
+        var ids0 = ids[0].split(";")
+        ids[0] = ids0[1];
+
+        //read model.datasetInfos
+        var datasets = @Html.Raw(Json.Encode(Model.datasetInfos));
+                
+        for (var i = 0; i < datasets.length; ++i) {
+            //var dataset = datasets[i];
+            var dataset = datasets[i];
+            
+            var id = dataset.Id;
+            if (ids.indexOf(id.toString()) !== -1) {
+                var table = document.getElementById("datasetInfos");
+                var row = table.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                cell1.innerHTML = dataset.Id;
+                cell2.innerHTML = dataset.title;
+                cell1.setAttribute("style", "cursor: pointer;");
+                var func = "OpenIds('" + dataset.Id + "')";
+                cell1.setAttribute("onClick", func);
+            }
         }
+
+
 
     });
 
+
     function OpenIds(id) {
-        var url = '@Url.Action("Showdata", "data", new { area = "ddm" })'+"/"+id;;        
+        var url = '@Url.Action("Showdata", "data", new { area = "ddm" })'+"/"+id;;
         console.log("url:", url);
         window.open(url, '_blank');
     }
 
-</script>
+    </script>
 
 

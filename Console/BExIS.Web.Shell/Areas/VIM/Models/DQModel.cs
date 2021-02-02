@@ -31,4 +31,9 @@ namespace BExIS.Modules.Vim.UI.Models
         public List<varVariable> varVariables = new List<varVariable>();
         public List<datasetInformation> datasetsInformation = new List<datasetInformation>();
     }
+
+    public class ExternalLink
+    {       
+        public List<datasetInfo> datasetInfos = new List<datasetInfo>();
+    }
 }

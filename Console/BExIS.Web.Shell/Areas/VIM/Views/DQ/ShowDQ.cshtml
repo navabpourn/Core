@@ -78,21 +78,21 @@
 }
 
 @*<table>
-    <tr>
-        <td></td>
-        <td>Number</td>
-        <td>Text</td>
-        <td>DateTime</td>
-        <td>Boolean</td>
-    </tr>
-    <tr>
-        <td></td>
-        <td class="dataType"><p>123</p></td>
-        <td class="dataType"><p>Abc</p></td>
-        <td class="dataType"><p>01/01</p></td>
-        <td class="dataType"><p>T|F</p></td>
-    </tr>
-</table>*@
+        <tr>
+            <td></td>
+            <td>Number</td>
+            <td>Text</td>
+            <td>DateTime</td>
+            <td>Boolean</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="dataType"><p>123</p></td>
+            <td class="dataType"><p>Abc</p></td>
+            <td class="dataType"><p>01/01</p></td>
+            <td class="dataType"><p>T|F</p></td>
+        </tr>
+    </table>*@
 
 <table id="generalInfo">
     <tr>
@@ -127,15 +127,15 @@
                                         {
                                             ps += "," + p.ToString();
                                         }
-                                        string ds = @dataset.type.ToString() + "," 
-                                            + @dataset.metadataComplition.ToString() + "," 
-                                            + @dataset.descriptionLength.ToString() + "," 
+                                        string ds = @dataset.type.ToString() + ","
+                                            + @dataset.metadataComplition.ToString() + ","
+                                            + @dataset.descriptionLength.ToString() + ","
                                             + @dataset.structureDescriptionLength.ToString() + ","
-                                            + @dataset.structureUsage.ToString() + "," 
-                                            + @dataset.datasetSizeFile.ToString() + "," 
-                                            + @dataset.columnNumber.ToString() + "," 
-                                            + @dataset.rowNumber.ToString() + "," 
-                                            + @dataset.fileNumber.ToString() +"," 
+                                            + @dataset.structureUsage.ToString() + ","
+                                            + @dataset.datasetSizeFile.ToString() + ","
+                                            + @dataset.columnNumber.ToString() + ","
+                                            + @dataset.rowNumber.ToString() + ","
+                                            + @dataset.fileNumber.ToString() + ","
                                             + @dataset.isPublic + "," + @ps;
 
                                         <option value="@ds" label="@dataset.datasetId">@dataset.datasetId</option>
@@ -202,9 +202,27 @@
                     </td>
                     <td>
                         @if (@type == "tabular")
-                        {<h class="green"> &#10004; @columnNumber</h><h> variables</h>}
+                        {
+                            if (columnNumber > 0)
+                            {
+                                <h class="green"> &#10004; @columnNumber</h><h> variables</h>
+                            }
+                            else
+                            {
+                    <h class="red"> &#10008; @columnNumber</h><h> variables</h>
+                            }
+                        }
                         @if (@type == "file")
-                        {<h class="green">&#10004; @filesInformation.Count</h><h> files</h>}
+                        {
+                            if (@filesInformation.Count > 0)
+                            {
+                                <h class="green">&#10004; @filesInformation.Count</h><h> files</h>
+                            }
+                            else
+                            {
+                    <h class="red">&#10008; @filesInformation.Count</h><h> files</h>
+                            }
+                        }
                     </td>
                     <td id="datasetColNumns" />
                     <td id="DSdatasetColNumns"></td>
@@ -294,7 +312,7 @@
                         @if (currentDataStrUsage > 1)
                         {<h class="green">&#10004; @currentDataStrUsage</h><h> times in other datasets</h>}
                     else
-                    {<h class="red">&#10008; No description!</h>}
+                    {<h class="red">&#10008; Not shared!</h>}
                     </td>
                     <td id="dataStrUsage" />
                     <td id="DSdataStrUsage" />
@@ -361,87 +379,87 @@
             {
                 @*<p>THIS IS A TABULAR FORMAT DATASET!</p>
                     <p>Dataset size: @currentTotalSize cells</p>*@
-        <table>
-            <tr>
-                <td><b>Data type</b></td>
-                <td><b>Variable name</b></td>
-                <td><b>Description length</b></td>
-                <td><b>Shared variable</b></td>
-                <td><b>Data completion</b></td>
-                <td><b>Data distribution</b></td>
-            </tr>
-            <tr>
-                <td><b></b></td>
-                <td><b></b></td>
-                <td>[characters]</td>
-                <td><h>[times in other structures]</h></td>
-                <td></td>
-                <td></td>
-            </tr>            
+                <table>
+                    <tr>
+                        <td><b>Data type</b></td>
+                        <td><b>Variable name</b></td>
+                        <td><b>Description length</b></td>
+                        <td><b>Shared variable</b></td>
+                        <td><b>Data completion</b></td>
+                        <td><b>Data distribution</b></td>
+                    </tr>
+                    <tr>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td>[characters]</td>
+                        <td><h>[times in other structures]</h></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
 
 
-            @for (int i = 0; i < varVariables.Count; ++i)
-            {
-                <tr>
-                    <td class="dataType">
-                        @if (@varVariables[i].varType == "String")
-                        {<p>Abc</p>}
-                        else if (@varVariables[i].varType == "DateTime")
-                        {<p>01/01</p>}
-                        else if (@varVariables[i].varType == "Boolean")
-                        {<p>T|F</p>}
-                        else
-                        {<p>123</p>}
-                    </td>
-                    <td>@varVariables[i].varLabel</td>
-                    <td>
-                        @if (@varVariables[i].varDescription.Length > 0)
-                        {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
-                    else
-                    {<h class="red">&#10008; </h>}
-                    </td>
-                    <td>
-                        @if (@varVariables[i].varUsage > 0)
-                        {<h class="green">&#10004; @varVariables[i].varUsage</h>}
-                    else
-                    {<h class="red">&#10008; </h>}
-                    </td>
-                    <td>
-                        <svg width="110"
-                             height="15">
-                            <rect x="0" y="2" width="100" height="15" style="fill: gray; opacity: 0.3;" />
-                            <rect x="0" y="2" width="@varVariables[i].missing" height="15" style="fill: #14bb1aff; opacity: 0.7;" />
-                            <text x="0" y="14" text-anchor="start" style="font-size:small; fill:black;">@varVariables[i].missing%</text>
-                            Sorry, your browser does not support inline SVG.
-                        </svg>
-                    </td>
-                    <td>
-                        @if (rowNumber > 0)
-                        {
-                            if (@varVariables[i].varType != "String" && @varVariables[i].varType != "DateTime" && @varVariables[i].varType != "Boolean")
-                            {
-                                <h>@varVariables[i].min - @varVariables[i].max</h>
-                            }
+                    @for (int i = 0; i < varVariables.Count; ++i)
+                    {
+                        <tr>
+                            <td class="dataType">
+                                @if (@varVariables[i].varType == "String")
+                                {<p>Abc</p>}
+                                else if (@varVariables[i].varType == "DateTime")
+                                {<p>01/01</p>}
+                                else if (@varVariables[i].varType == "Boolean")
+                                {<p>T|F</p>}
+                                else
+                                {<p>123</p>}
+                            </td>
+                            <td>@varVariables[i].varLabel</td>
+                            <td>
+                                @if (@varVariables[i].varDescription.Length > 0)
+                                {<h class="green">&#10004; @varVariables[i].varDescription.Length</h>}
                             else
-                            {
-                                if (@varVariables[i].uniqueValue == true)
+                            {<h class="red">&#10008; </h>}
+                            </td>
+                            <td>
+                                @if (@varVariables[i].varUsage > 0)
+                                {<h class="green">&#10004; @varVariables[i].varUsage</h>}
+                            else
+                            {<h class="red">&#10008; </h>}
+                            </td>
+                            <td>
+                                <svg width="110"
+                                     height="15">
+                                    <rect x="0" y="2" width="100" height="15" style="fill: gray; opacity: 0.3;" />
+                                    <rect x="0" y="2" width="@varVariables[i].missing" height="15" style="fill: #14bb1aff; opacity: 0.7;" />
+                                    <text x="0" y="14" text-anchor="start" style="font-size:small; fill:black;">@varVariables[i].missing%</text>
+                                    Sorry, your browser does not support inline SVG.
+                                </svg>
+                            </td>
+                            <td>
+                                @if (rowNumber > 0)
                                 {
-                                    <h>@varVariables[i].uniqueValueNumber <b style="color: #14bb1aff;">Unique values</b></h>
+                                    if (@varVariables[i].varType != "String" && @varVariables[i].varType != "DateTime" && @varVariables[i].varType != "Boolean")
+                                    {
+                                        <h>@varVariables[i].min - @varVariables[i].max</h>
+                                    }
+                                    else
+                                    {
+                                        if (@varVariables[i].uniqueValue == true)
+                                        {
+                                            <h>@varVariables[i].uniqueValueNumber <b style="color: #14bb1aff;">Unique values</b></h>
+                                        }
+                                        else
+                                        {
+                                            <h>@varVariables[i].mostFrequent<b style="color: #14bb1aff;">Most frequent</b></h>
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    <h>@varVariables[i].mostFrequent<b style="color: #14bb1aff;">Most frequent</b></h>
+                                    <h class="gray">No data!</h>
                                 }
-                            }
-                        }
-                        else
-                        {
-                            <h class="gray">No data!</h>
-                        }
 
-                </tr>
-            }
-        </table>
+                        </tr>
+                    }
+                </table>
             }
         </td>
     </tr>
@@ -649,7 +667,7 @@
         //doc.value = [0]type, [1]metadataComplition, [2]descriptionLength, [3]structureDescriptionLength,
         // [4]structureUsage, [5]datasetSize, [6]columnNumber, [7]rowNumber, [8]fileNumber, [9]isPublic, [10]performers;
 
-        var dsInf = doc.value.split(",");        
+        var dsInf = doc.value.split(",");
         var actual = "other" //if information of other dataset
         var type = dsInf[0];
         var names = '@p_names'.split("/");
@@ -666,7 +684,7 @@
             document.getElementById("DSdataStrUsage").innerHTML = '';
             document.getElementById("DSdatasetColNumns").innerHTML = '';
             document.getElementById("DSdatasetRowNumns").innerHTML = '';
-            document.getElementById("DSisPublic").innerHTML = '';  
+            document.getElementById("DSisPublic").innerHTML = '';
             for (var i = 0; i < names.length - 1; i++) {
                 document.getElementById(names[i]).innerHTML = '';
             }
@@ -750,7 +768,7 @@
             }
             else { //if types are different
                 if (type == "tabular") {
-                    document.getElementById("DSdatasetColNumns").innerHTML = "<h class=\"blue\">1</h><h> file</h>";                   
+                    document.getElementById("DSdatasetColNumns").innerHTML = "<h class=\"blue\">1</h><h> file</h>";
                     document.getElementById("DSdatasetColNumns").style.color = "&#10004;";
                     document.getElementById("DSdatasetRowNumns").innerHTML = 'Infeasible!';
                     document.getElementById("DSdatasetRowNumns").style.color = "gray";
@@ -777,15 +795,19 @@
     .red {
         color: red;
     }
-    .orange{
-        color:orange;
+
+    .orange {
+        color: orange;
     }
+
     .green {
         color: #14bb1aff;
     }
+
     .blue {
         color: #4E94CF;
     }
+
     .gray {
         color: gray;
     }
@@ -853,5 +875,4 @@
         cursor: pointer;
         font-size: large;
     }
-
 </style>

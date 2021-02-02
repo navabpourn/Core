@@ -5,7 +5,8 @@ using System.Web;
 
 namespace BExIS.Modules.Vim.UI.Controllers
 {
-    public class DatasetListModel
-    {
+    public class DsModel
+    {        
+        public string note { get; set; }
     }
 }

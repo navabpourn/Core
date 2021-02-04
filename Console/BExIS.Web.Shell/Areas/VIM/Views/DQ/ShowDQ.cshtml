@@ -77,23 +77,6 @@
     int help;
 }
 
-@*<table>
-        <tr>
-            <td></td>
-            <td>Number</td>
-            <td>Text</td>
-            <td>DateTime</td>
-            <td>Boolean</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td class="dataType"><p>123</p></td>
-            <td class="dataType"><p>Abc</p></td>
-            <td class="dataType"><p>01/01</p></td>
-            <td class="dataType"><p>T|F</p></td>
-        </tr>
-    </table>*@
-
 <table id="generalInfo">
     <tr>
         <td>
@@ -138,7 +121,7 @@
                                             + @dataset.fileNumber.ToString() + ","
                                             + @dataset.isPublic + "," + @ps;
 
-                                        <option value="@ds" label="@dataset.datasetId">@dataset.datasetId</option>
+                                <option value="@ds" label="@dataset.title (@dataset.datasetId)"></option>
 
                                     }
                                 </select>

@@ -11,6 +11,10 @@
 
 @section Information
 {
+    You can find a dataset quality overview on this page. 
+    On the top is the metadata quality overview. 
+    Select a dataset from the drop-down list to see its quality overview to compare. 
+    The data quality overview will be found on the bottom side.
 }
 
 @{
@@ -121,7 +125,7 @@
                                             + @dataset.fileNumber.ToString() + ","
                                             + @dataset.isPublic + "," + @ps;
 
-                                <option value="@ds" label="@dataset.title (@dataset.datasetId)"></option>
+                                        <option value="@ds" label="@dataset.title (@dataset.datasetId)"></option>
 
                                     }
                                 </select>
@@ -192,7 +196,7 @@
                             }
                             else
                             {
-                    <h class="red"> &#10008; @columnNumber</h><h> variables</h>
+                                <h class="red"> &#10008; @columnNumber</h><h> variables</h>
                             }
                         }
                         @if (@type == "file")
@@ -203,7 +207,7 @@
                             }
                             else
                             {
-                    <h class="red">&#10008; @filesInformation.Count</h><h> files</h>
+                                <h class="red">&#10008; @filesInformation.Count</h><h> files</h>
                             }
                         }
                     </td>
@@ -241,11 +245,20 @@
                         }
                         @if (@type == "file")
                         {
-                            if (currentTotalSize > 1000)
+                            if (currentTotalSize >= 1073741824)
                             {
-                                double s = currentTotalSize / 1000;
-                                <h class="green">&#10004; @Math.Round(s)K</h>
-
+                                double s = currentTotalSize / 1073741824;
+                                <h class="green">&#10004; @Math.Round(s)GB</h>
+                            }
+                            else if (currentTotalSize > 1048576)
+                            {
+                                double s = currentTotalSize / 1048576;
+                                <h class="green">&#10004; @Math.Round(s)MB</h>
+                            }
+                            else if (currentTotalSize > 1024)
+                            {
+                                double s = currentTotalSize / 1024;
+                                <h class="green">&#10004; @Math.Round(s)KB</h>
                             }
                             else if (@currentTotalSize > 0)
                             {
@@ -336,19 +349,29 @@
                             <td>@filesInformation[i].fileName</td>
                             @*<td>@filesInformation[i].fileDescription</td>*@
 
-                            @if (filesInformation[i].fileSize > 1000)
+                            @if (filesInformation[i].fileSize >= 1073741824)
                             {
-                                double s = filesInformation[i].fileSize / 1000;
-                                <td><h class="green">@Math.Round(s)K</h></td>
+                                double s = filesInformation[i].fileSize / 1073741824;
+                                <td><h class="green">&#10004; @Math.Round(s)GB</h></td>
                             }
-                            else if (@filesInformation[i].fileSize >= 0)
+                            else if (filesInformation[i].fileSize > 1048576)
                             {
-                                <td>@filesInformation[i].fileSize</td>
+                                double s = filesInformation[i].fileSize / 1048576;
+                                <td><h class="green">&#10004; @Math.Round(s)MB</h></td>
                             }
-                            else
+                            else if (filesInformation[i].fileSize > 1024)
                             {
-                                <td><h class="gray">No data!</h></td>
-                            }
+                                double s = filesInformation[i].fileSize / 1024;
+                                <td><h class="green">&#10004; @Math.Round(s)KB</h></td>
+                }
+                else if (filesInformation[i].fileSize > 0)
+                {
+                        <td><h class="green">&#10004; filesInformation[i].fileSize</h></td>
+                }
+                else
+                {
+                    <td><h class="gray">No data!</h></td>
+                }
                         </tr>
 
                     }
@@ -515,8 +538,8 @@
             }
             if (@currentTotalSize >= 0) {
                 document
-                    .getElementById("datasetRowNumns") //file number
-                    .appendChild(indicators(@minSizeFile, @maxSizeFile, @currentTotalSize, @medianSizeFile, actual));
+                    .getElementById("datasetRowNumns") //file size
+                    .appendChild(fileSizeIndicators(@minSizeFile, @maxSizeFile, @currentTotalSize, @medianSizeFile, actual));
             }
             else {
                 document
@@ -616,6 +639,33 @@
         return svg;
     }
 
+    function fileSizeIndicators(min, max, current, median, actual) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        var d = 5; //deviation from the x=0
+        svg.setAttribute("width", 200);
+        svg.setAttribute("height", 35);
+        var minIndex = (100 * min) / max;
+        svg.appendChild(addRect(d, 7, minIndex, 18, "fill:#ccccccff")); //left rect
+        var endRight = 100 - minIndex;
+        svg.appendChild(addRect(minIndex + d, 7, endRight, 18, "fill:#999999ff;")); //main rect
+        var medianIndex = Math.round((100 * median) / max);
+        svg.appendChild(addRect(medianIndex + d, 6, 2, 20, "fill:black;")); //median indicator
+        var currentIndex = Math.round((100 * current) / max);
+        svg.appendChild(addPolygon(currentIndex + d, 7, actual)); //Triangle
+        const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "title");
+
+        var txMin = siteTransform(min);
+        var txMedian = siteTransform(median);
+        var txMax = siteTransform(max);
+        var txCurrent = siteTransform(current);
+        tooltip.innerHTML = "Min: " + txMin + "&#013;Median: " + txMedian + "&#013;Max: " + txMax + "&#013;Actual value: " + txCurrent;
+        svg.appendChild(tooltip);
+        svg.appendChild(addText(d, 35, "start", "0"));
+        svg.appendChild(addText(100 + d, 35, "end", txMax));
+        
+        return svg;
+    }
+
     function addPolygon(x,y, actual) {
         const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         var points = x + "," + y + " " + (x - 5) + "," + (y - 7) + " " + (x + 5) + "," + (y - 7);
@@ -645,6 +695,25 @@
         return text;
     }
 
+    function siteTransform(fileSize) {
+        if (fileSize > 1073741824) {
+            var m = (Math.round(fileSize / 1073741824));
+            var tx = m + "GB";
+        }
+        else if (fileSize > 1048576) {
+            var m = (Math.round(fileSize / 1048576));
+            var tx = m + "MB";
+        }
+        else if (fileSize > 1024) {
+            var m = (Math.round(fileSize / 1024));
+            var tx = m + "KB";
+        }
+        else {
+            var m = fileSize;
+            var tx = m + "B";
+        }
+        return tx;
+    }
     function dqDetail() {
         var doc = document.getElementById('datasetSelector');
         //doc.value = [0]type, [1]metadataComplition, [2]descriptionLength, [3]structureDescriptionLength,
@@ -741,7 +810,7 @@
                         document.getElementById("DSdatasetColNumns").style.color = "gray";
                     }
                     if (dsInf[5] >= 0) { //file dataset size
-                        document.getElementById("DSdatasetRowNumns").appendChild(indicators(@minSizeFile, @maxSizeFile, dsInf[5], @medianSizeFile, actual));
+                        document.getElementById("DSdatasetRowNumns").appendChild(fileSizeIndicators(@minSizeFile, @maxSizeFile, dsInf[5], @medianSizeFile, actual));
                     }
                     else {
                         document.getElementById("DSdatasetRowNumns").innerHTML = "No data!";
@@ -788,7 +857,7 @@
     }
 
     .blue {
-        color: #4E94CF;
+        color: #1471bd;
     }
 
     .gray {

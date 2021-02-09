@@ -214,7 +214,8 @@ namespace BExIS.Modules.Vim.UI.Controllers
             List<int> datasetSizeTabular = new List<int>();
             List<int> datasetRows = new List<int>();
             List<int> datasetCols = new List<int>();
-            List<double> datasetSizeFile = new List<double>();
+            List<double> datasetSizeFiles = new List<double>();
+            double datasetSizeFile = new double();
             List<int> datasetFileNumber = new List<int>();
             List<int> restrictions = new List<int>();
             int fileNumber = 0;
@@ -231,6 +232,8 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     //bool b = entityPermissionManager.HasEffectiveRight(user, typeof(Dataset), Id, Security.Entities.Authorization.RightType.Read);
                     //int readUser = 0;
                     dqModel.userNumber = um.Users.Count();
+                    
+                    //Find how many users has read right.
                     //foreach (var user in um.Users)
                     //{
                     //    var b = entityPermissionManager.HasEffectiveRight(user, typeof(Dataset), Id, Security.Entities.Authorization.RightType.Read);
@@ -254,18 +257,14 @@ namespace BExIS.Modules.Vim.UI.Controllers
                         datasetSizeTabular.Add(sizeTabular[0]);
                         datasetCols.Add(sizeTabular[1]); //column number
                         datasetRows.Add(sizeTabular[2]); //row number  
-                        fileNumber = -1;
-                        datasetSizeFile.Add(-1);
                     }
                     else if (type == "file")
                     {
                         List<ContentDescriptor> contentDescriptors = datasetVersion.ContentDescriptors.ToList();
                         fileNumber = contentDescriptors.Count;
-                        datasetSizeFile.Add(GetFileDatasetSize(datasetVersion));
+                        datasetSizeFile = GetFileDatasetSize(datasetVersion);
+                        datasetSizeFiles.Add(datasetSizeFile);
                         datasetFileNumber.Add(fileNumber);
-                        sizeTabular[0] = -1; //no tabular
-                        sizeTabular[1] = -1; //no column
-                        sizeTabular[2] = -1; //no row
                     }
                     List<string> pfs = new List<string>();
                     List<string> usernames = FindDatasetPerformers(dm, Id); //A list of usernames
@@ -291,7 +290,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     datasetInformation.columnNumber = sizeTabular[1];
                     datasetInformation.rowNumber = sizeTabular[2];
                     datasetInformation.fileNumber = fileNumber;
-                    datasetInformation.datasetSizeFile = datasetSizeFile.Sum();
+                    datasetInformation.datasetSizeFile = datasetSizeFile;
                     datasetInformation.performerNames = pfs;
                     datasetsInformation.Add(datasetInformation);
                 }
@@ -334,11 +333,11 @@ namespace BExIS.Modules.Vim.UI.Controllers
                 dqModel.datasetColNumber.maxColNumber = datasetCols.Max();
                 dqModel.datasetColNumber.medianColNumber = medianCalc(datasetCols);
             }
-            if (datasetSizeFile.Count() > 0)
+            if (datasetSizeFiles.Count() > 0)
             {
-                dqModel.datasetTotalSize.minSizeFile = datasetSizeFile.Min();
-                dqModel.datasetTotalSize.maxSizeFile = datasetSizeFile.Max();
-                dqModel.datasetTotalSize.medianSizeFile = medianCalc(datasetSizeFile);
+                dqModel.datasetTotalSize.minSizeFile = datasetSizeFiles.Min();
+                dqModel.datasetTotalSize.maxSizeFile = datasetSizeFiles.Max();
+                dqModel.datasetTotalSize.medianSizeFile = medianCalc(datasetSizeFiles);
             }
             if (datasetFileNumber.Count > 0)
             {
@@ -508,7 +507,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                                     {
                                         FileInformation fileInfo = new FileInformation(fs.Name.Split('\\').LastOrDefault(), MimeMapping.GetMimeMapping(fs.Name), (uint)fs.Length, uri);
                                         fileInformation.fileName = fileInfo.Name.Split('.')[0];
-                                        fileInformation.fileFormat = fileInfo.Name.Split('.')[1];
+                                        fileInformation.fileFormat = fileInfo.Name.Split('.')[1].ToLower();
                                         fileInformation.fileSize = fileInfo.Size;
                                         totalSize += fileInfo.Size;
                                     }
@@ -543,8 +542,35 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
         private double GetFileDatasetSize(DatasetVersion datasetVersion)
         {
-            double size = -1;
-            return (size);
+            List<ContentDescriptor> contentDescriptors = datasetVersion.ContentDescriptors.ToList();
+            double totalSize = 0;
+            if (contentDescriptors.Count > 0)
+            {
+                foreach (ContentDescriptor cd in contentDescriptors)
+                {
+                    if (cd.Name.ToLower().Equals("unstructureddata"))
+                    {
+                        fileInformation fileInformation = new fileInformation();
+                        string uri = cd.URI;
+                        String path = Server.UrlDecode(uri);
+                        path = Path.Combine(AppConfiguration.DataPath, path);
+                        Stream fileStream = System.IO.File.OpenRead(path);
+
+                        if (fileStream != null)
+                        {
+                            FileStream fs = fileStream as FileStream;
+                            if (fs != null)
+                            {
+                                FileInformation fileInfo = new FileInformation(fs.Name.Split('\\').LastOrDefault(), MimeMapping.GetMimeMapping(fs.Name), (uint)fs.Length, uri);
+                                fileInformation.fileSize = fileInfo.Size;
+                                totalSize += fileInfo.Size;
+                            }
+                        }
+
+                    }
+                }
+            }
+            return (totalSize);
         }
 
 

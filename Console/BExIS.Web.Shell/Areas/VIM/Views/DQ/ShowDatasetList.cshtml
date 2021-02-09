@@ -1,11 +1,12 @@
 ﻿@model BExIS.Modules.Vim.UI.Models.ExternalLink
 
 @{
-    ViewBag.Title = "ShowDatasetList";
+    ViewBag.Title = "Dataset list";
 }
 
 @section Information
 {
+    You can find a list of datasets that the user is involved in creating or editing on this page.
 }
 
 @section LeftPane
@@ -13,25 +14,25 @@
     <p id="name"></p>
 }
 
-    @{
-        var datasetsInfos = Model.datasetInfos;
-    }
+@{
+    var datasetsInfos = Model.datasetInfos;
+}
 
 
-    <table id="resources_table" class="display" style="width:100%">
-        <thead>
-            <tr>
-                <th><b>Id</b></th>
-                <th><b>Title</b></th>
-            </tr>
-        </thead>
-        <tbody id="datasetInfos">
-        </tbody>
-    </table>
+<table id="resources_table" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th><b>Id</b></th>
+            <th><b>Title</b></th>
+        </tr>
+    </thead>
+    <tbody id="datasetInfos">
+    </tbody>
+</table>
 
 
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
     $(document).ready(function () {
         //read url
@@ -51,11 +52,11 @@
 
         //read model.datasetInfos
         var datasets = @Html.Raw(Json.Encode(Model.datasetInfos));
-                
+
         for (var i = 0; i < datasets.length; ++i) {
             //var dataset = datasets[i];
             var dataset = datasets[i];
-            
+
             var id = dataset.Id;
             if (ids.indexOf(id.toString()) !== -1) {
                 var table = document.getElementById("datasetInfos");
@@ -81,6 +82,5 @@
         window.open(url, '_blank');
     }
 
-    </script>
-
+</script>
 

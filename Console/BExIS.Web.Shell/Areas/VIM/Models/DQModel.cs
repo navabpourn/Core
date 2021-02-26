@@ -20,6 +20,15 @@ namespace BExIS.Modules.Vim.UI.Models
         public List<fileInformation> filesInformation = new List<fileInformation>();
         public string type { get; set; }
         public int isPublic { get; set; } //1:true; 0:false;
+        public int publicDatasets { get; set; }
+        public int restrictedDataset { get; set; }
+        public int readable { get; set; }
+        public int allReadables { get; set; } //to count for how many datasets has the user read permission
+        public int isValid { get; set; }
+        public int allValids { get; set; }
+        public int allDatasets { get; set; } //how many dataset exist
+        public int fileDatasets { get; set; }
+        public int tabularDatasets { get; set; }
         //public List<int> ColumnRowNumbers = new List<int>(); //column . row
         public int columnNumber { get; set; }
         public int rowNumber { get; set; }

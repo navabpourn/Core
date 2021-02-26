@@ -3,11 +3,14 @@
 @{
     ViewBag.Title = "Dataset list";
 }
+<p><b>Dataset list</b></p>
 
 @section Information
 {
     You can find a list of datasets that the user is involved in creating or editing on this page.
 }
+
+
 
 @section LeftPane
 {
@@ -19,11 +22,12 @@
 }
 
 
-<table id="resources_table" class="display" style="width:100%">
+<table class="display" style="width:100%">
     <thead>
         <tr>
             <th><b>Id</b></th>
             <th><b>Title</b></th>
+            <th><b></b></th>
         </tr>
     </thead>
     <tbody id="datasetInfos">
@@ -63,15 +67,18 @@
                 var row = table.insertRow();
                 var cell1 = row.insertCell(0);
                 var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
                 cell1.innerHTML = dataset.Id;
                 cell2.innerHTML = dataset.title;
-                cell1.setAttribute("style", "cursor: pointer;");
+                //cell1.setAttribute("style", "cursor: pointer;");
                 var func = "OpenIds('" + dataset.Id + "')";
                 cell1.setAttribute("onClick", func);
+                cell3.setAttribute("class", "bx bx-grid-function bx-show");
+                cell3.setAttribute("style", "text-align: center;");
+                cell3.setAttribute("title", "Show dataset");
+                cell3.setAttribute("onClick", func);
             }
         }
-
-
 
     });
 
@@ -83,4 +90,10 @@
     }
 
 </script>
+
+<style>
+    table.hover tbody tr:hover, table.display tbody tr:hover {
+        background-color: #f6f6f6;
+    }
+</style>
 

@@ -11,11 +11,8 @@ using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using BExIS.Dlm.Services.DataStructure;
 using BExIS.Dlm.Entities.DataStructure;
-using BExIS.Dlm.Entities.Party;
 using BExIS.Dlm.Services.Party;
 using BExIS.Security.Services.Subjects;
-using BExIS.Security.Services.Objects;
-using BExIS.Modules.Rpm.UI.Models;
 using System.Data;
 using System.Xml;
 using IDIV.Modules.Mmm.UI.Models;
@@ -171,7 +168,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
             //////////////////////////////////////////////////////////////////////////
             DatasetVersion currentDatasetVersion = dm.GetDatasetVersion(versionId); //Current dataset version 
-            DataStructure currentDataStr = dsm.AllTypesDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id);
+            DataStructure currentDataStr = dsm.AllTypesDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id); //current data structure
             var currentUser = userManager.FindByNameAsync(GetUsernameOrDefault()).Result; //Find current user
 
             //Find the dataset Type
@@ -185,7 +182,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             foreach (var user in um.Users)
             {
                 int activity = FindDatasetsFromPerformerUsername(dm, um, user.Name).Count();
-                if (activity > 0)
+                if (activity > 0) //if user involvedin more than 1 dataset
                 {
                     activities.Add(FindDatasetsFromPerformerUsername(dm, um, user.Name).Count());
                 }
@@ -198,7 +195,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             foreach (var username in performerUsernames) //foreach performer of the current dataset
             {
                 performer p = new performer();
-                p.performerName = FindPerformerNameFromUsername(um, username);
+                p.performerName = FindPerformerNameFromUsername(um, username); //find performer name
                 List<long> pfIds = FindDatasetsFromPerformerUsername(dm, um, username); //Find all datasets in wich the username is involved.
                 p.DatasetIds = pfIds;
                 p.performerRate = p.DatasetIds.Count();
@@ -207,13 +204,14 @@ namespace BExIS.Modules.Vim.UI.Controllers
             dqModel.performers = performers;
             #endregion
 
-            dqModel.isPublic = entityPermissionManager.GetRights(null, 1, datasetId); //Find if dataset is public
-            //If user has read permission
-            bool rPermission = entityPermissionManager.HasEffectiveRight(currentUser.UserName, typeof(Dataset), datasetId, Security.Entities.Authorization.RightType.Read);
+            dqModel.isPublic = entityPermissionManager.GetRights(null, 1, datasetId); //check if dataset is public
+            //check the read permission for current dataset
+            bool rPermission = entityPermissionManager.HasEffectiveRight(currentUser.UserName, typeof(Dataset), datasetId, Security.Entities.Authorization.RightType.Read); //find if user has read permission
             if (rPermission == true) //has read permission or public = readable
             { dqModel.readable = 1; } 
             else { dqModel.readable = 0; } //cannot read
 
+            //Check if the current metadata is valid
             if (currentDatasetVersion.StateInfo != null)
             {
                 dqModel.isValid = DatasetStateInfo.Valid.ToString().Equals(currentDatasetVersion.StateInfo.State) ? 1 : 0; //1:valid; 0:invalid.
@@ -246,14 +244,12 @@ namespace BExIS.Modules.Vim.UI.Controllers
             int allValidMetadas = 0;
 
             
-            foreach (long Id in datasetIds)
+            foreach (long Id in datasetIds) //for each dataset
             {
                 if (dm.IsDatasetCheckedIn(Id))
                 {
                     DatasetVersion datasetVersion = dm.GetDatasetLatestVersion(Id);  //get last dataset versions
-
-                    /////////////////////
-                    //METADATA
+                    #region metadata
                     long metadataStructureId = dm.DatasetRepo.Get(Id).MetadataStructure.Id;
                     if (datasetVersion.StateInfo != null)
                     {
@@ -267,7 +263,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     {
                         allValidMetadas += 1;  
                     }
-                    /////////////////////
+                    #endregion
 
                     var publicRights = entityPermissionManager.GetRights(null, 1, Id); //1:public; 0:restricted
                     restrictions.Add(publicRights);
@@ -295,14 +291,15 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     //    }
                     //}
                     //restrictions = datasetRestrictions(entityPermissionManager, datasetType, um, Id); //[0]:isPublic; [1]:% of read access
-                    DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id);
-                    int metadataRate = GetMetadataRate(datasetVersion);
+                    
+                    DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id); //get data structure
+                    int metadataRate = GetMetadataRate(datasetVersion); //get metadata completeness
                     metadataRates.Add(metadataRate);
-                    dsDescLength.Add(datasetVersion.Description.Length);
-                    dstrDescLength.Add(datasetVersion.Dataset.DataStructure.Description.Length);
-                    dstrUsage.Add(dataStr.Datasets.Count());
+                    dsDescLength.Add(datasetVersion.Description.Length); //get dataset description length
+                    dstrDescLength.Add(datasetVersion.Dataset.DataStructure.Description.Length); //get data structure description length
+                    dstrUsage.Add(dataStr.Datasets.Count() - 1); //data structure is used in how many other datasets (doesn't contain the current one)
                     string type = "file";
-                    if (dataStr.Self.GetType() == typeof(StructuredDataStructure)) { type = "tabular"; }
+                    if (dataStr.Self.GetType() == typeof(StructuredDataStructure)) { type = "tabular"; } //get dataset type
                     if (type == "tabular")
                     {
                         tabularDatasets += 1;
@@ -341,14 +338,14 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     datasetInformation.metadataComplition = metadataRate;
                     datasetInformation.descriptionLength = datasetVersion.Description.Length;
                     datasetInformation.structureDescriptionLength = datasetVersion.Dataset.DataStructure.Description.Length;
-                    datasetInformation.structureUsage = dataStr.Datasets.Count();
+                    datasetInformation.structureUsage = dataStr.Datasets.Count() - 1; //data structure is used in other datasets
                     datasetInformation.datasetSizeTabular = sizeTabular[0];
                     datasetInformation.columnNumber = sizeTabular[1];
                     datasetInformation.rowNumber = sizeTabular[2];
                     datasetInformation.fileNumber = fileNumber;
                     datasetInformation.datasetSizeFile = datasetSizeFile;
                     datasetInformation.performerNames = pfs;
-                    datasetsInformation.Add(datasetInformation);
+                    datasetsInformation.Add(datasetInformation); //add dataset information into the list of all datasets
                 }
             }
 
@@ -417,185 +414,187 @@ namespace BExIS.Modules.Vim.UI.Controllers
             dqModel.metadataComplition.requiredFields = 100; //Need to calculate: metadataStructureId = dsv.Dataset.MetadataStructure.Id;
             dqModel.datasetDescriptionLength.currentDescriptionLength = currentDatasetVersion.Description.Length; // Current dataset vesion: dataset description length
             dqModel.dataStrDescriptionLength.currentDescriptionLength = currentDatasetVersion.Dataset.DataStructure.Description.Length; // Current dataset version: data structure description length
-            dqModel.dataStrUsage.currentDataStrUsage = currentDataStr.Datasets.Count();
-            /////////////////////////////////////////////////////////////////////////
+            dqModel.dataStrUsage.currentDataStrUsage = currentDataStr.Datasets.Count() - 1; // Current dataset version: how many times the data structure is used in other datasets
+            ///////////////////////////////////////////////////////////////////////
 
-            //#region TABULAR FORMAT DATASET      
-            ////If it is a tabular format dataset
-            //if (currentDatasetType == "tabular")
-            //{
+            #region TABULAR FORMAT DATASET      
+            //If it is a tabular format dataset
+            if (currentDatasetType == "tabular")
+            {
 
-            //    int count = 0;
-            //    try
-            //    {
-            //        count = dm.GetDatasetVersionEffectiveTupleIds(currentDatasetVersion).Count();
-            //    }
-            //    catch
-            //    {
+                int count = 0;
+                try
+                {
+                    count = dm.GetDatasetVersionEffectiveTupleIds(currentDatasetVersion).Count(); //count dataset rows
+                }
+                catch
+                {
 
-            //    }
-            //    StructuredDataStructure sds = dsm.StructuredDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id);
+                }
+                StructuredDataStructure sds = dsm.StructuredDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id); //get data structure
 
 
-            //    var variables = sds.Variables;
-            //    dqModel.columnNumber = variables.Count();
+                var variables = sds.Variables; //get variables
+                dqModel.columnNumber = variables.Count();
 
-            //    int columnNumber = -1; //First four columns are added from system.
-            //    if (variables.Count() > 0)
-            //    {
-            //        foreach (var variable in variables)
-            //        {
-            //            columnNumber += 1;
-            //            //string missingValue = variable.MissingValue; //MISSING VALUE
-            //            List<string> missingValues = new List<string>(); //creat a list contains missing values
-            //            foreach (var missValue in variable.MissingValues)
-            //            {
-            //                missingValues.Add(missValue.Placeholder);
-            //            }
-            //            //List<string> missingValues = variable.MissingValues;
-            //            varVariable varV = new varVariable();
-            //            varV.varLabel = variable.Label; // variable name
-            //            varV.varDescription = variable.Description;
-            //            varV.varUsage = variable.DataAttribute.UsagesAsVariable.Count(); //How many other data structures are using the same variable template
-            //            varV.varType = variable.DataAttribute.DataType.SystemType; // What is the system type?
-            //            varV.missing = 100;
-            //            try
-            //            {
-            //                DataTable table = dm.GetDatasetVersionTuples(versionId, 0, count);
-            //                DataColumnCollection columns = table.Columns;
-            //                DataRowCollection rows = table.Rows;
+                int columnNumber = -1; //First four columns are added from system.
+                if (variables.Count() > 0)
+                {
+                    foreach (var variable in variables) 
+                    {
+                        columnNumber += 1;
+                        //string missingValue = variable.MissingValue; //MISSING VALUE
+                        List<string> missingValues = new List<string>(); //creat a list contains missing values
+                        foreach (var missValue in variable.MissingValues) //if data is equal missing value
+                        {
+                            missingValues.Add(missValue.Placeholder);
+                        }
+                        //List<string> missingValues = variable.MissingValues;
+                        varVariable varV = new varVariable();
+                        varV.varLabel = variable.Label; // variable name
+                        varV.varDescription = variable.Description; //variable description
+                        varV.varUsage = variable.DataAttribute.UsagesAsVariable.Count() - 1; //How many other data structures are using the same variable template (except current one)
+                        varV.varType = variable.DataAttribute.DataType.SystemType; // What is the system type?
+                        varV.missing = 100; //suppose 100% is completed
+                        try
+                        {
+                            DataTable table = dm.GetDatasetVersionTuples(versionId, 0, count); //data tuples
+                            DataColumnCollection columns = table.Columns;
+                            DataRowCollection rows = table.Rows;
 
-            //                dqModel.datasetTotalSize.currentTotalSize = columns.Count * rows.Count;
-            //                dqModel.rowNumber = rows.Count;
+                            dqModel.datasetTotalSize.currentTotalSize = columns.Count * rows.Count;
+                            dqModel.rowNumber = rows.Count;
 
-            //                double min = 0;
-            //                double max = 0;
-            //                int missing = rows.Count;
-            //                bool b = true; //first value
-            //                Dictionary<string, int> frequency = new Dictionary<string, int>();
-            //                foreach (DataRow row in rows)
-            //                {
-            //                    var value = row.ItemArray[columnNumber];//.ToString();
-            //                    if (value == null || missingValues.Contains(value.ToString())) //check if cell is emty or contains a missing value
-            //                    {
-            //                        missing -= 1;
-            //                    }
+                            double min = 0;
+                            double max = 0;
+                            int missing = rows.Count;
+                            bool b = true; //first value
+                            Dictionary<string, int> frequency = new Dictionary<string, int>();
+                            foreach (DataRow row in rows)
+                            {
+                                var value = row.ItemArray[columnNumber];//.ToString();
+                                if (value == null || missingValues.Contains(value.ToString())) //check if cell is emty or contains a missing value
+                                {
+                                    missing -= 1;
+                                }
 
-            //                    //if value is numeric and it is in the first row
-            //                    else if (varV.varType != "String" && varV.varType != "DateTime" && varV.varType != "Boolean") //&& varV.varType != "DateTime"
-            //                    {
-            //                        if (b == true)
-            //                        {
-            //                            min = Convert.ToDouble(value);
-            //                            max = Convert.ToDouble(value);
-            //                            b = false;
-            //                        }
-            //                        else
-            //                        {
-            //                            if (Convert.ToDouble(value) < min) { min = Convert.ToDouble(value); }
-            //                            if (Convert.ToDouble(value) > max) { max = Convert.ToDouble(value); }
-            //                        }
-            //                    }
+                                //if value is numeric and it is in the first row
+                                else if (varV.varType != "String" && varV.varType != "DateTime" && varV.varType != "Boolean") //&& varV.varType != "DateTime"
+                                {
+                                    if (b == true)
+                                    {
+                                        min = Convert.ToDouble(value);
+                                        max = Convert.ToDouble(value);
+                                        b = false;
+                                    }
+                                    else
+                                    {
+                                        if (Convert.ToDouble(value) < min) { min = Convert.ToDouble(value); }
+                                        if (Convert.ToDouble(value) > max) { max = Convert.ToDouble(value); }
+                                    }
+                                }
 
-            //                    else //if data type is string or date or bool
-            //                    {
-            //                        if (frequency.ContainsKey(value.ToString()))
-            //                        {
-            //                            frequency[value.ToString()] += 1;
-            //                        }
-            //                        else
-            //                        {
-            //                            frequency[value.ToString()] = 1;
-            //                        }
-            //                    }
-            //                }
-            //                varV.min = min;
-            //                varV.max = max;
-            //                if (rows.Count > 0) { varV.missing = 100 * missing / rows.Count; }
-            //                if (frequency.Count() > 0)
-            //                {
-            //                    var sortedDict = from entry in frequency orderby entry.Value ascending select entry;
-            //                    if (sortedDict.First().Value == 1)
-            //                    {
-            //                        varV.uniqueValue = true;
-            //                        varV.uniqueValueNumber = sortedDict.Count();
-            //                    }
-            //                    else
-            //                    {
-            //                        varV.uniqueValue = false;
-            //                        varV.uniqueValueNumber = 0;
-            //                        varV.mostFrequent = sortedDict.First().Key;
-            //                    }
-            //                }
-            //                varVariables.Add(varV);
-            //            }
-            //            catch
-            //            {
-            //                dqModel.datasetTotalSize.currentTotalSize = -1;
-            //            }
+                                else //if data type is string or date or bool
+                                {
+                                    if (frequency.ContainsKey(value.ToString()))
+                                    {
+                                        frequency[value.ToString()] += 1;
+                                    }
+                                    else
+                                    {
+                                        frequency[value.ToString()] = 1;
+                                    }
+                                }
+                            }
+                            varV.min = min;
+                            varV.max = max;
+                            if (rows.Count > 0) { varV.missing = 100 * missing / rows.Count; } //% of existing values
+                            if (frequency.Count() > 0)
+                            {
+                                var sortedDict = from entry in frequency orderby entry.Value ascending select entry;
+                                if (sortedDict.First().Value == 1)
+                                {
+                                    varV.uniqueValue = true;
+                                    varV.uniqueValueNumber = sortedDict.Count();
+                                }
+                                else
+                                {
+                                    varV.uniqueValue = false;
+                                    varV.uniqueValueNumber = 0;
+                                    varV.mostFrequent = sortedDict.First().Key;
+                                }
+                            }
+                            varVariables.Add(varV);
+                        }
+                        catch
+                        {
+                            dqModel.datasetTotalSize.currentTotalSize = -1;
+                        }
 
-            //        }
-            //        dqModel.varVariables = varVariables;
-            //    }
-            //}
+                    }
+                    dqModel.varVariables = varVariables;
+                }
+            }
 
-            //#endregion
+            #endregion
 
-            //#region file format dataset
-            //// If it is a file format dataset
-            //else
-            //{
-            //    //List<FileInformation> files = new List<FileInformation>();                
-            //    List<fileInformation> filesInformation = new List<fileInformation>();
-            //    if (currentDatasetVersion != null)
-            //    {
-            //        List<ContentDescriptor> contentDescriptors = currentDatasetVersion.ContentDescriptors.ToList();
-            //        double totalSize = 0;
-            //        if (contentDescriptors.Count > 0)
-            //        {
-            //            foreach (ContentDescriptor cd in contentDescriptors)
-            //            {
-            //                if (cd.Name.ToLower().Equals("unstructureddata"))
-            //                {
-            //                    fileInformation fileInformation = new fileInformation();
-            //                    string uri = cd.URI;
-            //                    //string name = uri.Split('\\').Last();
-            //                    //fileInformation.fileName = name.Split('.')[0];
-            //                    //fileInformation.fileFormat = name.Split('.')[1];
+            #region file format dataset
+            // If it is a file format dataset
+            else
+            {
+                //List<FileInformation> files = new List<FileInformation>();                
+                List<fileInformation> filesInformation = new List<fileInformation>();
+                if (currentDatasetVersion != null)
+                {
+                    List<ContentDescriptor> contentDescriptors = currentDatasetVersion.ContentDescriptors.ToList();
+                    double totalSize = 0;
+                    if (contentDescriptors.Count > 0)
+                    {
+                        foreach (ContentDescriptor cd in contentDescriptors)
+                        {
+                            if (cd.Name.ToLower().Equals("unstructureddata"))
+                            {
+                                fileInformation fileInformation = new fileInformation();
+                                string uri = cd.URI;
+                                //string name = uri.Split('\\').Last();
+                                //fileInformation.fileName = name.Split('.')[0];
+                                //fileInformation.fileFormat = name.Split('.')[1];
 
-            //                    String path = Server.UrlDecode(uri);
-            //                    path = Path.Combine(AppConfiguration.DataPath, path);
-            //                    Stream fileStream = System.IO.File.OpenRead(path);
+                                //get the file path
+                                String path = Server.UrlDecode(uri); 
+                                path = Path.Combine(AppConfiguration.DataPath, path); 
+                                Stream fileStream = System.IO.File.OpenRead(path);
 
-            //                    if (fileStream != null)
-            //                    {
-            //                        FileStream fs = fileStream as FileStream;
-            //                        if (fs != null)
-            //                        {
-            //                            FileInformation fileInfo = new FileInformation(fs.Name.Split('\\').LastOrDefault(), MimeMapping.GetMimeMapping(fs.Name), (uint)fs.Length, uri);
-            //                            fileInformation.fileName = fileInfo.Name.Split('.')[0];
-            //                            fileInformation.fileFormat = fileInfo.Name.Split('.')[1].ToLower();
-            //                            fileInformation.fileSize = fileInfo.Size;
-            //                            totalSize += fileInfo.Size;
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        //fileInformation.fileName = null;
-            //                        //fileInformation.fileFormat = null;
-            //                        //fileInformation.fileSize = -1;
-            //                    }
-            //                    filesInformation.Add(fileInformation);
-            //                }
+                                if (fileStream != null)
+                                {
+                                    FileStream fs = fileStream as FileStream;
+                                    if (fs != null)
+                                    {
+                                        //get file information
+                                        FileInformation fileInfo = new FileInformation(fs.Name.Split('\\').LastOrDefault(), MimeMapping.GetMimeMapping(fs.Name), (uint)fs.Length, uri);
+                                        fileInformation.fileName = fileInfo.Name.Split('.')[0]; //file name
+                                        fileInformation.fileFormat = fileInfo.Name.Split('.')[1].ToLower(); //file extension
+                                        fileInformation.fileSize = fileInfo.Size; //file size
+                                        totalSize += fileInfo.Size;
+                                    }
+                                }
+                                else
+                                {
+                                    //fileInformation.fileName = null;
+                                    //fileInformation.fileFormat = null;
+                                    //fileInformation.fileSize = -1;
+                                }
+                                filesInformation.Add(fileInformation);
+                            }
 
-            //            }
-            //        }
-            //        dqModel.fileNumber = contentDescriptors.Count;
-            //        dqModel.datasetTotalSize.currentTotalSize = totalSize;
-            //    }
-            //    dqModel.filesInformation = filesInformation;
-            //}
-            //#endregion
+                        }
+                    }
+                    dqModel.fileNumber = contentDescriptors.Count;
+                    dqModel.datasetTotalSize.currentTotalSize = totalSize;
+                }
+                dqModel.filesInformation = filesInformation;
+            }
+            #endregion
 
             return PartialView(dqModel);
         }
@@ -615,12 +614,12 @@ namespace BExIS.Modules.Vim.UI.Controllers
             return !string.IsNullOrWhiteSpace(username) ? username : "DEFAULT";
         }
 
-        private Stream getFileStream(string uri)
-        {
-            String path = Server.UrlDecode(uri);
-            path = Path.Combine(AppConfiguration.DataPath, path);
-            return System.IO.File.OpenRead(path);
-        }
+        //private Stream getFileStream(string uri)
+        //{
+        //    String path = Server.UrlDecode(uri);
+        //    path = Path.Combine(AppConfiguration.DataPath, path);
+        //    return System.IO.File.OpenRead(path);
+        //}
 
         /// <summary>
         /// Get total size of a file format dataset
@@ -660,7 +659,11 @@ namespace BExIS.Modules.Vim.UI.Controllers
             return (totalSize);
         }
 
-
+        /// <summary>
+        /// get the size of a tabular dataset contains rows and columns
+        /// </summary>
+        /// <param name="id">dataset id</param>
+        /// <returns>list[0]:rows*cols, [1]:cols, [2]:rows</returns>
         private List<int> GetTabularSize(long id)
         {
             List<int> sizeTabular = new List<int>();
@@ -686,8 +689,8 @@ namespace BExIS.Modules.Vim.UI.Controllers
         /// <summary>
         /// This function calculates the median of a list
         /// </summary>
-        /// <param name="intList">a list of integers</param>
-        /// <returns>double median number</returns>
+        /// <param name="intList">a list of integers or doubles</param>
+        /// <returns>median number in double</returns>
         private double medianCalc(List<int> intList)
         {
             List<int> sortedList = intList.OrderBy(i => i).ToList();
@@ -785,6 +788,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
         /// <summary>
         /// This funcion finds all performers of a dataset.
+        /// Input can be included the dataset version id, or nothing as the latest version. 
         /// </summary>
         /// <param name="dsvs">A list of dataset versions of a dataset.</param>
         /// <param name="versionId">The current version Id of a dataset. </param>
@@ -875,7 +879,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
 
         /// <summary>
-        /// THIS IS CREATED AUTOMATICALLY!
+        /// THE ACTIONRESULT FOR SHOW DATASET LIST VIEW
         /// </summary>
         /// <param name="datasetIds"></param>
         /// <param name="performerName"></param>

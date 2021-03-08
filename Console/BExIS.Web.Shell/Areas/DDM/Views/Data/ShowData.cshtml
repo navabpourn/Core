@@ -148,6 +148,13 @@
 
                                           // Allways show Metadata and data structure tab
 
+                                          ///Add the DQ tab by Nafiseh.
+                                          tabs.Add()
+                                            .Text("Dataset Quality")
+                                            .LoadContentFrom("ShowDQ", "DQ", new { area = "vim", datasetID = @Model.Id, versionId = Model.VersionId })
+                                            .HtmlAttributes(new { id = "dq" })
+                                            .Enabled(true);
+
                                           tabs.Add()
                                              .Text("Metadata")
                                              .LoadContentFrom("ShowMetadata", "Data", new { area = "ddm", entityId = @Model.Id, title = @Model.Title, metadatastructureId = @Model.MetadataStructureId, datastructureId = @Model.DataStructureId, researchplanId = @Model.ResearchPlanId, sessionKeyForMetadata = "ShowDataMetadata", latest = Model.LatestVersion, isValid = ViewBag.isValid })
@@ -163,14 +170,6 @@
                                                   .Enabled(false);
 
                                           }
-
-                                          ///Add the DQ tab by Nafiseh.
-                                          tabs.Add()
-                                            .Text("Dataset Quality")
-                                            .LoadContentFrom("ShowDQ", "DQ", new { area = "vim", datasetID = @Model.Id, versionId = Model.VersionId })
-                                            .HtmlAttributes(new { id = "dq" })
-                                            .Enabled(true);
-
 
                                           if (show_tabs["show_data_structure_tab"] == "true")
                                           {

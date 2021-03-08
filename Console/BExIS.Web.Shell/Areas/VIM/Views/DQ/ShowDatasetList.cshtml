@@ -57,6 +57,7 @@
         //read model.datasetInfos
         var datasets = @Html.Raw(Json.Encode(Model.datasetInfos));
 
+        //add datasets one by one into the table
         for (var i = 0; i < datasets.length; ++i) {
             //var dataset = datasets[i];
             var dataset = datasets[i];
@@ -82,7 +83,7 @@
 
     });
 
-
+    //open a dataset detail view
     function OpenIds(id) {
         var url = '@Url.Action("Showdata", "data", new { area = "ddm" })'+"/"+id;;
         console.log("url:", url);

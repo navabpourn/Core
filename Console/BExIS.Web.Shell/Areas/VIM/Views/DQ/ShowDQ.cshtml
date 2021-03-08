@@ -17,7 +17,7 @@
     The data quality overview will be found on the bottom side.
 }
 
-@{
+@{  //get all information from the model DQModel
     int allDatasets = Model.allDatasets;
     int fileDatasets = Model.fileDatasets;
     int tabularDatasets = Model.tabularDatasets;
@@ -78,8 +78,6 @@
     int minPerformersActivity = Model.performersActivity.minActivity;
     int maxPerformersActivity = Model.performersActivity.maxActivity;
     double medianPerformersActivity = Model.performersActivity.medianActivity;
-    string performerDatasets = "";
-    string performerName = "";
     var varVariables = Model.varVariables;
     int metadataTotalCompletion = Model.metadataComplition.totalFields;
     int metadataRequiredCompletion = Model.metadataComplition.requiredFields;
@@ -87,7 +85,6 @@
     int metadataMaxRate = Model.metadataComplition.maxRate;
     double metadaMedianRate = Model.metadataComplition.medianRate;
     var datasetsInformation = Model.datasetsInformation;
-    int help;
 }
 
 <table id="generalInfo">
@@ -277,7 +274,7 @@
                             if (@rowNumber > 1000)
                             {
                                 double r = rowNumber / 1000;
-                                <h class="green">@Math.Round(r)K</h><h> rows</h>;
+                        <h class="green">&#10004; @Math.Round(r)K</h><h> rows</h>;
                             }
                             else if (@rowNumber > 0)
                             {
@@ -388,15 +385,13 @@
                     <tr>
                         <td><b>Extension</b></td>
                         <td><b>File name</b></td>
-                        @*<td><b>Description</b></td>*@
                         <td><b>Size</b></td>
                     </tr>
                     @for (int i = 0; i < filesInformation.Count; ++i)
                     {
                         <tr>
-                            <td @*class="dataType"*@>@filesInformation[i].fileFormat</td>
+                            <td>@filesInformation[i].fileFormat</td>
                             <td>@filesInformation[i].fileName</td>
-                            @*<td>@filesInformation[i].fileDescription</td>*@
 
                             @if (filesInformation[i].fileSize >= 1073741824)
                             {
@@ -432,8 +427,6 @@
             @* ********************************************* *@
             @if (@type == "tabular" && varVariables.Count > 0)
             {
-                @*<p>THIS IS A TABULAR FORMAT DATASET!</p>
-                    <p>Dataset size: @currentTotalSize cells</p>*@
                 <table>
                     <tr>
                         <td><b>Data type</b></td>
@@ -499,11 +492,11 @@
                                     {
                                         if (@varVariables[i].uniqueValue == true)
                                         {
-                                            <h>@varVariables[i].uniqueValueNumber <b style="color: #14bb1aff;">Unique values</b></h>
+                                            <h>@varVariables[i].uniqueValueNumber<b style="color: #14bb1aff;"> Unique values</b></h>
                                         }
                                         else
                                         {
-                                            <h>@varVariables[i].mostFrequent<b style="color: #14bb1aff;">Most frequent</b></h>
+                                            <h>@varVariables[i].mostFrequent<b style="color: #14bb1aff;"> Most frequent</b></h>
                                         }
                                     }
                                 }
@@ -527,12 +520,6 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        //console.log(w);
-
-        function messageNoData(text) {
-            document.getElementById('Warning').textContent = 'There is no Data to show ' + text;
-        }
-
         var actual = "actual" //if information of actual dataset
         //Dataset format
         document
@@ -560,10 +547,12 @@
         document
             .getElementById("metadataTotalComplition")
             .appendChild(indicators(@metadataMinRate, @metadataMaxRate, @metadataTotalCompletion, @metadaMedianRate, actual));
+
         //Dataset description rating
         document
             .getElementById("descriptionRates")
             .appendChild(indicators(@minDescriptionLength, @maxDescriptionLength, @descriptionLength, @medianDescriptionLength, actual));
+
         //Dataset size rating
         if ('@type' == "tabular") {
             if (@columnNumber >= 0) {
@@ -594,27 +583,27 @@
             }
         }
         else { //if type == file
-            if (@fileNumber>= 0) {
+            if (@fileNumber>= 0) { //file number indicator
                 document
                     .getElementById("datasetColNumns") //file number
                     .appendChild(indicators(@minFileNumber, @maxFileNumber, @fileNumber, @medianFileNumber, actual));
             }
             else {
                 document
-                    .getElementById("datasetColNumns") //file format dataset total soize
+                    .getElementById("datasetColNumns") //file format dataset total size
                     .innerHTML = "No data!";
                 document
                     .getElementById("datasetColNumns")
                     .style.color = "gray";
             }
-            if (@currentTotalSize >= 0) {
+            if (@currentTotalSize >= 0) { //file size indicator
                 document
                     .getElementById("datasetRowNumns") //file size
                     .appendChild(fileSizeIndicators(@minSizeFile, @maxSizeFile, @currentTotalSize, @medianSizeFile, actual));
             }
             else {
                 document
-                    .getElementById("datasetRowNumns") //file format dataset total soize
+                    .getElementById("datasetRowNumns") //file format dataset total size
                     .innerHTML = "No data!";
                 document
                     .getElementById("datasetRowNumns")
@@ -654,27 +643,23 @@
 
     });
 
-
+    //Add a Dashboard like view to see the list of datasets.
     function OpenIds(performerName, performerDatasets) {
-        //Add a Dashboard like view to see the list of datasets.
-        var pd = performerDatasets; /*.split(",");*/
+        var pd = performerDatasets; 
         var url = '@Url.Action("showDatasetList", "DQ", new { area = "vim", Name = "performerName", Datasets = "ids" })';
         url = url.replace('Name', performerName);
         url = url.replace('Datasets', pd);
         window.open(url, '_blank');
-        //document.getElementById('text').textContent = pd[1];
-        //window.open("https://www.w3schools.com");
     }
 
+    //Add performers one by one at the end of the general quality table
     function addPerformer(name, rate, ids) {
         var table = document.getElementById("left");
         var row = table.insertRow();
-        //row.setAttribute("id", "pf");
         var cell1 = row.insertCell(0);
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
         cell1.innerHTML = name;
-        //cell2.innerHTML = "<h class=\"green\">" + ids.length + "</h><h> times </h><h class=\"clickable\">&#129133</h>";  //&#129133;
         cell2.innerHTML = "<h class=\"green\">" + ids.length + "</h><h> times  </h><h class=\"fa fa-external-link\"></h>";  //&#129133;
         var func = "OpenIds('" + name + "','" + ids + "')";
         cell2.setAttribute("onClick", func);
@@ -683,6 +668,7 @@
         cell4.setAttribute("id", name);
     }
 
+    //Draw an indicator bar
     function indicators(min, max, current, median, actual){
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         var d = 5; //deviation from the x=0
@@ -698,9 +684,9 @@
         svg.appendChild(addPolygon(currentIndex+d, 7, actual)); //Triangle
         const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "title");
         tooltip.innerHTML = "Min: " + min + "&#013;Median: " + median + "&#013;Max: " + max + "&#013;Actual value: " + current;
-        svg.appendChild(tooltip);
+        svg.appendChild(tooltip); 
         svg.appendChild(addText(d, 35, "start", "0"));
-        if (max > 1000) {
+        if (max > 1000) { //add abreviation K for 1000
             var m = (Math.round(max / 1000));
             var tx = m + "K";
             svg.appendChild(addText(100 + d, 35, "end", tx));
@@ -711,6 +697,7 @@
         return svg;
     }
 
+    //add an indicator bar without the current and median indices
     function nonIndicator(val1, val2, text1, text2) { //val1:restricted; val2:public;
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         var d = 5; //deviation from the x=0
@@ -726,7 +713,7 @@
         svg.appendChild(tooltip);
         svg.appendChild(addText(d, 35, "start", "0"));
         var val = val1 + val2;
-        if ( val > 1000) {
+        if (val > 1000) { //add abreviation K for 1000
             var m = (Math.round(val / 1000));
             var tx = m + "K";
             svg.appendChild(addText(100 + d, 35, "end", tx));
@@ -736,6 +723,8 @@
         }
         return svg;
     }
+
+    //add indicator bar especially for the file size
     function fileSizeIndicators(min, max, current, median, actual) {
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         var d = 5; //deviation from the x=0
@@ -763,16 +752,18 @@
         return svg;
     }
 
+    //add a triangle to point to the actual dataset
     function addPolygon(x,y, actual) {
         const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         var points = x + "," + y + " " + (x - 5) + "," + (y - 7) + " " + (x + 5) + "," + (y - 7);
         polygon.setAttribute("points", points);
-        if (actual == "actual") { polygon.setAttribute("style", "fill: #14bb1aff;"); }
-        if (actual == "other") { polygon.setAttribute("style", "fill: #4E94CF;"); }
+        if (actual == "actual") { polygon.setAttribute("style", "fill: #14bb1aff;"); } //green for the actual dataset
+        if (actual == "other") { polygon.setAttribute("style", "fill: #4E94CF;"); } //blue for the comparred dataset
         return polygon;
 
     }
 
+    //add a rectangle
     function addRect(x,y,w,h,style) {
         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         rect.setAttribute("x", x);
@@ -782,6 +773,8 @@
         rect.setAttribute("style", style);
         return rect;
     }
+
+    //add a text to the indicator bar
     function addText(x, y, anchor, t) {
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", x);
@@ -792,6 +785,7 @@
         return text;
     }
 
+    ////add abreviation KB, MB, and GB for the file size
     function sizeTransform(fileSize) {
         if (fileSize > 1073741824) {
             var m = (Math.round(fileSize / 1073741824));
@@ -826,7 +820,7 @@
             newNames[newNames.length] = dsInf[i];
         }
 
-        if (doc.value == "all") {
+        if (doc.value == "all") { //if no dataset is selected from the drop-down list, no information is shown
             document.getElementById("DSFileFormat").innerHTML = '';
             document.getElementById("DSmetadataTotalComplition").innerHTML = '';
             document.getElementById("DSdescriptionRates").innerHTML = '';
@@ -841,7 +835,7 @@
                 document.getElementById(names[i]).innerHTML = '';
             }
         }
-        else {
+        else { //if a dataset is selected from the drop-down list
             document.getElementById("DSFileFormat").innerHTML = type;
             document.getElementById("DSFileFormat").style.color = '#4E94CF';
             document.getElementById("DSmetadataTotalComplition").innerHTML = '';
@@ -876,7 +870,7 @@
                 document.getElementById("DSrPermission").innerHTML = 'yes';
                 document.getElementById("DSrPermission").style.color = '#4E94CF';
             }
-            else if (dsInf[10] == 0) { //in-readable
+            else if (dsInf[10] == 0) { //is inreadable
                 document.getElementById("DSrPermission").innerHTML = 'no';
                 document.getElementById("DSrPermission").style.color = '#BB1475';
             }
@@ -885,19 +879,25 @@
                 document.getElementById("DSisValid").innerHTML = 'yes';
                 document.getElementById("DSisValid").style.color = '#4E94CF';
             }
-            else if (dsInf[11] == 0) { //in-valid
+            else if (dsInf[11] == 0) { //is invalid
                 document.getElementById("DSisValid").innerHTML = 'no';
                 document.getElementById("DSisValid").style.color = '#BB1475';
             }
 
+            //metadata completion
             document
                 .getElementById("DSmetadataTotalComplition")
                 .appendChild(indicators(@metadataMinRate, @metadataMaxRate, dsInf[1], @metadaMedianRate, actual));
 
+            //dataset description
             document.getElementById("DSdescriptionRates")
                 .appendChild(indicators(@minDescriptionLength, @maxDescriptionLength, dsInf[2], @medianDescriptionLength, actual));
+
+            //data structure description
             document.getElementById("DSStrDescriptionRates")
                 .appendChild(indicators(@minDataStrDescriptionLength, @maxDataStrDescriptionLength, dsInf[3], @medianDataStrDescriptionLength, actual));
+
+            //data structure usage
             document.getElementById("DSdataStrUsage")
                 .appendChild(indicators(@minDataStrUsage, @maxDataStrUsage, dsInf[4], @medianDataStrUsage, actual));
 
@@ -938,14 +938,14 @@
                     }
                 }
             }
-            else { //if types are different
-                if (type == "tabular") {
+            else { //if types of the current and selected datasets are different
+                if (type == "tabular") { //current is tabular, selected is file
                     document.getElementById("DSdatasetColNumns").innerHTML = "<h class=\"blue\">1</h><h> file</h>";
                     document.getElementById("DSdatasetColNumns").style.color = "#4E94CF";
                     document.getElementById("DSdatasetRowNumns").innerHTML = 'N/A';
                     document.getElementById("DSdatasetRowNumns").style.color = "gray";
                 }
-                if (type == "file") {
+                if (type == "file") { //current is file, selected is tabular
                     document.getElementById("DSdatasetColNumns").innerHTML = 'N/A';
                     document.getElementById("DSdatasetColNumns").style.color = "gray";
                     document.getElementById("DSdatasetRowNumns").innerHTML = 'N/A';
@@ -994,7 +994,8 @@
         cursor: pointer;
     }
 
-    .externalLink {
+    /* the external link icon */
+    .externalLink { 
         font-family: 'FontAwesome';
         content: " \f08e";
     }
@@ -1004,7 +1005,7 @@
         font-style: oblique;
     }
 
-    /* The Modal (background) */
+    /* the modal window background */
     .modal {
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
@@ -1019,7 +1020,7 @@
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
 
-    /* Modal Content */
+    /* the modal window content */
     .modal-content {
         background-color: #fefefe;
         margin: auto;
@@ -1029,21 +1030,7 @@
         width: 30%;
     }
 
-    /* The Close Button */
-    .close {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
+    /* the info icon */
     .info {
         cursor: pointer;
         font-size: large;

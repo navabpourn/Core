@@ -1,30 +1,28 @@
 ﻿using BExIS.Dlm.Entities.Data;
 using BExIS.Dlm.Services.Data;
-using BExIS.Modules.Vim.UI.Models;
-using BExIS.Modules.Vim.UI.Helper;
+using BExIS.Modules.DQM.UI.Models;
 using BExIS.Security.Services.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.UI.WebControls;
 using BExIS.Dlm.Services.DataStructure;
 using BExIS.Dlm.Entities.DataStructure;
 using BExIS.Dlm.Services.Party;
 using BExIS.Security.Services.Subjects;
 using System.Data;
 using System.Xml;
-using IDIV.Modules.Mmm.UI.Models;
 using System.IO;
 using Vaiona.Utils.Cfg;
+using IDIV.Modules.Mmm.UI.Models;
 
-namespace BExIS.Modules.Vim.UI.Controllers
+namespace BExIS.Modules.DQM.UI.Controllers
 {
-
     public class DQController : Controller
     {
-        public class datasetInformation{
+        public class datasetInformation
+        {
             public string type;
             public long datasetId;
             public string title;
@@ -35,10 +33,10 @@ namespace BExIS.Modules.Vim.UI.Controllers
             public int descriptionLength;
             public int structureDescriptionLength;
             public int structureUsage;
-            public int datasetSizeTabular;            
+            public int datasetSizeTabular;
             public int columnNumber;
             public int rowNumber;
-            public double datasetSizeFile; 
+            public double datasetSizeFile;
             public int fileNumber;
             public List<string> performerNames = new List<string>();
         }
@@ -80,7 +78,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             public double medianSizeTabular;
             public double minSizeFile;
             public double maxSizeFile;
-            public double medianSizeFile; 
+            public double medianSizeFile;
             public double currentTotalSize;
         }
 
@@ -173,7 +171,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
 
             //Find the dataset Type
             string currentDatasetType = "file";
-            if (currentDataStr.Self.GetType() == typeof(StructuredDataStructure)) { currentDatasetType = "tabular";  }
+            if (currentDataStr.Self.GetType() == typeof(StructuredDataStructure)) { currentDatasetType = "tabular"; }
             dqModel.type = currentDatasetType;
 
             #region performers
@@ -208,7 +206,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             //check the read permission for current dataset
             bool rPermission = entityPermissionManager.HasEffectiveRight(currentUser.UserName, typeof(Dataset), datasetId, Security.Entities.Authorization.RightType.Read); //find if user has read permission
             if (rPermission == true) //has read permission or public = readable
-            { dqModel.readable = 1; } 
+            { dqModel.readable = 1; }
             else { dqModel.readable = 0; } //cannot read
 
             //Check if the current metadata is valid
@@ -216,8 +214,8 @@ namespace BExIS.Modules.Vim.UI.Controllers
             {
                 dqModel.isValid = DatasetStateInfo.Valid.ToString().Equals(currentDatasetVersion.StateInfo.State) ? 1 : 0; //1:valid; 0:invalid.
             }
-            else { dqModel.isValid = 0;  }
-            
+            else { dqModel.isValid = 0; }
+
 
             List<long> datasetIds = dm.GetDatasetLatestIds();
             dqModel.allDatasets = datasetIds.Count;
@@ -243,7 +241,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             int validMetadata = 0;
             int allValidMetadas = 0;
 
-            
+
             foreach (long Id in datasetIds) //for each dataset
             {
                 if (dm.IsDatasetCheckedIn(Id))
@@ -259,24 +257,24 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     {
                         validMetadata = 0;
                     }
-                    if(validMetadata == 1)  //count how many datasets have valid metadata
+                    if (validMetadata == 1)  //count how many datasets have valid metadata
                     {
-                        allValidMetadas += 1;  
+                        allValidMetadas += 1;
                     }
                     #endregion
 
                     var publicRights = entityPermissionManager.GetRights(null, 1, Id); //1:public; 0:restricted
                     restrictions.Add(publicRights);
-                    if(publicRights == 1) { publicDatasets += 1; }
+                    if (publicRights == 1) { publicDatasets += 1; }
                     if (publicRights == 0) { restrictedDatasets += 1; }
 
                     //If user has read permission
                     rPermission = entityPermissionManager.HasEffectiveRight(currentUser.UserName, typeof(Dataset), Id, Security.Entities.Authorization.RightType.Read);
                     if (rPermission == true) //has read permission or public = readable
-                    { 
-                        rp = 1; 
-                        rpTrue += 1; 
-                    } 
+                    {
+                        rp = 1;
+                        rpTrue += 1;
+                    }
                     else { rp = 0; } //cannot read
 
                     dqModel.userNumber = um.Users.Count();
@@ -291,7 +289,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     //    }
                     //}
                     //restrictions = datasetRestrictions(entityPermissionManager, datasetType, um, Id); //[0]:isPublic; [1]:% of read access
-                    
+
                     DataStructure dataStr = dsm.AllTypesDataStructureRepo.Get(datasetVersion.Dataset.DataStructure.Id); //get data structure
                     int metadataRate = GetMetadataRate(datasetVersion); //get metadata completeness
                     metadataRates.Add(metadataRate);
@@ -440,14 +438,16 @@ namespace BExIS.Modules.Vim.UI.Controllers
                 int columnNumber = -1; //First four columns are added from system.
                 if (variables.Count() > 0)
                 {
-                    foreach (var variable in variables) 
+                    foreach (var variable in variables)
                     {
                         columnNumber += 1;
                         //string missingValue = variable.MissingValue; //MISSING VALUE
                         List<string> missingValues = new List<string>(); //creat a list contains missing values
+                        DataTable missTable = new DataTable();
                         foreach (var missValue in variable.MissingValues) //if data is equal missing value
                         {
                             missingValues.Add(missValue.Placeholder);
+
                         }
                         //List<string> missingValues = variable.MissingValues;
                         varVariable varV = new varVariable();
@@ -561,8 +561,8 @@ namespace BExIS.Modules.Vim.UI.Controllers
                                 //fileInformation.fileFormat = name.Split('.')[1];
 
                                 //get the file path
-                                String path = Server.UrlDecode(uri); 
-                                path = Path.Combine(AppConfiguration.DataPath, path); 
+                                String path = Server.UrlDecode(uri);
+                                path = Path.Combine(AppConfiguration.DataPath, path);
                                 Stream fileStream = System.IO.File.OpenRead(path);
 
                                 if (fileStream != null)
@@ -685,7 +685,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             }
             return (sizeTabular);
         }
-        
+
         /// <summary>
         /// This function calculates the median of a list
         /// </summary>
@@ -694,18 +694,18 @@ namespace BExIS.Modules.Vim.UI.Controllers
         private double medianCalc(List<int> intList)
         {
             List<int> sortedList = intList.OrderBy(i => i).ToList();
-            
+
             //get the median
             int size = sortedList.Count();
             int mid = size / 2;
             double median = (size % 2 != 0) ? (double)sortedList[mid] : ((double)sortedList[mid] + (double)sortedList[mid - 1]) / 2;
-            
+
             return (median);
         }
         private double medianCalc(List<double> doubleList)
         {
             List<int> intList = new List<int>();
-            foreach(double d in doubleList)
+            foreach (double d in doubleList)
             {
                 intList.Add((int)Math.Round(d));
             }
@@ -839,14 +839,15 @@ namespace BExIS.Modules.Vim.UI.Controllers
         {
             List<long> datasetIds = dm.GetDatasetLatestIds();
             List<long> Ids = new List<long>();
-            foreach(long datasetId in datasetIds)
+            foreach (long datasetId in datasetIds)
             {
                 List<string> names = FindDatasetPerformers(dm, datasetId, dm.GetDatasetLatestVersionId(datasetId));
-                if (names.Contains(username)){
+                if (names.Contains(username))
+                {
                     Ids.Add(datasetId);
                 }
-            }            
-            return (Ids);            
+            }
+            return (Ids);
         }
 
         /// <summary>
@@ -860,20 +861,20 @@ namespace BExIS.Modules.Vim.UI.Controllers
             string fullName = ""; // = dm.Select(v => v.CreationInfo.Performer).ToList();
             try
             {
-                foreach(var user in um.Users)
+                foreach (var user in um.Users)
                 {
-                        if(user.Name == userName)
-                        {
-                            fullName = user.FullName;
-                        }
-                }            
+                    if (user.Name == userName)
+                    {
+                        fullName = user.FullName;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 throw ex;
             }
 
-            return (fullName); 
+            return (fullName);
         }
 
 
@@ -895,7 +896,7 @@ namespace BExIS.Modules.Vim.UI.Controllers
             foreach (long Id in datasetIds)
             {
                 if (dm.IsDatasetCheckedIn(Id))
-                {                    
+                {
                     DatasetVersion datasetVersion = dm.GetDatasetLatestVersion(Id);  //get last dataset versions
                     datasetInfo datasetInfo = new datasetInfo();
 
@@ -906,13 +907,12 @@ namespace BExIS.Modules.Vim.UI.Controllers
                     datasetInfo.type = type;
                     datasetInfo.Id = Id;
                     datasetInfos.Add(datasetInfo);
-                    
+
                 }
-            }            
+            }
 
             dsModel.datasetInfos = datasetInfos;
             return View(dsModel);
         }
-
     }
 }

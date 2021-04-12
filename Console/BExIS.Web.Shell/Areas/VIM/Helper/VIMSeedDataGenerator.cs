@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using Vaiona.Web.Mvc.Modularity;
 
-namespace BExIS.Modules.Vim.UI.Helper
+namespace BExIS.Modules.DQM.UI.Helper
 {
     public class VIMSeedDataGenerator : IModuleSeedDataGenerator
     {

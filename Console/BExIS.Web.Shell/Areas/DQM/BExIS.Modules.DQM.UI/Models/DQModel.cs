@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using BExIS.Dlm.Entities.Data;
-using static BExIS.Modules.Vim.UI.Controllers.DQController;
+using static BExIS.Modules.DQM.UI.Controllers.DQController;
 
-namespace BExIS.Modules.Vim.UI.Models
+namespace BExIS.Modules.DQM.UI.Models
 {
     public class DQModels
     {
@@ -44,7 +44,7 @@ namespace BExIS.Modules.Vim.UI.Models
     /// A model for the ShowDatasetList view
     /// </summary>
     public class ExternalLink
-    {       
+    {
         public List<datasetInfo> datasetInfos = new List<datasetInfo>();
     }
 }

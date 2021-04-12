@@ -2,7 +2,7 @@
 using System.Linq;
 using BExIS.Dlm.Entities.Data;
 
-namespace BExIS.Modules.Vim.UI.Models
+namespace BExIS.Modules.DQM.UI.Models
 {
     public class DatasetModels
     {

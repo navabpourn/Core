@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Web.Mvc;
-using BExIS.Modules.Vim.UI.Models;
+using BExIS.Modules.DQM.UI.Models;
 using BExIS.Dlm.Entities.Data;
 
-namespace BExIS.Modules.Vim.UI.Controllers
+namespace BExIS.Modules.DQM.UI.Controllers
 {
     public class VisualizationController : Controller
     {

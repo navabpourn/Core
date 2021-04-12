@@ -1,9 +1,9 @@
-﻿using BExIS.Modules.Vim.UI.Helper;
+﻿using BExIS.Modules.DQM.UI.Helper;
 using System;
 using Vaiona.Logging;
 using Vaiona.Web.Mvc.Modularity;
 
-namespace BExIS.Modules.Vim.UI
+namespace BExIS.Modules.DQM.UI
 {
     public class VimModule : ModuleBase
     {

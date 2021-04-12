@@ -6,7 +6,7 @@ using System.IO;
 using BExIS.Xml.Helpers;
 using Vaiona.Utils.Cfg;
 
-namespace BExIS.Modules.Vim.UI.Controllers
+namespace BExIS.Modules.DQM.UI.Controllers
 {
     public class HelpController : Controller
     {

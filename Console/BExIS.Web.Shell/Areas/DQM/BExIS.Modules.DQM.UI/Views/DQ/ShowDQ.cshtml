@@ -1,8 +1,9 @@
-﻿@model BExIS.Modules.Vim.UI.Models.DQModels
+﻿@model BExIS.Modules.DQM.UI.Models.DQModels
 
-@using BExIS.Modules.Vim.UI.Controllers;
+
+@using BExIS.Modules.DQM.UI.Controllers;
 @using Telerik.Web.Mvc.UI;
-@using BExIS.Modules.Vim.UI;
+@using BExIS.Modules.DQM.UI;
 
 
 @{
@@ -11,13 +12,13 @@
 
 @section Information
 {
-    You can find a dataset quality overview on this page. 
-    On the top is the metadata quality overview. 
-    Select a dataset from the drop-down list to see its quality overview to compare. 
+    You can find a dataset quality overview on this page.
+    On the top is the metadata quality overview.
+    Select a dataset from the drop-down list to see its quality overview to compare.
     The data quality overview will be found on the bottom side.
 }
 
-@{  //get all information from the model DQModel
+@{ //get all information from the model DQModel
     int allDatasets = Model.allDatasets;
     int fileDatasets = Model.fileDatasets;
     int tabularDatasets = Model.tabularDatasets;
@@ -101,7 +102,7 @@
                         <b>Versus all</b> &nbsp;&nbsp; <b class="info" id="openLegend" title="Legend" onclick="openLegend()">&#128712; @*&#8505; &#9432;*@</b>
                         <!-- The Modal -->
                         <div id="myModal" class="modal">
-                            <img class="modal-content" id="modal-content" src="~/Areas/VIM/Content/drawing5.png" alt="Legend" />
+                            <img class="modal-content" id="modal-content" src="~/Areas/DQM/Content/drawing5.png" alt="Legend" />
                             <span class="close" id="close" title="Close">&times;</span>
                         </div>
                     </td>
@@ -274,7 +275,7 @@
                             if (@rowNumber > 1000)
                             {
                                 double r = rowNumber / 1000;
-                        <h class="green">&#10004; @Math.Round(r)K</h><h> rows</h>;
+                                <h class="green">&#10004; @Math.Round(r)K</h><h> rows</h>;
                             }
                             else if (@rowNumber > 0)
                             {
@@ -407,15 +408,15 @@
                             {
                                 double s = filesInformation[i].fileSize / 1024;
                                 <td><h class="green">&#10004; @Math.Round(s)KB</h></td>
-                }
-                else if (filesInformation[i].fileSize > 0)
-                {
-                        <td><h class="green">&#10004; filesInformation[i].fileSize</h></td>
-                }
-                else
-                {
-                    <td><h class="gray">No data!</h></td>
-                }
+                            }
+                            else if (filesInformation[i].fileSize > 0)
+                            {
+                                <td><h class="green">&#10004; filesInformation[i].fileSize</h></td>
+                            }
+                            else
+                            {
+                                <td><h class="gray">No data!</h></td>
+                            }
                         </tr>
 
                     }
@@ -645,7 +646,7 @@
 
     //Add a Dashboard like view to see the list of datasets.
     function OpenIds(performerName, performerDatasets) {
-        var pd = performerDatasets; 
+        var pd = performerDatasets;
         var url = '@Url.Action("showDatasetList", "DQ", new { area = "vim", Name = "performerName", Datasets = "ids" })';
         url = url.replace('Name', performerName);
         url = url.replace('Datasets', pd);
@@ -684,7 +685,7 @@
         svg.appendChild(addPolygon(currentIndex+d, 7, actual)); //Triangle
         const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "title");
         tooltip.innerHTML = "Min: " + min + "&#013;Median: " + median + "&#013;Max: " + max + "&#013;Actual value: " + current;
-        svg.appendChild(tooltip); 
+        svg.appendChild(tooltip);
         svg.appendChild(addText(d, 35, "start", "0"));
         if (max > 1000) { //add abreviation K for 1000
             var m = (Math.round(max / 1000));
@@ -808,7 +809,7 @@
     function dqDetail() {
         var doc = document.getElementById('datasetSelector');
         //doc.value = [0]type, [1]metadataComplition, [2]descriptionLength, [3]structureDescriptionLength,
-        // [4]structureUsage, [5]datasetSize, [6]columnNumber, [7]rowNumber, [8]fileNumber, [9]isPublic, [10]readable, 
+        // [4]structureUsage, [5]datasetSize, [6]columnNumber, [7]rowNumber, [8]fileNumber, [9]isPublic, [10]readable,
         // [11] validation, [12]performers;
 
         var dsInf = doc.value.split(",");
@@ -979,7 +980,8 @@
     .blue {
         color: #1472BB;
     }
-    .redblue{
+
+    .redblue {
         color: indianred;
     }
 
@@ -990,12 +992,13 @@
     .clickable {
         cursor: pointer;
     }
+
     .fa fa-external-link {
         cursor: pointer;
     }
 
     /* the external link icon */
-    .externalLink { 
+    .externalLink {
         font-family: 'FontAwesome';
         content: " \f08e";
     }
@@ -1036,3 +1039,4 @@
         font-size: large;
     }
 </style>
+

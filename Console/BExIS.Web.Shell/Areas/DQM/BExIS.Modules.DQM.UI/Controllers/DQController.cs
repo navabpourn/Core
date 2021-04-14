@@ -163,7 +163,7 @@ namespace BExIS.Modules.DQM.UI.Controllers
             UserManager um = new UserManager();
             DatasetVersion dsv = new DatasetVersion();
             UserManager userManager = new UserManager();
-
+            // test
             //////////////////////////////////////////////////////////////////////////
             DatasetVersion currentDatasetVersion = dm.GetDatasetVersion(versionId); //Current dataset version 
             DataStructure currentDataStr = dsm.AllTypesDataStructureRepo.Get(currentDatasetVersion.Dataset.DataStructure.Id); //current data structure

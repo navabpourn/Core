@@ -299,7 +299,7 @@ namespace BExIS.Modules.Ddm.UI.Controllers
                 }
 
 
-                List<long> datasetIds = entityPermissionManager.GetKeys(GetUsernameOrDefault(), "Dataset",
+                List<long> datasetIds = entityPermissionManager.GetKeys(GetUsernameOrDefault(), entityname,
                        typeof(Dataset), rightTypeId);
 
                 List<DatasetVersion> datasetVersions = datasetManager.GetDatasetLatestVersions(datasetIds, true);
@@ -358,6 +358,7 @@ namespace BExIS.Modules.Ddm.UI.Controllers
             }
             else
             {
+                ViewBag.entityname = entityname;
                 return PartialView("_myDatasetsViewHeader", model);
             }
 

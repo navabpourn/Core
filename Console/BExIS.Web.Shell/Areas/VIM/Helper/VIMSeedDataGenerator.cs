@@ -6,41 +6,33 @@ using System.Linq;
 using System.Web;
 using Vaiona.Web.Mvc.Modularity;
 
-namespace BExIS.Modules.DQM.UI.Helper
+namespace BExIS.Modules.Vim.UI.Helper
 {
     public class VIMSeedDataGenerator : IModuleSeedDataGenerator
     {
         public void GenerateSeedData()
         {
-            FeatureManager featureManager = new FeatureManager();
-            OperationManager operationManager = new OperationManager();
+            using (FeatureManager featureManager = new FeatureManager())
+            using (OperationManager operationManager = new OperationManager())
+            { 
+                try
+                {
+                    Feature visualization =
+                        featureManager.FeatureRepository.Get().FirstOrDefault(f => f.Name.Equals("Visualization"));
+                    if (visualization == null)
+                        visualization = featureManager.Create("Visualization", "Visualization");
 
-            try
-            {
-                Feature visualization =
-                    featureManager.FeatureRepository.Get().FirstOrDefault(f => f.Name.Equals("Visualization"));
-                if (visualization == null)
-                    visualization = featureManager.Create("Visualization", "Visualization");
+                    operationManager.Create("VIM", "Visualization", "*", visualization);
 
-                Feature dataQuality =
-                    featureManager.FeatureRepository.Get().FirstOrDefault(f => f.Name.Equals("DataQuality"));
-                if (dataQuality == null)
-                    dataQuality = featureManager.Create("DataQuality", "DataQuality");
+                    operationManager.Create("VIM", "Help", "*");
 
-                operationManager.Create("VIM", "Visualization", "*", visualization);
-                operationManager.Create("VIM", "DQ", "*", dataQuality);
-                operationManager.Create("VIM", "Help", "*");
-
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-            finally
-            {
-                featureManager?.Dispose();
-            }
+    
         }
 
         public void Dispose()

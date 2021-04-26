@@ -1,4 +1,4 @@
-﻿using BExIS.Modules.DQM.UI.Helper;
+﻿using BExIS.Modules.Vim.UI.Helper;
 using System;
 using Vaiona.Logging;
 using Vaiona.Web.Mvc.Modularity;

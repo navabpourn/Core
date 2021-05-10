@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using BExIS.Dlm.Entities.Data;
 using static BExIS.Modules.DQM.UI.Controllers.DQController;
+using static BExIS.Modules.DQM.UI.Controllers.ManageDQController;
 
 namespace BExIS.Modules.DQM.UI.Models
 {
@@ -46,5 +47,11 @@ namespace BExIS.Modules.DQM.UI.Models
     public class ExternalLink
     {
         public List<datasetInfo> datasetInfos = new List<datasetInfo>();
+    }
+
+    public class ManageDQ
+    {
+        //public List<List<long>> matrixId = new List<List<long>>();
+        public List<dataset> datasets = new List<dataset>();
     }
 }

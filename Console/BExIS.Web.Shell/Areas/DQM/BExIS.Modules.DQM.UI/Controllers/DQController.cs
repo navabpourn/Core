@@ -456,39 +456,52 @@ namespace BExIS.Modules.DQM.UI.Controllers
                 var variables = sds.Variables; //get variables
                 dqModel.columnNumber = variables.Count();
 
+                // Specify the URL to receive the request.
+                //string link = serverName + "/api/DataStatistic/" + datasetId + "/" + variable.Id;
+                //string link = serverName + "/api/data/" + datasetId; // Elli
+                string link = serverName + "/api/DataStatistic/" + datasetId; // Franzi
+                try
+                {
+                    HttpWebRequest request = WebRequest.Create(link) as HttpWebRequest;
+                    //request.Headers;
+                    request.UseDefaultCredentials = true;
+                    request.Proxy.Credentials = CredentialCache.DefaultCredentials;
+                    //request.HaveResponse = true;
+                    //request.Headers.Add("Authorization", "Basic dchZ2VudDM6cGFdGVzC5zc3dvmQ=");
+                    request.Headers.Add("Authorization", "token fMZHJbS9j2PRrquXSuy4gvEB5YVrC6LwzbnwwCncFT5oZrG86LhSZdprZCzU6Znh");
+
+                    //request.Headers.Add("token", "fMZHJbS9j2PRrquXSuy4gvEB5YVrC6LwzbnwwCncFT5oZrG86LhSZdprZCzU6Znh");
+
+                    //request.GetResponse();
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                    {
+                        //request.Credentials = CredentialCache.DefaultCredentials;
+                        //HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                        // Get the stream associated with the response.
+                        Stream receiveStream = response.GetResponseStream();
+
+                        //// Get the response stream  -- Elli
+                        //StreamReader readerStream = new StreamReader(response.GetResponseStream());
+                        //if (readerStream.ReadLine().Count() > 0)
+                        //    data = true;
+
+                        // Get the response stream
+                        StreamReader streamReader = new StreamReader(response.GetResponseStream());
+
+                        response.Close();
+                    }
+                }
+                catch (WebException e)
+                {
+                    string t = "t";
+                }
+
                 int columnNumber = -1; //First four columns are added from system.
                 if (variables.Count() > 0)
                 {
                     foreach (var variable in variables)
-                    {
-                        // Specify the URL to receive the request.
-                        //string link = serverName + "/api/DataStatistic/" + datasetId + "/" + variable.Id;
-                        //string link = serverName + "/api/data/" + datasetId; // From Elli
-                        string link = serverName + "/api/DataStatistic/" + datasetId;
-
-                        try
-                        {
-                            HttpWebRequest request = WebRequest.Create(link) as HttpWebRequest;
-                            request.UseDefaultCredentials = true;
-                            request.Proxy.Credentials = CredentialCache.DefaultCredentials;
-                            HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                            //request.Credentials = CredentialCache.DefaultCredentials;
-                            //HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-                            // Get the stream associated with the response.
-                            Stream receiveStream = response.GetResponseStream();
-
-                            //// Get the response stream  -- Elli
-                            //StreamReader readerStream = new StreamReader(response.GetResponseStream());
-                            //if (readerStream.ReadLine().Count() > 0)
-                            //    data = true;
-
-                            response.Close();
-                        }
-                        catch (WebException e)
-                        {
-                            string t = "t";
-                        }
+                    {                       
                         columnNumber += 1;
                         //string missingValue = variable.MissingValue; //MISSING VALUE
                         List<string> missingValues = new List<string>(); //creat a list contains missing values
